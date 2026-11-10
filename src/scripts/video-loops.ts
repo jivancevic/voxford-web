@@ -18,6 +18,7 @@ const started = new WeakSet<Element>();
 function videoFor(frame: HTMLElement): HTMLVideoElement | undefined {
   const existing = frame.querySelector('video');
   if (existing) return existing;
+  if (frame.dataset.loopFailed) return undefined;
   let sources: Source[];
   try {
     sources = JSON.parse(frame.dataset.loop ?? '[]') as Source[];
@@ -42,7 +43,14 @@ function videoFor(frame: HTMLElement): HTMLVideoElement | undefined {
   video.addEventListener('playing', () => frame.classList.add('is-playing'), { once: true });
   // The last source failing means none could play (e.g. media not uploaded
   // yet): drop the video and keep the poster. Earlier sources may fail alone.
-  last?.addEventListener('error', () => video.remove(), { once: true });
+  last?.addEventListener(
+    'error',
+    () => {
+      frame.dataset.loopFailed = 'true'; // never retried on the next scroll-in
+      video.remove();
+    },
+    { once: true },
+  );
   frame.append(video);
   return video;
 }

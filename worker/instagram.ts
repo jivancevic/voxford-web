@@ -53,8 +53,12 @@ async function getJson<T>(fetchFn: Fetch, url: string): Promise<T> {
   return (await res.json()) as T;
 }
 
+/** A reel the site can show: a video with both its file and its thumbnail. */
 const isReel = (m: IgMedia) =>
-  m.media_type === 'VIDEO' && (m.media_product_type === 'REELS' || m.media_product_type === undefined) && !!m.media_url;
+  m.media_type === 'VIDEO' &&
+  (m.media_product_type === 'REELS' || m.media_product_type === undefined) &&
+  !!m.media_url &&
+  !!m.thumbnail_url;
 
 /** The newest `count` reels, newest first. Follows paging until it has enough (at most `maxPages`). */
 export async function latestReels(fetchFn: Fetch, token: string, count: number, maxPages = 4): Promise<IgMedia[]> {

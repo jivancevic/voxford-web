@@ -74,7 +74,8 @@ let ig: FakeInstagram;
 let bucket: FakeR2;
 const log = { info: vi.fn(), warn: vi.fn(), error: vi.fn() };
 const ctx = {} as ExecutionContext;
-const NOW = new Date('2026-11-10T04:17:00Z');
+let NOW = new Date('2026-11-10T04:17:00Z');
+const later = (days: number) => (NOW = new Date(NOW.getTime() + days * 86_400_000));
 
 const env = (vars: Partial<Env> = {}) =>
   ({ MEDIA: bucket.asBinding(), INSTAGRAM_TOKEN: TOKEN, DEPLOY_HOOK_URL: HOOK, ...vars }) as unknown as Env;
@@ -83,6 +84,7 @@ const manifest = () => JSON.parse(bucket.text(MANIFEST_KEY)!) as ReelsManifest;
 const reels = (...ids: number[]): FakeMedia[] => ids.map((id) => ({ id: String(id), day: id }));
 
 beforeEach(() => {
+  NOW = new Date('2026-11-10T04:17:00Z');
   ig = new FakeInstagram();
   bucket = new FakeR2();
   vi.clearAllMocks();
@@ -158,7 +160,7 @@ describe('syncReels', () => {
     expect(ig.hits(HOOK)).toHaveLength(0);
   });
 
-  it('adds a new reel, downloads only it, and drops the oldest a run after the rebuild', async () => {
+  it('adds a new reel, downloads only it, and drops the oldest a week later', async () => {
     ig.pages = [reels(6, 5, 4, 3, 2, 1)];
     await run();
     ig.requests = [];
@@ -172,15 +174,55 @@ describe('syncReels', () => {
       'https://cdn.example/7.jpg?sig=x',
     ]);
     expect(ig.hits(HOOK)).toHaveLength(1);
-    // The live page shows reel 1 until the rebuild lands: its files stay for now.
-    expect(manifest().retain).toEqual(['1']);
+    // A live page may show reel 1 until the rebuild lands: its files stay for RETIRE_DAYS.
+    expect(manifest().retired).toEqual([{ id: '1', since: NOW.toISOString() }]);
+
+    later(6);
+    await run();
     expect(bucket.objects.has('reels/1/video.mp4')).toBe(true);
 
+    later(2);
     await run();
-    expect(manifest().retain).toEqual([]);
+    expect(manifest().retired).toEqual([]);
     expect(bucket.objects.has('reels/1/video.mp4')).toBe(false);
     expect(bucket.objects.has('reels/1/thumb.jpg')).toBe(false);
     expect(bucket.objects.has('reels/2/video.mp4')).toBe(true);
+  });
+
+  it('takes a reel back out of retirement when it returns to the feed', async () => {
+    ig.pages = [reels(2, 1)];
+    await run();
+    ig.pages = [reels(3, 2)];
+    await run();
+    ig.pages = [reels(2, 1)];
+    await run();
+    expect(manifest().retired.map((r) => r.id)).toEqual(['3']);
+  });
+
+  it('keeps the feed when Instagram answers with no reels at all', async () => {
+    ig.pages = [reels(2, 1)];
+    await run();
+    const before = bucket.text(MANIFEST_KEY);
+    ig.pages = [[]];
+    const result = await run();
+    expect(result).toEqual({ status: 'unchanged', reels: 2, rebuilt: false });
+    expect(bucket.text(MANIFEST_KEY)).toBe(before);
+    expect(bucket.objects.has('reels/1/video.mp4')).toBe(true);
+    expect(log.warn).toHaveBeenCalledWith('reels: Instagram returned no reels; keeping the current feed');
+  });
+
+  it('skips a video without a thumbnail rather than store the video as one', async () => {
+    ig.pages = [reels(2, 1)];
+    const original = ig.fetch.getMockImplementation()!;
+    ig.fetch.mockImplementation(async (input, init) => {
+      const res = await original(input, init);
+      if (!String(input).includes('/me/media')) return res;
+      const body = (await res.json()) as { data: Record<string, unknown>[] };
+      delete body.data[0]!.thumbnail_url;
+      return Response.json(body);
+    });
+    await run();
+    expect(manifest().reels.map((r) => r.id)).toEqual(['1']);
   });
 
   it('writes the manifest before it asks for the rebuild', async () => {
@@ -195,18 +237,13 @@ describe('syncReels', () => {
     expect(manifestAtHook).toContain('"id": "1"');
   });
 
-  it('retries a failed rebuild on the next run and keeps every file a live page may show', async () => {
+  it('retries a failed rebuild on the next run', async () => {
     ig.pages = [reels(2, 1)];
     await run();
     ig.hookStatus = 500;
     ig.pages = [reels(3, 2)];
     expect((await run()).rebuilt).toBe(false);
     expect(manifest().rebuilt).toBe(false);
-    ig.pages = [reels(4, 3)];
-    await run();
-    // Neither of the last two feeds got built: reels 1 and 2 may still be on the live page.
-    expect([...manifest().retain].sort()).toEqual(['1', '2']);
-    expect(bucket.objects.has('reels/1/video.mp4')).toBe(true);
 
     ig.hookStatus = 200;
     ig.requests = [];
@@ -214,9 +251,8 @@ describe('syncReels', () => {
     expect(retry).toEqual({ status: 'unchanged', reels: 2, rebuilt: true });
     expect(ig.hits(HOOK)).toHaveLength(1);
     expect(manifest().rebuilt).toBe(true);
-    await run();
-    expect(bucket.objects.has('reels/1/video.mp4')).toBe(false);
-    expect(bucket.objects.has('reels/2/video.mp4')).toBe(false);
+    // Retired reel 1 still waits out its week.
+    expect(bucket.objects.has('reels/1/video.mp4')).toBe(true);
   });
 
   it('rebuilds when only a caption changed', async () => {

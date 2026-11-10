@@ -8,7 +8,11 @@
   "workers_dev": true,
   "preview_urls": true,
   // Workers Builds runs `wrangler preview` on non-main branches, which needs this block.
-  "previews": {},
+  // Previews inherit no bindings: they read the same media bucket (they never write it;
+  // the reels cron only runs in production).
+  "previews": {
+    "r2_buckets": [{ "binding": "MEDIA", "bucket_name": "voxford-media" }]
+  },
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",

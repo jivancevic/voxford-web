@@ -14,7 +14,7 @@ import { format, getStrings, LOCALE_META, LOCALES, type Locale } from '@/i18n';
 import { pathFor, videoPathFor } from '@/i18n/routes';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { videoObjectJsonLd } from '@/lib/jsonld';
-import { formatDuration, mediaUrl, videoSources } from '@/lib/media';
+import { formatDuration, videoSources } from '@/lib/media';
 import { breadcrumbsFor } from '@/lib/page';
 
 interface Props {
@@ -53,7 +53,7 @@ const others = (await getCollection('videos')).filter((v) => v.id !== video.id).
       thumbnailUrl: new URL(thumbnail.src, site).href,
       uploadDate: video.data.uploadDate,
       duration: video.data.duration,
-      contentUrl: new URL(mediaUrl(`${video.data.media}/full.h264.mp4`), site).href,
+      contentUrl: new URL(h264.src, site).href,
       path,
     }),
   ]}

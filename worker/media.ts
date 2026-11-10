@@ -83,9 +83,11 @@ export async function handleMedia(
 
   // The edge cache answers ranges and conditionals from a cached full copy.
   const edge = request.method === 'GET' && !key.endsWith(MANIFEST_SUFFIX) ? cache : undefined;
+  // One cache entry per file: the query string is ignored, the visitor's
+  // Range and conditional headers are kept for the lookup.
   const cacheKey = new Request(`${url.origin}${url.pathname}`);
   if (edge) {
-    const hit = await edge.match(request);
+    const hit = await edge.match(new Request(cacheKey.url, { headers: request.headers }));
     if (hit) return hit;
   }
 
@@ -95,8 +97,9 @@ export async function handleMedia(
   let object: R2Object | R2ObjectBody | null;
   try {
     object = await env.MEDIA.get(key, { onlyIf: request.headers, ...(range ? { range } : {}) });
-  } catch {
-    // R2 rejects a range it cannot satisfy.
+  } catch (err) {
+    // R2 rejects a range it cannot satisfy; any other failure is a real error.
+    if (!range) throw err;
     const head = await env.MEDIA.head(key);
     if (!head) return notFound();
     return new Response('Range not satisfiable', {

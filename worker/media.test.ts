@@ -132,6 +132,21 @@ describe('GET /media/*', () => {
     expect(stored.headers.get('Content-Length')).toBe('10');
   });
 
+  it('ignores the query string for the edge cache', async () => {
+    const cache = new FakeCache();
+    const gets = vi.spyOn(bucket, 'get');
+    await get('/media/top/carol/loop.h264.mp4', undefined, 'GET', cache as unknown as Cache);
+    await Promise.all(pending);
+    const res = await get('/media/top/carol/loop.h264.mp4?utm=x', undefined, 'GET', cache as unknown as Cache);
+    expect(await res.text()).toBe('0123456789');
+    expect(gets).toHaveBeenCalledTimes(1);
+  });
+
+  it('lets a real R2 failure surface as an error, not as 416', async () => {
+    vi.spyOn(bucket, 'get').mockRejectedValueOnce(new Error('R2 unavailable'));
+    await expect(get('/media/top/carol/loop.h264.mp4')).rejects.toThrow('R2 unavailable');
+  });
+
   it('never edge-caches the reels manifest or a 404', async () => {
     const cache = new FakeCache();
     await get('/media/reels/manifest.json', undefined, 'GET', cache as unknown as Cache);

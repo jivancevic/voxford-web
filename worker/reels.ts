@@ -14,11 +14,15 @@ import { latestReels, refreshToken, type Fetch, type IgMedia } from './instagram
 //
 // All or nothing: the manifest is written only after every file is in R2, so a
 // failed run leaves the last good feed in place and the site keeps rendering.
+// An empty answer from Instagram keeps the feed too. A reel that leaves the
+// feed keeps its files for RETIRE_DAYS, so a live page never loses a file.
 // Without INSTAGRAM_TOKEN the sync does nothing (local dev, before setup).
 
 export const REEL_COUNT = 6;
 export const MANIFEST_KEY = 'reels/manifest.json';
 export const MANIFEST_VERSION = 1;
+/** Days a replaced reel's files stay in R2 after it left the feed. */
+export const RETIRE_DAYS = 7;
 const CAPTION_MAX = 2200; // Instagram's own caption limit
 
 export interface Reel {
@@ -39,8 +43,11 @@ export interface ReelsManifest {
   reels: Reel[];
   /** Whether the deploy hook accepted a rebuild for this feed; a failed one is retried on the next run. */
   rebuilt: boolean;
-  /** Ids of older reels whose files stay in R2 because a deployed page may still show them. */
-  retain: string[];
+  /**
+   * Reels that left the feed, with when. Their files stay in R2 for RETIRE_DAYS,
+   * because a deployed page may still show them (the rebuild may be slow or fail).
+   */
+  retired: { id: string; since: string }[];
 }
 
 export interface SyncResult {
@@ -57,9 +64,6 @@ interface Deps {
 
 const defaultDeps = (): Deps => ({ fetch: (input, init) => fetch(input, init), now: () => new Date(), log: console });
 
-/** Ids in `ids` that are not already in the feed, without repeats. */
-const unique = (ids: readonly string[], feed: readonly Reel[]) => [...new Set(ids)].filter((id) => !feed.some((r) => r.id === id));
-
 const keysFor = (id: string) => ({ video: `reels/${id}/video.mp4`, thumbnail: `reels/${id}/thumb.jpg` });
 
 /** Two feeds show the same thing: same reels, same order, same captions. */
@@ -73,7 +77,7 @@ export async function readManifest(bucket: R2Bucket): Promise<ReelsManifest | un
   try {
     const data = (await object.json()) as ReelsManifest;
     if (data.version !== MANIFEST_VERSION || !Array.isArray(data.reels)) return undefined;
-    return { ...data, rebuilt: data.rebuilt !== false, retain: Array.isArray(data.retain) ? data.retain : [] };
+    return { ...data, rebuilt: data.rebuilt !== false, retired: Array.isArray(data.retired) ? data.retired : [] };
   } catch {
     return undefined;
   }
@@ -110,8 +114,14 @@ export async function syncReels(env: Env, _ctx: ExecutionContext, deps: Deps = d
   const bucket = env.MEDIA;
 
   const media = await latestReels(deps.fetch, token, REEL_COUNT);
-  const reels = media.map(toReel);
   const previous = await readManifest(bucket);
+  if (media.length === 0) {
+    // An empty answer is more likely an API hiccup than a deleted account: keep the feed.
+    log.warn('reels: Instagram returned no reels; keeping the current feed');
+    await extendToken(token, deps);
+    return { status: 'unchanged', reels: previous?.reels.length ?? 0, rebuilt: false };
+  }
+  const reels = media.map(toReel);
   const known = new Set((previous?.reels ?? []).map((r) => r.id));
 
   // Copy every reel not already in R2 (a re-run after a failure re-copies).
@@ -119,32 +129,36 @@ export async function syncReels(env: Env, _ctx: ExecutionContext, deps: Deps = d
     const reel = reels[i]!;
     if (known.has(reel.id) && (await bucket.head(reel.video)) && (await bucket.head(reel.thumbnail))) continue;
     await copyToR2(deps, bucket, m.media_url!, reel.video, 'video/mp4');
-    await copyToR2(deps, bucket, m.thumbnail_url ?? m.media_url!, reel.thumbnail, 'image/jpeg');
+    await copyToR2(deps, bucket, m.thumbnail_url!, reel.thumbnail, 'image/jpeg');
   }
 
+  const now = deps.now();
   let status: SyncResult['status'] = 'unchanged';
   let rebuilt = false;
-  let manifest: ReelsManifest | undefined;
+  let current: ReelsManifest;
   if (!previous || !sameFeed(previous.reels, reels)) {
-    // The live pages show the previous feed until the rebuild lands (or an
-    // older one, if that feed's rebuild never happened): keep their files.
-    const retain = previous ? [...previous.reels.map((r) => r.id), ...(previous.rebuilt ? [] : previous.retain)] : [];
-    manifest = { version: MANIFEST_VERSION, updatedAt: deps.now().toISOString(), reels, rebuilt: false, retain: unique(retain, reels) };
+    const inFeed = new Set(reels.map((r) => r.id));
+    const leaving = (previous?.reels ?? []).filter((r) => !inFeed.has(r.id)).map((r) => ({ id: r.id, since: now.toISOString() }));
+    const retired = [...(previous?.retired ?? []).filter((r) => !inFeed.has(r.id)), ...leaving];
+    current = { version: MANIFEST_VERSION, updatedAt: now.toISOString(), reels, rebuilt: false, retired };
     // The build reads the manifest, so it is written before the rebuild is asked for.
-    await writeManifest(bucket, manifest);
+    await writeManifest(bucket, current);
     status = 'updated';
     rebuilt = await triggerRebuild(env, deps);
-    if (rebuilt) await writeManifest(bucket, (manifest = { ...manifest, rebuilt }));
-  } else if (!previous.rebuilt) {
-    rebuilt = await triggerRebuild(env, deps);
-    if (rebuilt) await writeManifest(bucket, (manifest = { ...previous, rebuilt }));
-  } else if (previous.retain.length) {
-    // A day after a successful rebuild, the old feed's files can go.
-    await writeManifest(bucket, (manifest = { ...previous, retain: [] }));
+    if (rebuilt) await writeManifest(bucket, (current = { ...current, rebuilt }));
+  } else {
+    current = previous;
+    if (!previous.rebuilt) {
+      rebuilt = await triggerRebuild(env, deps);
+      if (rebuilt) await writeManifest(bucket, (current = { ...current, rebuilt }));
+    }
   }
 
-  const current = manifest ?? previous!;
-  const keep = new Set([MANIFEST_KEY, ...[...current.reels.map((r) => r.id), ...current.retain].flatMap((id) => Object.values(keysFor(id)))]);
+  // Retired reels' files go once no deployed page can still show them.
+  const cutoff = now.getTime() - RETIRE_DAYS * 86_400_000;
+  const kept = current.retired.filter((r) => Date.parse(r.since) > cutoff);
+  if (kept.length !== current.retired.length) await writeManifest(bucket, (current = { ...current, retired: kept }));
+  const keep = new Set([MANIFEST_KEY, ...[...current.reels.map((r) => r.id), ...kept.map((r) => r.id)].flatMap((id) => Object.values(keysFor(id)))]);
   const stale = (await bucket.list({ prefix: 'reels/' })).objects.map((o) => o.key).filter((k) => !keep.has(k));
   if (stale.length) await bucket.delete(stale);
 
