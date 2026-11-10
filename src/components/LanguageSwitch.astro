@@ -1,0 +1,67 @@
+---
+// Links to the same page in every other language (from the route table, so
+// localized slugs map correctly). Falls back to the other language's home.
+import { getStrings, LOCALE_META, LOCALES, type Locale } from '@/i18n';
+import { pathFor } from '@/i18n/routes';
+
+interface Props {
+  lang: Locale;
+  alternates?: Record<Locale, string>;
+}
+
+const { lang, alternates } = Astro.props;
+const t = getStrings(lang);
+---
+
+<nav class="lang" aria-label={t.common.a11y.languageSwitch}>
+  <ul>
+    {
+      LOCALES.map((l) => (
+        <li>
+          {l === lang ? (
+            <span class="label lang__current" aria-current="true" title={LOCALE_META[l].label}>
+              {LOCALE_META[l].short}
+            </span>
+          ) : (
+            <a class="label lang__link" href={alternates?.[l] ?? pathFor('home', l)} hreflang={LOCALE_META[l].htmlLang} lang={LOCALE_META[l].htmlLang}>
+              <span aria-hidden="true">{LOCALE_META[l].short}</span>
+              <span class="visually-hidden">{LOCALE_META[l].label}</span>
+            </a>
+          )}
+        </li>
+      ))
+    }
+  </ul>
+</nav>
+
+<style>
+  .lang ul {
+    display: flex;
+    gap: var(--space-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .lang__current,
+  .lang__link {
+    display: inline-grid;
+    place-items: center;
+    min-inline-size: 2.75rem;
+    min-block-size: 2.75rem;
+    border-radius: var(--radius-pill);
+  }
+
+  .lang__current {
+    color: var(--color-text);
+  }
+
+  .lang__link {
+    color: var(--color-text-muted);
+    text-decoration: none;
+  }
+
+  .lang__link:hover {
+    color: var(--color-text);
+  }
+</style>

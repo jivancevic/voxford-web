@@ -1,0 +1,21 @@
+// Cloudflare Workers config (ADR 0001). Static Astro build in dist/ served as
+// assets; the Worker in worker/index.ts runs only for the paths below.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "voxford-web",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-11-01",
+  "workers_dev": true,
+  "preview_urls": true,
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page",
+    "run_worker_first": ["/", "/healthz", "/api/*"]
+  },
+  // Daily reels sync (ticket E fills worker/reels.ts).
+  "triggers": { "crons": ["17 4 * * *"] },
+  "observability": { "enabled": true }
+  // Ticket E adds "r2_buckets" here; ticket G adds "routes" for the domain.
+}

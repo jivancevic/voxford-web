@@ -1,0 +1,40 @@
+---
+// SEAM (ticket E fills it; the props are fixed): a horizontal rail of videos.
+// `top` = the curated top videos (the `videos` collection, each with a watch
+// page); `reels` = the latest reels from the daily sync. Reads its own data,
+// so callers pass no data. Renders nothing while there is nothing to show.
+import { getCollection } from 'astro:content';
+import { getStrings, type Locale } from '@/i18n';
+import { videoPathFor } from '@/i18n/routes';
+
+export interface Props {
+  lang: Locale;
+  source?: 'top' | 'reels';
+  /** Show at most this many videos. */
+  limit?: number;
+  /** Override the section heading; `false` renders no heading. */
+  heading?: string | false;
+  class?: string;
+}
+
+const { lang, source = 'top', limit, heading, class: className } = Astro.props;
+const t = getStrings(lang);
+const videos =
+  source === 'top' ? (await getCollection('videos')).sort((a, b) => a.data.order - b.data.order).slice(0, limit) : [];
+const title = heading === false ? undefined : (heading ?? t.videos.rail.heading);
+---
+
+{
+  videos.length > 0 && (
+    <section class:list={['video-rail', className]} data-stub="video-rail" data-source={source}>
+      {title && <h2 class="label">{title}</h2>}
+      <ul>
+        {videos.map((v) => (
+          <li>
+            <a href={videoPathFor(v.id, lang)}>{v.data.title[lang]}</a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )
+}

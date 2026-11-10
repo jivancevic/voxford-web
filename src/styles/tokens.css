@@ -1,0 +1,145 @@
+/*
+  Design tokens: "Stage Light Varsity" (KB brand/dizajn-filozofija.md).
+  The ONE place colours, type and spacing are defined. Components use the
+  semantic tokens (--color-*, --text-*, --space-*), never the primitives.
+  contrast.test.ts measures the text pairs below; change a value, rerun it.
+
+  Colours behave as light: the brand gradient appears in thin lines, glows and
+  text, never as a flat full-page fill. The base is a near-black hall.
+*/
+
+:root {
+  color-scheme: dark;
+
+  /* ---- Primitives (brand hex, KB brand/brand.md) ---- */
+  --brand-pink: #f66386;
+  --brand-purple: #8345a0;
+  --brand-blue: #1026b8;
+  --brand-silver: #c0c0c0;
+
+  /* Neutral ramp, tinted toward the brand purple (OKLCH hue ≈ 295). */
+  --ink-950: #0a0910;
+  --ink-900: #121019;
+  --ink-850: #1a1723;
+  --ink-800: #242030;
+  --ink-700: #36304a;
+  --ink-500: #6e6785;
+  --ink-400: #8f899e;
+  --ink-300: #b4afc0;
+  --ink-100: #eceaf2;
+  --white: #ffffff;
+
+  /* Accent ramp for text on light surfaces. */
+  --pink-700: #c13a63;
+
+  /* ---- Semantic: surfaces ---- */
+  --color-bg: var(--ink-950);
+  --color-bg-surface: var(--ink-900);
+  --color-bg-raised: var(--ink-850);
+
+  /* ---- Semantic: text ---- */
+  --color-text: var(--ink-100);
+  --color-text-secondary: var(--ink-300);
+  --color-text-muted: var(--ink-400);
+  --color-text-accent: var(--brand-pink);
+  --color-text-inverse: var(--ink-950);
+
+  /* Text set directly on a photo sits on this scrim (worst case: a white frame). */
+  --color-scrim: color-mix(in oklab, var(--ink-950) 72%, transparent);
+  --color-text-on-photo: var(--ink-100);
+
+  /* ---- Semantic: lines ---- */
+  --color-border-subtle: var(--ink-800);
+  --color-border: var(--ink-700);
+  /* Non-text UI boundaries that must stay visible (inputs, chips): 3:1 on --color-bg. */
+  --color-border-strong: var(--ink-500);
+
+  /* ---- Semantic: actions ---- */
+  --color-action-bg: var(--white);
+  --color-action-text: var(--ink-950);
+  --color-focus: var(--brand-pink);
+  --color-link: var(--brand-pink);
+
+  /* ---- Light (the brand gradient) ---- */
+  --gradient-light: linear-gradient(90deg in oklab, var(--brand-pink), var(--brand-purple) 50%, var(--brand-blue));
+  --gradient-light-vertical: linear-gradient(180deg in oklab, var(--brand-pink), var(--brand-purple) 50%, var(--brand-blue));
+  --glow-pink: 0 0 2.5rem color-mix(in oklab, var(--brand-pink) 45%, transparent);
+  --glow-purple: 0 0 4rem color-mix(in oklab, var(--brand-purple) 55%, transparent);
+  --glow-blue: 0 0 4rem color-mix(in oklab, var(--brand-blue) 60%, transparent);
+  --line-thin: 1px;
+
+  /* ---- Type families ---- */
+  --font-display: var(--font-staubach); /* Latin-only words and numbers: wordmark, package names, big numbers */
+  --font-headline: var(--font-big-shoulders); /* headlines that may carry Č Ć Ž Đ Š */
+  --font-body: var(--font-instrument-sans);
+  --font-label: var(--font-jura); /* small uppercase labels */
+
+  /* ---- Type scale: size / line-height / weight per role ---- */
+  --text-label: 0.75rem; /* 12px, Jura caps */
+  --text-caption: 0.8125rem; /* 13px */
+  --text-small: 0.875rem; /* 14px */
+  --text-body: 1rem; /* 16px */
+  --text-lead: 1.25rem; /* 20px */
+  --text-heading: clamp(1.5rem, 1.2rem + 1.2vw, 2rem); /* h3: 24 → 32 */
+  --text-title: clamp(2.25rem, 1.6rem + 2.6vw, 3.5rem); /* h2: 36 → 56 */
+  --text-display: clamp(3rem, 1.8rem + 5.6vw, 6.5rem); /* h1: 48 → 104 */
+  --text-wordmark: 1.5rem; /* the VOXFORD wordmark in the header */
+  --text-numeral: clamp(4rem, 2rem + 8vw, 9rem); /* one big Staubach number per screen */
+
+  --leading-display: 1;
+  --leading-heading: 1.1;
+  --leading-body: 1.55;
+  --leading-label: 1.3;
+
+  --tracking-display: 0.01em; /* condensed caps want a hair of air */
+  --tracking-label: 0.14em;
+
+  --measure: 65ch;
+
+  /* ---- Space (4px base) ---- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+  --space-9: 6rem;
+  --space-10: 8rem;
+  --gutter: clamp(1rem, 0.5rem + 2.5vw, 2.5rem);
+  --section-gap: clamp(4rem, 2rem + 8vw, 10rem);
+  --content-max: 76rem;
+
+  /* ---- Shape and motion ---- */
+  --radius-pill: 999px;
+  --radius-card: 1.25rem;
+  --pill-height: 3rem; /* 48px: Josip's floor for any button */
+  --pill-pad-x: 1.75rem; /* 28px */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-fast: 160ms;
+  --duration-base: 320ms;
+  --z-header: 50;
+}
+
+/* A white section ("the hall with the lights on"): repoints the semantic tokens. */
+.surface-light {
+  color-scheme: light;
+  --color-bg: var(--white);
+  --color-bg-surface: #f6f5f9;
+  --color-bg-raised: var(--white);
+  --color-text: var(--ink-950);
+  --color-text-secondary: #4b4560;
+  --color-text-muted: #5f5975;
+  --color-text-accent: var(--pink-700);
+  --color-text-inverse: var(--white);
+  --color-border-subtle: #e6e3ee;
+  --color-border: #d3cfdd;
+  --color-border-strong: #8a849c;
+  --color-action-bg: var(--ink-950);
+  --color-action-text: var(--white);
+  --color-focus: var(--pink-700);
+  --color-link: var(--pink-700);
+  background: var(--color-bg);
+  color: var(--color-text);
+}

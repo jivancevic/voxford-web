@@ -1,0 +1,58 @@
+name: smoke
+# Post-merge check of production. Cloudflare Workers Builds deploys every push
+# to main (docs/deploy-cloudflare.md), so after a merge this waits for that
+# deploy and then asks /healthz for a 200 whose `commit` is the merged commit.
+# A red run means prod stopped answering (roll back: docs/deploy-cloudflare.md,
+# Rollback) or the merge never reached prod: a failed build leaves the previous
+# version answering with the previous commit.
+#
+# The URL comes from the repository variable PRODUCTION_URL (Settings ›
+# Variables), so ticket G changes it without a code change. Until it is set the
+# job says so and passes: there is nothing deployed to check yet.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: smoke
+  cancel-in-progress: true
+
+jobs:
+  healthz:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: GET ${{ vars.PRODUCTION_URL }}/healthz returns 200 with commit ${{ github.sha }}
+        env:
+          BASE: ${{ vars.PRODUCTION_URL }}
+          WANT: ${{ github.sha }}
+        run: |
+          if [ -z "$BASE" ]; then
+            echo "::warning::PRODUCTION_URL is not set (docs/deploy-cloudflare.md, Setup). Nothing to check."
+            exit 0
+          fi
+          deadline=$((SECONDS + 600))
+          while :; do
+            body=$(curl --silent --show-error --max-time 20 \
+              --write-out '\n%{http_code}' "$BASE/healthz" || true)
+            code=${body##*$'\n'}
+            json=${body%$'\n'*}
+            commit=$(printf '%s' "$json" | jq -r '.commit // "null"' 2>/dev/null || echo "unparsable")
+            [ -n "$commit" ] || commit=none
+            echo "HTTP $code commit $commit"
+            if [ "$code" = 200 ] && [ "$commit" = "$WANT" ]; then
+              echo "merge $WANT is live"
+              exit 0
+            fi
+            if [ "$SECONDS" -ge "$deadline" ]; then
+              echo "::error::merge $WANT did not reach prod in 10 min: /healthz answers HTTP $code with commit $commit."
+              if [ "$code" = 200 ]; then
+                echo "::error::Prod is up, on commit $commit. Check the Workers Builds log for $WANT (dashboard › voxford-web › Deployments). A failed build: fix forward or revert. A build that never started: re-run it there. docs/deploy-cloudflare.md, Rollback."
+              else
+                echo "::error::Prod is not answering 200. Roll back: docs/deploy-cloudflare.md, Rollback."
+              fi
+              exit 1
+            fi
+            sleep 15
+          done

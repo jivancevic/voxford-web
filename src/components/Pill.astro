@@ -1,0 +1,28 @@
+---
+// The only button shape on the site (Josip's rule): a content-width pill,
+// ≥48px tall, ~28px side padding, never stretched across a column.
+// Renders <a> when given href, otherwise <button>.
+import type { HTMLAttributes } from 'astro/types';
+
+type Props = {
+  variant?: 'primary' | 'ghost';
+  href?: string;
+  type?: 'button' | 'submit';
+  class?: string;
+} & Omit<HTMLAttributes<'a'> & HTMLAttributes<'button'>, 'class' | 'type'>;
+
+const { variant = 'primary', href, type = 'button', class: className, ...rest } = Astro.props;
+const classes = ['pill', `pill--${variant}`, className];
+---
+
+{
+  href ? (
+    <a href={href} class:list={classes} {...rest}>
+      <slot />
+    </a>
+  ) : (
+    <button type={type} class:list={classes} {...rest}>
+      <slot />
+    </button>
+  )
+}

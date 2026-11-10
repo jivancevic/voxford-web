@@ -1,0 +1,15 @@
+# Cloudflare Workers static assets headers.
+# workers.dev and preview hosts are never indexed (spec › SEO/GEO): both
+# voxford-web.<subdomain>.workers.dev and <version>-voxford-web.<subdomain>.workers.dev
+# have exactly two labels before workers.dev, which this pattern matches. The
+# production domain (ticket G) does not.
+https://:host.:subdomain.workers.dev/*
+  X-Robots-Tag: noindex
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
+
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable

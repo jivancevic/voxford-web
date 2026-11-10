@@ -1,0 +1,2 @@
+# Runtime vars for `wrangler dev` (copy to .dev.vars). Production sets COMMIT_SHA at deploy.
+COMMIT_SHA=

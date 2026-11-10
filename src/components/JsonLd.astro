@@ -1,0 +1,12 @@
+---
+// Renders JSON-LD nodes as one static @graph script. Build nodes with src/lib/jsonld.ts.
+import { jsonLdGraph, serializeJsonLd, type JsonLdNode } from '@/lib/jsonld';
+
+interface Props {
+  nodes: readonly JsonLdNode[];
+}
+
+const { nodes } = Astro.props;
+---
+
+{nodes.length > 0 && <script is:inline type="application/ld+json" set:html={serializeJsonLd(jsonLdGraph(nodes))} />}

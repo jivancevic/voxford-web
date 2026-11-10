@@ -1,0 +1,29 @@
+# build output
+/dist/
+.astro/
+.wrangler/
+coverage/
+*.tsbuildinfo
+
+# dependencies
+node_modules/
+
+# logs
+npm-debug.log*
+
+# environment
+.env
+.env.*
+!.env.example
+.dev.vars
+.dev.vars.*
+
+# OS / editors
+.DS_Store
+.idea/
+*.zip
+
+# Claude Code: settings.json is shared config and IS committed; the rest is local
+.claude/*
+!.claude/settings.json
+!.dev.vars.example

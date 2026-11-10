@@ -1,0 +1,26 @@
+---
+// SEAM (ticket D fills the look; the props are fixed): the inquiry call to
+// action. Renders a pill linking to the prefill URL from src/lib/inquiry-url.ts,
+// so any page can say "inquire about GOLD for a wedding" without knowing the
+// form. Works without JavaScript.
+import Pill from '@/components/Pill.astro';
+import { getStrings, type Locale } from '@/i18n';
+import { inquiryUrl, type InquiryPrefill } from '@/lib/inquiry-url';
+
+export interface Props {
+  lang: Locale;
+  /** Fields to prefill in the form (the prefill contract in docs/spec.md). */
+  prefill?: InquiryPrefill;
+  /** Visible label; defaults to "Send an inquiry" / "Pošalji upit". */
+  label?: string;
+  variant?: 'primary' | 'ghost';
+  class?: string;
+}
+
+const { lang, prefill, label, variant = 'primary', class: className } = Astro.props;
+const t = getStrings(lang);
+---
+
+<Pill href={inquiryUrl(lang, prefill)} variant={variant} class:list={['inquiry-cta', className]} data-inquiry-cta>
+  {label ?? t.common.cta.inquiry}
+</Pill>

@@ -1,0 +1,197 @@
+---
+// Site header: crest home link, primary nav, language switch, the one pill.
+// Works with no JavaScript: on narrow screens the nav is a native <details> menu.
+import Crest from '@/components/Crest.astro';
+import { GROUP } from '@/data/site-facts';
+import InquiryCTA from '@/components/InquiryCTA.astro';
+import LanguageSwitch from '@/components/LanguageSwitch.astro';
+import { getStrings, type Locale } from '@/i18n';
+import { NAV_PAGES, pathFor, type PageKey } from '@/i18n/routes';
+
+interface Props {
+  lang: Locale;
+  page?: PageKey;
+  alternates?: Record<Locale, string>;
+}
+
+const { lang, page, alternates } = Astro.props;
+const t = getStrings(lang);
+---
+
+<header class="header">
+  <div class="header__bar container">
+    <a class="header__home" href={pathFor('home', lang)} aria-label={t.common.a11y.homeLink}>
+      <Crest variant="symbol" width={36} loading="eager" />
+      <span class="display header__wordmark" aria-hidden="true">{GROUP.name}</span>
+    </a>
+
+    <nav class="header__wide" aria-label={t.common.a11y.mainNav}>
+      <ul class="header__nav">
+        {
+          NAV_PAGES.map((p) => (
+            <li>
+              <a href={pathFor(p, lang)} aria-current={p === page ? 'page' : undefined}>
+                {t.common.nav[p]}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <details class="header__menu">
+      <summary class="label header__toggle">{t.common.a11y.menu}</summary>
+      <nav aria-label={t.common.a11y.mainNav}>
+        <ul class="header__nav">
+          {
+            NAV_PAGES.map((p) => (
+              <li>
+                <a href={pathFor(p, lang)} aria-current={p === page ? 'page' : undefined}>
+                  {t.common.nav[p]}
+                </a>
+              </li>
+            ))
+          }
+          <li>
+            <a href={pathFor('inquiry', lang)} aria-current={page === 'inquiry' ? 'page' : undefined}>
+              {t.common.cta.inquiry}
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </details>
+
+    <div class="header__end">
+      <LanguageSwitch lang={lang} alternates={alternates} />
+      <InquiryCTA lang={lang} variant="ghost" class="header__cta" />
+    </div>
+  </div>
+  <span class="light-line header__line" aria-hidden="true"></span>
+</header>
+
+<style>
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: var(--z-header);
+    background: color-mix(in oklab, var(--color-bg) 82%, transparent);
+    backdrop-filter: blur(14px);
+  }
+
+  .header__bar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    min-block-size: 4.5rem;
+  }
+
+  .header__home {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  .header__wordmark {
+    font-size: var(--text-wordmark);
+  }
+
+  .header__end {
+    margin-inline-start: auto;
+  }
+
+  .header__toggle {
+    display: inline-grid;
+    place-items: center;
+    min-block-size: var(--pill-height);
+    padding: 0 var(--space-4);
+    border-radius: var(--radius-pill);
+    color: var(--color-text);
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .header__toggle::-webkit-details-marker {
+    display: none;
+  }
+
+  .header__nav {
+    display: grid;
+    gap: var(--space-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .header__nav a {
+    display: inline-flex;
+    white-space: nowrap;
+    align-items: center;
+    min-block-size: 2.75rem;
+    color: var(--color-text-secondary);
+    font-size: var(--text-small);
+    font-weight: 500;
+    text-decoration: none;
+  }
+
+  .header__nav a:hover,
+  .header__nav a[aria-current='page'] {
+    color: var(--color-text);
+  }
+
+  .header__end {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .header__line {
+    opacity: 0.6;
+  }
+
+  .header__wide {
+    display: none;
+    margin-inline: auto;
+  }
+
+  .header__wide .header__nav {
+    display: flex;
+    gap: var(--space-5);
+  }
+
+  /* Narrow: a native <details> menu (no JavaScript); the nav drops below the bar. */
+  @media (width < 72rem) {
+    .header__menu {
+      order: 2;
+    }
+
+    .header__end {
+      order: 1;
+    }
+
+    .header__menu > nav {
+      position: absolute;
+      inset-inline: 0;
+      top: 100%;
+      padding: var(--space-4) var(--gutter) var(--space-6);
+      background: var(--color-bg);
+      border-block-end: var(--line-thin) solid var(--color-border-subtle);
+    }
+
+    .header__end :global(.header__cta) {
+      display: none;
+    }
+  }
+
+  /* Wide: the nav is inline and always visible. */
+  @media (width >= 72rem) {
+    .header__wide {
+      display: block;
+    }
+
+    .header__menu {
+      display: none;
+    }
+  }
+</style>

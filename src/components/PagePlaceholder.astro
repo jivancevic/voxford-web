@@ -1,0 +1,43 @@
+---
+// Temporary body for a page whose ticket has not landed yet: the heading, one
+// line saying it is being written, and the inquiry pill. Delete the usage when
+// the page's view gets its real content.
+import InquiryCTA from '@/components/InquiryCTA.astro';
+import { getStrings, type Locale } from '@/i18n';
+import type { InquiryPrefill } from '@/lib/inquiry-url';
+
+interface Props {
+  lang: Locale;
+  heading: string;
+  lead?: string;
+  prefill?: InquiryPrefill;
+}
+
+const { lang, heading, lead, prefill } = Astro.props;
+const t = getStrings(lang);
+---
+
+<section class="placeholder container" data-placeholder>
+  <h1>{heading}</h1>
+  <span class="light-line placeholder__line" aria-hidden="true"></span>
+  {lead && <p class="lead">{lead}</p>}
+  <p class="placeholder__note">{t.common.placeholder.note}</p>
+  <InquiryCTA lang={lang} prefill={prefill} />
+</section>
+
+<style>
+  .placeholder {
+    display: grid;
+    gap: var(--space-5);
+    justify-items: start;
+    padding-block: var(--space-9) var(--space-8);
+  }
+
+  .placeholder__line {
+    inline-size: min(16rem, 60%);
+  }
+
+  .placeholder__note {
+    color: var(--color-text-muted);
+  }
+</style>

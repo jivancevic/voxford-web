@@ -1,0 +1,57 @@
+{
+  "meta": {
+    "siteName": "Voxford",
+    "titleTemplate": "{title} · Voxford",
+    "defaultDescription": "Voxford is a five-voice a cappella group from Zagreb, Croatia, booked for conferences, corporate events, weddings and concerts across Croatia and the region."
+  },
+  "a11y": {
+    "skipToContent": "Skip to content",
+    "mainNav": "Main",
+    "footerNav": "Site",
+    "languageSwitch": "Language",
+    "homeLink": "Voxford home",
+    "menu": "Menu"
+  },
+  "nav": {
+    "home": "Home",
+    "conferences": "Conferences & corporate",
+    "weddings": "Weddings",
+    "advent": "Advent & concerts",
+    "private": "Private celebrations",
+    "about": "About",
+    "packages": "Packages",
+    "faq": "FAQ",
+    "videos": "Videos",
+    "concerts": "Upcoming concerts",
+    "inquiry": "Inquiry"
+  },
+  "cta": {
+    "inquiry": "Send an inquiry"
+  },
+  "footer": {
+    "tagline": "A cappella group from Zagreb, Croatia. Five voices, no instruments.",
+    "contactLabel": "Bookings",
+    "managementLabel": "Management",
+    "followLabel": "Follow",
+    "travel": "We perform across Croatia and the region; travel costs are separate."
+  },
+  "notFound": {
+    "title": "Page not found",
+    "body": "This page is not here. The music is on the home page.",
+    "back": "Go to the home page"
+  },
+  "placeholder": {
+    "note": "This page is being written."
+  },
+  "llms": {
+    "summary": "Five singers, founded in {year}, booked for conferences and corporate events, weddings, Advent and summer concerts and private celebrations in Zagreb, across Croatia and the region.",
+    "members": "Members (stage order)",
+    "packages": "Packages",
+    "stages": "Notable stages",
+    "bookings": "Bookings",
+    "management": "management",
+    "notConfused": "Not to be confused with vOx Chamber Choir, Oxford.",
+    "pages": "Pages (English)",
+    "profiles": "Profiles"
+  }
+}

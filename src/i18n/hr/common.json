@@ -1,0 +1,57 @@
+{
+  "meta": {
+    "siteName": "Voxford",
+    "titleTemplate": "{title} · Voxford",
+    "defaultDescription": "Voxford je a cappella skupina od pet glasova iz Zagreba. Nastupa na konferencijama, poslovnim događajima, vjenčanjima i koncertima diljem Hrvatske i regije."
+  },
+  "a11y": {
+    "skipToContent": "Preskoči na sadržaj",
+    "mainNav": "Glavna navigacija",
+    "footerNav": "Stranice",
+    "languageSwitch": "Jezik",
+    "homeLink": "Voxford, naslovnica",
+    "menu": "Izbornik"
+  },
+  "nav": {
+    "home": "Naslovnica",
+    "conferences": "Konferencije i tvrtke",
+    "weddings": "Vjenčanja",
+    "advent": "Advent i koncerti",
+    "private": "Privatne proslave",
+    "about": "O nama",
+    "packages": "Paketi",
+    "faq": "Česta pitanja",
+    "videos": "Videi",
+    "concerts": "Nadolazeći koncerti",
+    "inquiry": "Upit"
+  },
+  "cta": {
+    "inquiry": "Pošalji upit"
+  },
+  "footer": {
+    "tagline": "A cappella skupina iz Zagreba. Pet glasova, bez instrumenata.",
+    "contactLabel": "Booking",
+    "managementLabel": "Menadžment",
+    "followLabel": "Pratite nas",
+    "travel": "Nastupamo diljem Hrvatske i regije; putni troškovi su zasebni."
+  },
+  "notFound": {
+    "title": "Stranica nije pronađena",
+    "body": "Ove stranice nema. Glazba je na naslovnici.",
+    "back": "Na naslovnicu"
+  },
+  "placeholder": {
+    "note": "Ova stranica je u izradi."
+  },
+  "llms": {
+    "summary": "Pet pjevača, od {year}., nastupaju na konferencijama i poslovnim događajima, vjenčanjima, adventskim i ljetnim koncertima te privatnim proslavama u Zagrebu, diljem Hrvatske i regije.",
+    "members": "Članovi (raspored na pozornici)",
+    "packages": "Paketi",
+    "stages": "Pozornice",
+    "bookings": "Booking",
+    "management": "menadžment",
+    "notConfused": "Nije isto što i vOx Chamber Choir iz Oxforda.",
+    "pages": "Stranice (hrvatski)",
+    "profiles": "Profili"
+  }
+}
