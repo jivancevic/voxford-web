@@ -7,11 +7,11 @@
 // Every hidden or dimmed state in the CSS is scoped under those classes, so the
 // page reads complete with no JavaScript (spec › SEO/GEO).
 //
-// The chord (the signature move) lives here too: the scroll lights the five
-// voices in stage order, taps override it, and Listen plays the Carol span
+// The chord (the signature move) lives here too: the scroll lights the voices
+// (one per member, as rendered) in stage order, taps override it, and Listen plays the Carol span
 // with a gain that follows the chord (src/lib/chord.ts).
 
-import { chordGain, litVoices, voicesLitAt, VOICE_COUNT } from '@/lib/chord';
+import { chordGain, litVoices, voicesLitAt } from '@/lib/chord';
 
 const root = document.documentElement;
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
@@ -135,15 +135,16 @@ function mountChord(section: HTMLElement): void {
   const voices = [...section.querySelectorAll<HTMLButtonElement>('[data-voice]')];
   const listen = section.querySelector<HTMLButtonElement>('[data-chord-listen]');
   const caption = section.querySelector<HTMLElement>('[data-chord-caption]');
-  if (voices.length !== VOICE_COUNT) return;
+  const total = voices.length;
+  if (total === 0) return;
 
   const overrides: (boolean | undefined)[] = [];
-  let scrollCount = motionAllowed() ? 0 : VOICE_COUNT;
+  let scrollCount = motionAllowed() ? 0 : total;
   let lastLit = -1;
   let count = 0;
 
   function render(): void {
-    const lit = litVoices(scrollCount, overrides);
+    const lit = litVoices(scrollCount, overrides, total);
     count = lit.filter(Boolean).length;
     lit.forEach((on, i) => {
       const voice = voices[i]!;
@@ -152,11 +153,11 @@ function mountChord(section: HTMLElement): void {
       if (on && !was) lastLit = i;
     });
     if (lastLit >= 0 && !lit[lastLit]) lastLit = lit.lastIndexOf(true);
-    section.toggleAttribute('data-full', count === VOICE_COUNT);
+    section.toggleAttribute('data-full', count === total);
     section.style.setProperty('--chord-count', String(count));
     section.dataset.scVerifyExtra = `:lit${count}`;
-    // The full chord is an authored hold: five lit, the line complete, nothing else to do.
-    if (count === VOICE_COUNT) section.setAttribute('data-sc-verify-hold', 'true');
+    // The full chord is an authored hold: every voice lit, the line complete, nothing else to do.
+    if (count === total) section.setAttribute('data-sc-verify-hold', 'true');
     else section.removeAttribute('data-sc-verify-hold');
     if (caption) caption.textContent = lastLit >= 0 ? (voices[lastLit]!.dataset.caption ?? '') : '';
     sound.follow(count);
@@ -166,7 +167,7 @@ function mountChord(section: HTMLElement): void {
   voices.forEach((voice, i) => {
     voice.disabled = false;
     voice.addEventListener('click', () => {
-      const lit = litVoices(scrollCount, overrides);
+      const lit = litVoices(scrollCount, overrides, total);
       overrides[i] = !lit[i];
       render();
     });
@@ -174,7 +175,7 @@ function mountChord(section: HTMLElement): void {
 
   progressListeners.set(section, (p) => {
     if (!motionAllowed()) return;
-    const next = voicesLitAt(p);
+    const next = voicesLitAt(p, total);
     if (next === scrollCount) return;
     scrollCount = next;
     render();
@@ -182,11 +183,11 @@ function mountChord(section: HTMLElement): void {
 
   // With motion back on, the next frame republishes progress (remeasure resets it) and relights.
   reducedMotion.addEventListener('change', () => {
-    scrollCount = motionAllowed() ? 0 : VOICE_COUNT;
+    scrollCount = motionAllowed() ? 0 : total;
     render();
   });
 
-  const sound = createSound(section, listen);
+  const sound = createSound(section, listen, total);
   section.classList.add('is-armed');
   render();
 }
@@ -196,7 +197,7 @@ interface Sound {
 }
 
 /** Opt-in playback of the Carol span; never starts without a press of Listen. */
-function createSound(section: HTMLElement, button: HTMLButtonElement | null): Sound {
+function createSound(section: HTMLElement, button: HTMLButtonElement | null, total: number): Sound {
   const sources = button
     ? [...section.querySelectorAll<HTMLElement>('[data-chord-src]')].map((el) => ({
         src: el.dataset.chordSrc ?? '',
@@ -211,7 +212,7 @@ function createSound(section: HTMLElement, button: HTMLButtonElement | null): So
   let count = 0;
 
   function level(): number {
-    return on && inView ? chordGain(count) : 0;
+    return on && inView ? chordGain(count, total) : 0;
   }
 
   function ramp(): void {
