@@ -1,5 +1,6 @@
 {
   "hero": {
+    "titleLead": "{group}:",
     "lead": "{group}. Five singers at microphones for conferences, galas, weddings and concerts across Croatia and the region.",
     "chordLink": "Light the chord",
     "photoCredit": "Photo: {credit}"

@@ -98,10 +98,10 @@
     "mailto": "Pošaljite mailom"
   },
   "widget": {
-    "label": "Provjerite dostupnost",
+    "label": "Pošalji upit",
     "date": "Datum",
     "city": "Grad ili prostor",
-    "submit": "Provjerite dostupnost"
+    "submit": "Pošalji upit"
   },
   "mail": {
     "subject": "Upit: {details}",

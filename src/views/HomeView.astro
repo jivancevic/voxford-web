@@ -64,7 +64,7 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
           class="hero__plane hero__subject"
           fallbackFormat="webp"
           formats={['avif', 'webp']}
-          widths={[640, 960, 1280, 1600, 2000, 2400]}
+          widths={[640, 960, 1280, 1800]}
           sizes="(width < 48rem) 135vw, max(100vw, 150svh)"
           loading="eager"
           decoding="async"
@@ -82,7 +82,12 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
         />
       </div>
 
-      <h1 id="home-title" class="hero__title container" data-sc-copy>{copy.data.heading}</h1>
+      {/* The display line is the brand line (#31); the hidden lead keeps the H1
+           saying who Voxford is for search and screen readers. */}
+      <h1 id="home-title" class="hero__title container" data-sc-copy>
+        <span class="visually-hidden">{format(h.hero.titleLead, { group: GROUP.disambiguation[lang] })}</span>{' '}
+        {copy.data.heading}
+      </h1>
 
       <div class="hero__scrim" aria-hidden="true"></div>
       <div class="hero__copy container">
@@ -453,12 +458,13 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
     }
 
     .hero__scene {
-      --scene-w: 128%;
+      --scene-w: 127%;
       position: relative;
       grid-row: 2;
       inset: auto;
-      /* Start the frame a fifth of its width early so the five fill the screen. */
-      margin-inline-start: calc(var(--scene-w) * -0.2);
+      /* Start the frame 18.5% of its width early so the five fill the screen
+         (they stand between 22% and 97% of it). */
+      margin-inline-start: calc(var(--scene-w) * -0.185);
       margin-block: var(--space-6);
       /* The planes scale and shift; keep them inside the frame, off the type above and below. */
       overflow: clip;
@@ -478,8 +484,8 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
       display: none;
     }
 
-    /* Sized so the headline is two lines in its face down to 320px (the longest
-       line, "PET GLASOVA. BEZ", is about 6.9em), and exactly those two lines are
+    /* Sized so the headline is two lines in its face down to 320px ("FIVE
+       VOICES. / ONE HARMONY.", "PET GLASOVA. / JEDAN SKLAD."), and exactly those two lines are
        reserved, so the fallback font's wider wrap cannot push the photo down
        when the face loads (CLS). */
     .hero__title {

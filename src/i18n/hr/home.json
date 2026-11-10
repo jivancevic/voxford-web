@@ -1,5 +1,6 @@
 {
   "hero": {
+    "titleLead": "{group}:",
     "lead": "{group}. Pet pjevača za mikrofonima na konferencijama, galama, vjenčanjima i koncertima diljem Hrvatske i regije.",
     "chordLink": "Upalite akord",
     "photoCredit": "Foto: {credit}"
