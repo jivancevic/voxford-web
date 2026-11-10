@@ -3,6 +3,8 @@
 // a hidden button over the frame; this script reveals the button and, on a
 // press, swaps the poster (and any muted loop) for the whole video with sound
 // and native controls. Nothing of the full video downloads before the press.
+// If no source can play, the card goes back to its poster, now a plain link to
+// the watch page.
 // Starting one video pauses any other the visitor started, reels included.
 
 interface Source {
@@ -41,22 +43,38 @@ function playInline(frame: HTMLElement, button: HTMLButtonElement) {
   video.playsInline = true;
   video.preload = 'auto';
   video.setAttribute('aria-label', frame.dataset.label ?? button.getAttribute('aria-label') ?? '');
+  let last: HTMLSourceElement | undefined;
   for (const s of sources) {
-    const source = document.createElement('source');
-    source.src = s.src;
-    source.type = s.type;
-    video.append(source);
+    last = document.createElement('source');
+    last.src = s.src;
+    last.type = s.type;
+    video.append(last);
   }
+  // The last source failing means none could play: back to the poster.
+  last?.addEventListener('error', () => restorePoster(frame, video), { once: true });
   const poster = frame.querySelector('img');
   if (poster?.currentSrc) video.poster = poster.currentSrc;
   frame.classList.add('is-full');
   frame.querySelector('.video-card__poster')?.setAttribute('hidden', '');
   button.remove();
   frame.append(video);
+  video.tabIndex = 0; // Safari does not focus <video controls> by default
   video.focus();
   video.play().catch(() => {
     /* the visitor can press play on the controls */
   });
+}
+
+function restorePoster(frame: HTMLElement, video: HTMLVideoElement) {
+  video.remove();
+  frame.classList.remove('is-full');
+  const poster = frame.querySelector<HTMLAnchorElement>('.video-card__poster');
+  if (!poster) return;
+  poster.hidden = false;
+  poster.removeAttribute('tabindex');
+  poster.removeAttribute('aria-hidden');
+  poster.setAttribute('aria-label', frame.dataset.label ?? '');
+  poster.focus();
 }
 
 function enhanceInline(frame: HTMLElement) {

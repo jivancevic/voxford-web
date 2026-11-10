@@ -164,8 +164,10 @@ const Heading = `h${headingLevel}` as const;
     pointer-events: none;
   }
 
+  /* Decoration: clicks pass through to the link or button underneath. */
   .video-card__play {
     position: absolute;
+    pointer-events: none;
     inset-inline-start: var(--space-4);
     inset-block-end: var(--space-4);
     z-index: 1;
@@ -192,7 +194,7 @@ const Heading = `h${headingLevel}` as const;
   .video-card__link:hover .video-card__play,
   .video-card__link:focus-visible .video-card__play,
   .video-card__frame:hover .video-card__play,
-  .video-card__button:focus-visible ~ .video-card__play {
+  .video-card__frame:has(.video-card__button:focus-visible) .video-card__play {
     box-shadow: var(--glow-pink), var(--glow-blue);
   }
 

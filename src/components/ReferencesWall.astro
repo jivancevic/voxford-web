@@ -328,7 +328,7 @@ const title = heading === false ? undefined : (heading ?? t.videos.references.he
     font-size: var(--text-caption);
   }
 
-  @media (prefers-reduced-motion: no-preference) {
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
     .tile__figure :global(img) {
       transition: transform 900ms var(--ease-out);
     }
