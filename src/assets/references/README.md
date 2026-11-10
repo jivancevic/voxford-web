@@ -16,7 +16,6 @@ Unisport Hrvatska (no Zaklada UniSport Srce), `efzg.svg` got a `viewBox`, PNG me
 | `hep.svg` | https://www.hep.hr/img/logo.svg | https://www.hep.hr/ |
 | `infobip.svg` | https://cdn-web.infobip.com/uploads/2025/07/infobip-logo-pack.zip (member: INFOBIP - NEW LOGO PACK - July 2024/SVG/Infobip Logo - Horizontal Orange.svg) | https://www.infobip.com/brandbook |
 | `hrt.svg` | https://www.hrt.hr/static/logos/logoDarkShadow.svg | https://www.hrt.hr/ |
-| `disney.svg` | https://upload.wikimedia.org/wikipedia/commons/a/a4/Disney_wordmark.svg | https://commons.wikimedia.org/wiki/File:Disney_wordmark.svg |
 | `jgl.svg` | https://res.cloudinary.com/jgl-ltd/image/upload/v1639610819/jgl_black_gxfbk2c4qz.svg | https://www.jgl.hr/ |
 | `unisport.png` | https://d1ujd7bpfc7c9l.cloudfront.net/cms-settings-assets/d845cce8-d355-4c07-8bfc-429ccec0bf28-1781075442776 | https://www.unisport.hr/ |
 | `gp-krk.png` | https://www.gp-krk.hr/img/logo.png | https://www.gp-krk.hr/hr/home.php |
@@ -43,5 +42,6 @@ Hübner (site unreachable), Križanke / Ljubljana Festival (logo carries a spons
 background), Tvornica kulture (only the "25 godina" anniversary mark), Bruketa&Žinić&Grey (the
 agency's current logo reads "BRUKETA&", not the name it had in 2024). Events without an organisation's
 logo (Hrvatske svjetske igre, Memorijal Boris Hanžeković, Advent Jastrebarsko) are text. Artists and
-stages are always text, on their own lines, so a stage never reads as a client. `disney.svg` is the
-Disney wordmark from Wikimedia Commons: disney.com serves the same mark only as a 122 px PNG.
+stages are always text, on their own lines, so a stage never reads as a client.
+Disney is text: disney.com serves its wordmark only as a 122 px PNG, and Commons is not the
+organisation's own source.

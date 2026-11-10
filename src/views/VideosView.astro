@@ -52,6 +52,7 @@ const hasReels = (await loadReels(Astro.site)).length > 0;
               video={video}
               number={i + 1}
               headingLevel={3}
+              priority={i === 0}
               sizes={i === 0 ? '(min-width: 64rem) 24rem, 90vw' : '(min-width: 64rem) 15rem, 45vw'}
             />
           </li>

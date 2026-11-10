@@ -81,8 +81,10 @@ export async function handleMedia(
   const key = mediaKey(url.pathname);
   if (!key) return notFound();
 
-  // The edge cache answers ranges and conditionals from a cached full copy.
-  const edge = request.method === 'GET' && !key.endsWith(MANIFEST_SUFFIX) ? cache : undefined;
+  // The edge cache answers ranges and conditionals from a cached full copy. It
+  // does nothing on *.workers.dev, where filling it would only double R2 reads.
+  const cachesHere = !url.hostname.endsWith('.workers.dev');
+  const edge = request.method === 'GET' && cachesHere && !key.endsWith(MANIFEST_SUFFIX) ? cache : undefined;
   // One cache entry per file: the query string is ignored, the visitor's
   // Range and conditional headers are kept for the lookup.
   const cacheKey = new Request(`${url.origin}${url.pathname}`);
@@ -154,6 +156,7 @@ export async function handleMedia(
 }
 
 async function fillCache(cache: Cache, cacheKey: Request, bucket: R2Bucket, key: string, partial: Headers) {
+  if (await cache.match(cacheKey)) return; // a parallel range request filled it already
   const full = await bucket.get(key);
   if (!full || !('body' in full)) return;
   const headers = new Headers(partial);

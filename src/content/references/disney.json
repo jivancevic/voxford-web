@@ -1,7 +1,5 @@
 {
   "name": "Disney",
   "kind": "company",
-  "logo": "../../assets/references/disney.svg",
-  "mono": "silhouette",
   "order": 60
 }

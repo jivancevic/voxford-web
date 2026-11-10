@@ -132,6 +132,21 @@ describe('GET /media/*', () => {
     expect(stored.headers.get('Content-Length')).toBe('10');
   });
 
+  it('skips the edge cache on workers.dev, where it would only double R2 reads', async () => {
+    const cache = new FakeCache();
+    const gets = vi.spyOn(bucket, 'get');
+    const res = await handleMedia(
+      new Request('https://voxford-web.example.workers.dev/media/top/carol/loop.h264.mp4', { headers: { Range: 'bytes=0-1' } }),
+      env(),
+      ctx,
+      cache as unknown as Cache,
+    );
+    expect(res.status).toBe(206);
+    await Promise.all(pending);
+    expect(cache.store.size).toBe(0);
+    expect(gets).toHaveBeenCalledTimes(1);
+  });
+
   it('ignores the query string for the edge cache', async () => {
     const cache = new FakeCache();
     const gets = vi.spyOn(bucket, 'get');

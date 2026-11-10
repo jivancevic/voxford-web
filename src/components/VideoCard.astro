@@ -20,9 +20,11 @@ interface Props {
   sizes?: string;
   /** Heading level of the title, to fit the page outline. */
   headingLevel?: 2 | 3;
+  /** Above the fold (likely LCP): load the poster eagerly with high priority. */
+  priority?: boolean;
 }
 
-const { lang, video, number, sizes = '(min-width: 64rem) 15rem, 45vw', headingLevel = 3 } = Astro.props;
+const { lang, video, number, sizes = '(min-width: 64rem) 15rem, 45vw', headingLevel = 3, priority = false } = Astro.props;
 const title = video.data.title[lang];
 const duration = formatDuration(video.data.duration);
 const loop = JSON.stringify(videoSources(video.data.media, 'loop'));
@@ -41,7 +43,8 @@ const Heading = `h${headingLevel}` as const;
         formats={['avif', 'webp']}
         widths={[270, 405, 540, 720]}
         sizes={sizes}
-        loading="lazy"
+        loading={priority ? 'eager' : 'lazy'}
+        fetchpriority={priority ? 'high' : 'auto'}
         decoding="async"
       />
       <span class="video-card__play" aria-hidden="true"></span>
