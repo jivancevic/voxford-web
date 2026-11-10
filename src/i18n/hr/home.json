@@ -1,5 +1,38 @@
 {
   "hero": {
-    "eyebrow": "A cappella skupina · Zagreb"
+    "lead": "{group}. Pet pjevača za mikrofonima na konferencijama, galama, vjenčanjima i koncertima diljem Hrvatske i regije.",
+    "chordLink": "Upalite akord",
+    "photoCredit": "Foto: {credit}"
+  },
+  "hush": {
+    "line": "Svaki akord počinje jednim glasom."
+  },
+  "chord": {
+    "heading": "Pet glasova, jedan akord",
+    "hint": "Skrolajte ili dodirnite glas da ga upalite.",
+    "hintStill": "Dodirnite glas da ga upalite ili ugasite.",
+    "listen": "Poslušajte",
+    "voicesLabel": "Pet glasova, redom kako stoje na pozornici",
+    "resolve": "Pet glasova i ništa više. Ovo je naš Carol of the Bells, pjesma našeg najgledanijeg videa ({views} pregleda).",
+    "credit": "Portreti: {credit}"
+  },
+  "proof": {
+    "heading": "Otkriveni na mobitelu, rezervirani za pozornicu",
+    "body": "Petorka ima {followers} pratitelja na mrežama i {views} pregleda. Samo Carol of the Bells ima {carol}.",
+    "watch": "Pogledajte Carol of the Bells"
+  },
+  "rooms": {
+    "heading": "Glazba za konferencije i poslovne događaje u Zagrebu",
+    "body": "Otvaramo konferencije, pjevamo na gala večerima dodjele nagrada i ispunjavamo pauze između predavanja. Ne treba graditi pozornicu ni smjestiti bend: pet pjevača za mikrofonima, od nastupa do {shortest} minuta do cijelog koncerta.",
+    "conferencesLink": "Konferencije i poslovni događaji",
+    "listLabel": "Zovu nas i za",
+    "weddings": "Obred, iznenađenje za mladence ili cijela večer.",
+    "advent": "Adventske pozornice i ljetni koncerti za gradove i turističke zajednice.",
+    "private": "Rođendani, godišnjice i proslave kod kuće."
+  },
+  "encore": {
+    "heading": "Dovedite pet glasova na svoj događaj.",
+    "body": "Recite nam datum i grad.",
+    "mail": "Ili pišite na {email}."
   }
 }
