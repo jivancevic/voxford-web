@@ -103,7 +103,7 @@ the stage glow a little (`--sc-p`) and holds the stage pinned while the music pl
   button offers Resume. Leaving the act fades the music out and pauses it; coming back stays
   paused until a press (a transport, not a mode: nothing plays without a press).
 - **End:** all five lit, the line complete, the resolve line in full text colour, the button
-  offers "Listen again", which starts dim from the top.
+  offers "Listen again", which starts over from Dora alone.
 - **No JavaScript:** all five portraits lit, names and voice parts visible, no button.
 - **Audio blocked** (no source the browser can play, or `play()` refused): all five lit, the
   resolve line up; with no playable source the button and hint stay hidden.
@@ -216,7 +216,7 @@ and HR, first with placeholder cues, then with Josip's (Dora 0, Vita 4.25, David
   order, each staying lit; full chord after the last cue; label Pause.
 - Pause: the audio stops, the clock and the lights hold; Resume continues from there.
 - Leaving the act pauses the music; coming back stays paused until a press.
-- End: all five lit, label "Listen again"; a replay starts dim from the top.
+- End: all five lit, label "Listen again"; a replay starts over with only Dora lit.
 - No playable source: all five lit, no button. `play()` refused: all five lit, the button
   offers play again. Reduced motion: all five lit before and during play. JavaScript off: all
   five lit, resolve visible, no button.
