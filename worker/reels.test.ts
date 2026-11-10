@@ -5,11 +5,15 @@ import { MANIFEST_KEY, readManifest, syncReels, type ReelsManifest } from './ree
 import { FakeR2 } from './test-support/fake-r2';
 
 // A fake Instagram API and CDN: the account's media list (newest first, paged),
-// the token refresh endpoint, the files behind media_url/thumbnail_url and the
-// deploy hook. Every request is recorded.
+// the files behind media_url/thumbnail_url and the deploy hook. Every request
+// is recorded.
 
 const HOOK = 'https://api.cloudflare.com/client/v4/workers/builds/deploy_hooks/test-hook';
-const TOKEN = 'IGAAtest-token';
+const TOKEN = 'EAAtest-system-user-token';
+const USER_ID = '17841400000000000';
+const MEDIA_URL = `${IG_GRAPH}/v24.0/${USER_ID}/media`;
+const ASSIGNED_URL = `${IG_GRAPH}/v24.0/me/assigned_instagram_accounts`;
+const PAGES_URL = `${IG_GRAPH}/v24.0/me/accounts`;
 
 interface FakeMedia {
   id: string;
@@ -35,24 +39,35 @@ function media(m: FakeMedia) {
 class FakeInstagram {
   pages: FakeMedia[][] = [];
   apiStatus = 200;
+  /** The Instagram accounts assigned to the token's system user. */
+  assigned: { id: string }[] = [{ id: USER_ID }];
+  /** The Facebook Pages assigned to it, with their linked Instagram account. */
+  fbPages: { id: string; ig?: string }[] = [];
+  /** Status of the two account lookups (e.g. 403 when the token lacks that route's permission). */
+  lookupStatus = 200;
   cdnFails = new Set<string>();
   hookStatus = 200;
-  refreshedToken = TOKEN;
   requests: { url: string; method: string }[] = [];
 
   fetch = vi.fn(async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
     const url = String(input);
     this.requests.push({ url, method: init?.method ?? 'GET' });
     if (url === HOOK) return Response.json({ success: true }, { status: this.hookStatus });
-    if (url.startsWith(`${IG_GRAPH}/refresh_access_token`)) {
-      return Response.json({ access_token: this.refreshedToken, token_type: 'bearer', expires_in: 5_184_000 });
+    if (url.startsWith(`${ASSIGNED_URL}?`) || url.startsWith(`${PAGES_URL}?`)) {
+      if (this.lookupStatus !== 200) {
+        return Response.json({ error: { message: 'Missing permission', code: 200 } }, { status: this.lookupStatus });
+      }
+      if (url.startsWith(`${ASSIGNED_URL}?`)) return Response.json({ data: this.assigned });
+      return Response.json({
+        data: this.fbPages.map((p) => ({ id: p.id, ...(p.ig ? { instagram_business_account: { id: p.ig } } : {}) })),
+      });
     }
-    if (url.startsWith(`${IG_GRAPH}/`)) {
+    if (url.startsWith(`${MEDIA_URL}?`)) {
       if (this.apiStatus !== 200) {
         return Response.json({ error: { message: 'Error validating access token', code: 190 } }, { status: this.apiStatus });
       }
       const page = Number(new URL(url).searchParams.get('page') ?? '0');
-      const next = page + 1 < this.pages.length ? `${IG_GRAPH}/v24.0/me/media?page=${page + 1}` : undefined;
+      const next = page + 1 < this.pages.length ? `${MEDIA_URL}?page=${page + 1}` : undefined;
       return Response.json({ data: (this.pages[page] ?? []).map(media), ...(next ? { paging: { next } } : {}) });
     }
     if (url.startsWith('https://cdn.example/')) {
@@ -144,7 +159,7 @@ describe('syncReels', () => {
     ];
     await run();
     expect(manifest().reels.map((r) => r.id)).toEqual(['19', '18', '17', '16', '15', '14']);
-    expect(ig.hits(`${IG_GRAPH}/v24.0/me/media`)).toHaveLength(3);
+    expect(ig.hits(MEDIA_URL)).toHaveLength(3);
   });
 
   it('does nothing when nothing changed: no writes, no rebuild', async () => {
@@ -216,7 +231,7 @@ describe('syncReels', () => {
     const original = ig.fetch.getMockImplementation()!;
     ig.fetch.mockImplementation(async (input, init) => {
       const res = await original(input, init);
-      if (!String(input).includes('/me/media')) return res;
+      if (!String(input).startsWith(MEDIA_URL)) return res;
       const body = (await res.json()) as { data: Record<string, unknown>[] };
       delete body.data[0]!.thumbnail_url;
       return Response.json(body);
@@ -317,7 +332,7 @@ describe('syncReels', () => {
   });
 
   it('does nothing without a token', async () => {
-    const result = await run({ INSTAGRAM_TOKEN: undefined });
+    const result = await run({ INSTAGRAM_TOKEN: undefined, INSTAGRAM_USER_ID: USER_ID });
     expect(result).toEqual({ status: 'skipped', reels: 0, rebuilt: false });
     expect(ig.requests).toHaveLength(0);
   });
@@ -338,16 +353,52 @@ describe('syncReels', () => {
     expect(log.error).toHaveBeenCalledWith('reels: deploy hook answered 500');
   });
 
-  it('extends the token on every run and warns when Instagram rotates it', async () => {
+  it("reads the reels of the account the token reaches, and never refreshes the token", async () => {
     ig.pages = [reels(1)];
     await run();
-    expect(ig.hits(`${IG_GRAPH}/refresh_access_token`)).toHaveLength(1);
-    expect(log.info).toHaveBeenCalledWith('reels: token extended, valid 60 more days');
+    const api = ig.hits(`${IG_GRAPH}/`).map((r) => new URL(r.url));
+    expect(api.map((u) => u.pathname)).toEqual([
+      '/v24.0/me/accounts',
+      '/v24.0/me/assigned_instagram_accounts',
+      `/v24.0/${USER_ID}/media`,
+    ]);
+    expect(api.every((u) => u.searchParams.get('access_token') === TOKEN)).toBe(true);
+    expect(api[2]!.searchParams.get('fields')).toContain('media_product_type');
+  });
 
-    ig.refreshedToken = 'IGAA-new';
+  it('finds the account through the Voxford Facebook Page first', async () => {
+    ig.pages = [reels(1)];
+    ig.assigned = [];
+    ig.fbPages = [{ id: '1001' }, { id: '1002', ig: USER_ID }];
     await run();
-    expect(log.warn).toHaveBeenCalledWith(expect.stringContaining('issued a new token'));
-    expect(JSON.stringify(log.warn.mock.calls)).not.toContain('IGAA-new');
+    expect(ig.hits(ASSIGNED_URL)).toHaveLength(0);
+    expect(ig.hits(MEDIA_URL)).toHaveLength(1);
+  });
+
+  it('reads the account INSTAGRAM_USER_ID names without looking it up', async () => {
+    ig.pages = [reels(1)];
+    ig.assigned = [];
+    await run({ INSTAGRAM_USER_ID: USER_ID });
+    expect(ig.hits(ASSIGNED_URL)).toHaveLength(0);
+    expect(ig.hits(PAGES_URL)).toHaveLength(0);
+    expect(manifest().reels.map((r) => r.id)).toEqual(['1']);
+  });
+
+  it('stops, writing nothing, unless the token reaches exactly one Instagram account', async () => {
+    ig.pages = [reels(1)];
+    ig.assigned = [];
+    await expect(run()).rejects.toThrow('the token reaches no Instagram account');
+    ig.assigned = [{ id: USER_ID }, { id: '17841499999999999' }];
+    await expect(run()).rejects.toThrow('the token reaches 2 Instagram accounts; set INSTAGRAM_USER_ID');
+    ig.lookupStatus = 403;
+    await expect(run()).rejects.toThrow('reaches no Instagram account: assign the Voxford Page (or the Instagram account) to the system user (Instagram API 403: 200 Missing permission)');
+    expect(ig.hits(MEDIA_URL)).toHaveLength(0);
+    expect(bucket.objects.size).toBe(0);
+  });
+
+  it('refuses a user id that is not numeric, before reading media', async () => {
+    await expect(run({ INSTAGRAM_USER_ID: 'voxford.official' })).rejects.toThrow('not a numeric Instagram user id');
+    expect(ig.requests).toHaveLength(0);
   });
 
   it('refuses media ids that would escape the reels/ prefix', async () => {

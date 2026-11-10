@@ -167,17 +167,18 @@ Videos never go in git. The encoded top videos and the synced reels live in the 
 
 A new top video: add a row to `scripts/top-videos.tsv`, add `src/content/videos/<slug>.json`, encode, upload. Keys carry a content version (`top/<slug>/<version>/`), so the Worker serves them `immutable` for a year and keeps them in the edge cache; a re-encode gets a new version and new URLs. The Cache API only works on a custom domain, not on `*.workers.dev` (ticket G).
 
-**Reels sync.** `worker/reels.ts` runs on the cron (04:17 UTC daily): it copies the newest 6 reels from the Instagram API with Instagram Login into `reels/`, writes `reels/manifest.json` and, when the feed changed, POSTs the Workers Builds deploy hook (retried on the next run if it fails). A replaced reel's files stay in R2 for 7 days after it left the feed, and longer while the rebuild is still pending (no hook, or the hook failing), so the live page never points at a deleted file. The build reads `<SITE_URL>/media/reels/manifest.json` (`src/lib/reels.ts`); build variable `REELS_MANIFEST_URL` overrides it, `off` skips it. If anything fails the last good feed stays, and a build that cannot read the manifest renders the Videos page without the reels.
+**Reels sync.** `worker/reels.ts` runs on the cron (04:17 UTC daily): it copies the newest 6 reels of voxford.official from the Instagram API (Unified login, `graph.facebook.com`, docs/adr/0004) into `reels/`, writes `reels/manifest.json` and, when the feed changed, POSTs the Workers Builds deploy hook (retried on the next run if it fails). A replaced reel's files stay in R2 for 7 days after it left the feed, and longer while the rebuild is still pending (no hook, or the hook failing), so the live page never points at a deleted file. The build reads `<SITE_URL>/media/reels/manifest.json` (`src/lib/reels.ts`); build variable `REELS_MANIFEST_URL` overrides it, `off` skips it. If anything fails the last good feed stays, and a build that cannot read the manifest renders the Videos page without the reels.
 
 Secrets (Worker › Settings › Variables & Secrets), set by the wizard, never in a file:
 
 | Secret | What | Set by |
 |---|---|---|
-| `INSTAGRAM_TOKEN` | long-lived token, 60 days, extended by every sync run | `scripts/instagram-wizard.sh` (stages 5–6) |
-| `DEPLOY_HOOK_URL` | Workers Builds › Settings › Builds › Deploy Hooks, branch `main` | `scripts/instagram-wizard.sh` (stage 7) |
+| `INSTAGRAM_TOKEN` | system-user token of the voxford.official business portfolio (`EAA…`, never expires; `instagram_basic`, `pages_show_list`, `pages_read_engagement`), the system user assigned the Voxford Facebook Page | `scripts/instagram-wizard.sh` (stages 4–5) |
+| `INSTAGRAM_USER_ID` | optional: the Instagram user id to read; unset, the sync reads the one Instagram account the system user reaches (linked to its Page, else assigned directly) | the wizard, only when that lookup fails |
+| `DEPLOY_HOOK_URL` | Workers Builds › Settings › Builds › Deploy Hooks, branch `main` | `scripts/instagram-wizard.sh` (stage 6) |
 
-    scripts/instagram-wizard.sh             # first time: Meta app, tester role, token, deploy hook
-    scripts/instagram-wizard.sh token       # a new token only (the log says "Instagram API 400: 190 …")
+    scripts/instagram-wizard.sh             # first time: Meta app in the portfolio, system user with the Page, token, deploy hook
+    scripts/instagram-wizard.sh token       # a new token only, if it was revoked (the log says "Instagram API 400: 190 …")
     npx wrangler tail voxford-web           # watch a run: "reels: updated, 6 reels, rebuild triggered"
 
 **Test the sync locally** against the real API and the local bucket (the token stays in this shell):

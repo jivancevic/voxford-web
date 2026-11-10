@@ -1,6 +1,6 @@
 import type { Env } from './env';
 import { CACHE_IMMUTABLE, CACHE_MANIFEST } from './media';
-import { latestReels, refreshToken, type Fetch, type IgMedia } from './instagram';
+import { instagramAccountId, latestReels, type Fetch, type IgMedia } from './instagram';
 
 // Daily reels sync (cron in wrangler.jsonc, called from worker/index.ts).
 //
@@ -10,14 +10,16 @@ import { latestReels, refreshToken, type Fetch, type IgMedia } from './instagram
 // 3. Write reels/manifest.json, which the static build reads (src/lib/reels.ts).
 // 4. If the set of reels changed, POST the Workers Builds deploy hook, so the
 //    Videos page is rebuilt as static HTML.
-// 5. Extend the token's 60-day life.
 //
 // All or nothing: the manifest is written only after every file is in R2, so a
 // failed run leaves the last good feed in place and the site keeps rendering.
 // An empty answer from Instagram keeps the feed too. A reel that leaves the
 // feed keeps its files for RETIRE_DAYS and while a rebuild is pending, so a
 // live page never loses a file.
-// Without INSTAGRAM_TOKEN the sync does nothing (local dev, before setup).
+// Without INSTAGRAM_TOKEN the sync does nothing (local dev, before setup). The
+// token is a system-user token that never expires, so there is nothing to
+// refresh; the account is the one it reaches (through the Voxford Page or
+// directly), unless INSTAGRAM_USER_ID names it (docs/adr/0004).
 
 export const REEL_COUNT = 6;
 export const MANIFEST_KEY = 'reels/manifest.json';
@@ -109,17 +111,17 @@ export async function syncReels(env: Env, _ctx: ExecutionContext, deps: Deps = d
   const { log } = deps;
   const token = env.INSTAGRAM_TOKEN;
   if (!token) {
-    log.info('reels: INSTAGRAM_TOKEN is not set, skipping');
+    log.info('reels: INSTAGRAM_TOKEN is not set, skipping (scripts/instagram-wizard.sh)');
     return { status: 'skipped', reels: 0, rebuilt: false };
   }
   const bucket = env.MEDIA;
+  const userId = env.INSTAGRAM_USER_ID || (await instagramAccountId(deps.fetch, token));
 
-  const media = await latestReels(deps.fetch, token, REEL_COUNT);
+  const media = await latestReels(deps.fetch, token, userId, REEL_COUNT);
   const previous = await readManifest(bucket);
   if (media.length === 0) {
     // An empty answer is more likely an API hiccup than a deleted account: keep the feed.
     log.warn('reels: Instagram returned no reels; keeping the current feed');
-    await extendToken(token, deps);
     return { status: 'unchanged', reels: previous?.reels.length ?? 0, rebuilt: false };
   }
   const reels = media.map(toReel);
@@ -164,7 +166,6 @@ export async function syncReels(env: Env, _ctx: ExecutionContext, deps: Deps = d
   const stale = (await bucket.list({ prefix: 'reels/' })).objects.map((o) => o.key).filter((k) => !keep.has(k));
   if (stale.length) await bucket.delete(stale);
 
-  await extendToken(token, deps);
   log.info(`reels: ${status}, ${reels.length} reels${rebuilt ? ', rebuild triggered' : ''}`);
   return { status, reels: reels.length, rebuilt };
 }
@@ -186,21 +187,4 @@ async function triggerRebuild(env: Env, deps: Deps): Promise<boolean> {
     return false;
   }
   return true;
-}
-
-/** A failed refresh never fails the sync; the log says how long the token has left. */
-async function extendToken(token: string, deps: Deps): Promise<void> {
-  try {
-    const refreshed = await refreshToken(deps.fetch, token);
-    const days = Math.floor(refreshed.expires_in / 86_400);
-    if (refreshed.access_token !== token) {
-      deps.log.warn(
-        `reels: Instagram issued a new token (valid ${days} days); the stored one still works until it expires. If the sync later fails with code 190, run scripts/instagram-wizard.sh token.`,
-      );
-    } else {
-      deps.log.info(`reels: token extended, valid ${days} more days`);
-    }
-  } catch (err) {
-    deps.log.warn(`reels: token refresh failed: ${(err as Error).message}`);
-  }
 }

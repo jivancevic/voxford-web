@@ -29,7 +29,7 @@ Blocked by: A.
 
 ## E — Videos, reels and references
 Blocked by: A.
-- Videos page + watch pages with `VideoObject`, encode pipeline for self-hosted loops, `VideoRail` filled; reels sync cron Worker (Instagram API with Instagram Login → R2 → rebuild) with tests and a `/wizard` for Josip's Meta app and token; `ReferencesWall` with confirmed logos from `posao/klijenti/reference.md` (official SVG/PNG, monochrome).
+- Videos page + watch pages with `VideoObject`, encode pipeline for self-hosted loops, `VideoRail` filled; reels sync cron Worker (Instagram API → R2 → rebuild; built on Instagram Login, moved to a Unified-login system-user token in #24, ADR 0004) with tests and a `/wizard` for Josip's Meta app and token; `ReferencesWall` with confirmed logos from `posao/klijenti/reference.md` (official SVG/PNG, monochrome).
 
 ## F — Polish and audit
 Blocked by: B, C, D, E.

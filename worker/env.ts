@@ -21,8 +21,10 @@ export interface Env {
   // --- ticket E: reels ---
   /** R2 bucket `voxford-media`: top videos (top/<slug>/…) and the synced reels (reels/…), served at /media/. */
   MEDIA: R2Bucket;
-  /** Secret: long-lived token of the Instagram API with Instagram Login. Unset: the reels sync does nothing. */
+  /** Secret: system-user token (Instagram API with Unified login, never expires). Unset: the reels sync does nothing. */
   INSTAGRAM_TOKEN?: string;
+  /** Optional secret: the Instagram user id (numeric) to read. Unset: the one account the token's system user reaches (via the Page or directly). */
+  INSTAGRAM_USER_ID?: string;
   /** Secret: Workers Builds deploy hook URL, POSTed when the reels feed changed. */
   DEPLOY_HOOK_URL?: string;
 }
