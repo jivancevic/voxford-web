@@ -17,6 +17,16 @@ import shootCasaSat from '@/assets/photos/shoot-casa-sat.jpg';
 import shootCrnoFotelja from '@/assets/photos/shoot-crno-fotelja.jpg';
 import shootSetnja from '@/assets/photos/shoot-setnja.jpg';
 import unisportBlizu from '@/assets/photos/unisport-blizu.jpg';
+// Home (ticket B): the hero's depth planes and the chord's five portraits.
+import heroFar from '@/assets/photos/home/hero-far.jpg';
+import heroFront from '@/assets/photos/home/hero-front.webp';
+import heroSubject from '@/assets/photos/home/hero-subject.webp';
+import portraitAnte from '@/assets/photos/home/portrait-ante.jpg';
+import portraitDavid from '@/assets/photos/home/portrait-david.jpg';
+import portraitDora from '@/assets/photos/home/portrait-dora.jpg';
+import portraitJosip from '@/assets/photos/home/portrait-josip.jpg';
+import portraitVita from '@/assets/photos/home/portrait-vita.jpg';
+import type { MemberKey } from '@/data/site-facts';
 
 export interface Photo {
   src: ImageMetadata;
@@ -99,3 +109,38 @@ export type PhotoKey = keyof typeof PHOTOS;
 
 /** The photo used for social previews (og:image) and the default JSON-LD image. */
 export const SHARE_PHOTO: PhotoKey = 'unisportStage';
+
+/**
+ * The home hero as depth planes, all cut from one Unisport Stars 2026 frame
+ * (Westin, Zagreb; Drive `2026 Hrvatski Akademski Sportski Savez` ›
+ * `Unisport_stars_R1JC7247_JC.jpg`) and sharing its 2400×1600 frame, so they
+ * line up by stacking. `far` is the whole frame defocused and dimmed, `subject`
+ * the five singers on alpha (Apple Vision person matte), `front` the audience
+ * heads below the stage line. Recipe: docs/home/BRIEF.md.
+ */
+export const HERO_PLANES = {
+  far: heroFar,
+  subject: heroSubject,
+  front: heroFront,
+  alt: {
+    en: 'The five singers of Voxford at microphones on the Unisport Stars gala stage, lit in blue, the audience in silhouette',
+    hr: 'Petorka Voxforda za mikrofonima na pozornici gala večeri Unisport Stars, u plavom svjetlu, publika u silueti',
+  },
+  label: { en: 'AWARDS GALA · ZAGREB · 2026', hr: 'DODJELA NAGRADA · ZAGREB · 2026' },
+  credit: 'kolektiff',
+  source: 'Drive › Photo › 2026 Hrvatski Akademski Sportski Savez (Unisport Stars, Westin)',
+} as const;
+
+/**
+ * One portrait per member, for the chord on the home page (KB brand/media-kit.md
+ * › Gavella: the 2024 Journal.hr shoot has each member alone). Names come from
+ * site-facts MEMBERS by key; the mapping of file to member follows the stage
+ * order in the Unisport frames.
+ */
+export const PORTRAITS: Record<MemberKey, { src: ImageMetadata; credit: string; source: string }> = {
+  josip: { src: portraitJosip, credit: 'Marko Lopac', source: 'Journal.hr 2024 › Voxford_Journal_Marko-Lopac-14.jpg' },
+  dora: { src: portraitDora, credit: 'Marko Lopac', source: 'Journal.hr 2024 › Voxford_Journal_Marko-Lopac-11.jpg' },
+  ante: { src: portraitAnte, credit: 'Marko Lopac', source: 'Journal.hr 2024 › Voxford_Journal_Marko-Lopac-15.jpg' },
+  vita: { src: portraitVita, credit: 'Marko Lopac', source: 'Journal.hr 2024 › Voxford_Journal_Marko-Lopac-12.jpg' },
+  david: { src: portraitDavid, credit: 'Marko Lopac', source: 'Journal.hr 2024 › Voxford_Journal_Marko-Lopac-13.jpg' },
+};

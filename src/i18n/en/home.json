@@ -1,5 +1,37 @@
 {
   "hero": {
-    "eyebrow": "A cappella group · Zagreb, Croatia"
+    "lead": "{group}. Five singers at microphones for conferences, galas, weddings and concerts across Croatia and the region.",
+    "chordLink": "Light the chord",
+    "photoCredit": "Photo: {credit}"
+  },
+  "hush": {
+    "line": "Every chord starts with one voice."
+  },
+  "chord": {
+    "heading": "Five voices, one chord",
+    "hint": "Scroll, or tap a voice to light it.",
+    "listen": "Listen",
+    "voicesLabel": "The five voices, in stage order",
+    "resolve": "Five voices and nothing else. The recording is our Carol of the Bells: {views} views.",
+    "credit": "Portraits: {credit}"
+  },
+  "proof": {
+    "heading": "Found on a phone, booked for the stage",
+    "body": "The five have {followers} followers across networks and {views} views behind them. Carol of the Bells alone has {carol}.",
+    "watch": "Watch Carol of the Bells"
+  },
+  "rooms": {
+    "heading": "Music for conferences and corporate events in Zagreb",
+    "body": "We open conferences, carry award galas and turn a break into the part people film. There is no stage to build and no band to place: five singers at microphones, from a {shortest}-minute moment to a full concert.",
+    "conferencesLink": "Conferences and corporate events",
+    "listLabel": "Also booked for",
+    "weddings": "The ceremony, the first dance, the toast.",
+    "advent": "Advent stages and summer concerts for cities and tourist boards.",
+    "private": "Birthdays, anniversaries and celebrations at home."
+  },
+  "encore": {
+    "heading": "Bring five voices to your event.",
+    "body": "Tell us the date and the city.",
+    "mail": "Or write to {email}."
   }
 }
