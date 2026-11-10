@@ -1,10 +1,10 @@
 ---
 // Upcoming public concerts: date, name, place (the venue only when it is
-// known), a one-line description, and the organiser's event page when there
-// is one. Public concerts only (spec › Information
+// known), the organizer when a source names one, a one-line description, and
+// the organiser's event page when there is one. Public concerts only (spec › Information
 // architecture); the caller decides how many and adds the Event JSON-LD.
 import type { CollectionEntry } from 'astro:content';
-import { getStrings, LOCALE_META, type Locale } from '@/i18n';
+import { format, getStrings, LOCALE_META, type Locale } from '@/i18n';
 
 interface Props {
   lang: Locale;
@@ -33,6 +33,7 @@ const rows = concerts.map((c) => {
     when: time ? `${full.format(day)}, ${time}` : full.format(day),
     name: c.data.name[lang],
     place: [c.data.venue, c.data.city[lang], country.of(c.data.countryCode)].filter(Boolean).join(' · '),
+    organizer: c.data.organizer ? format(t.content.concerts.organizer, { name: c.data.organizer }) : undefined,
     description: c.data.description?.[lang],
     url: c.data.url,
   };
@@ -53,6 +54,7 @@ const rows = concerts.map((c) => {
           <Name class="concerts__name">{r.name}</Name>
           <p class="concerts__when">{r.when}</p>
           <p class="concerts__place">{r.place}</p>
+          {r.organizer && <p class="concerts__organizer">{r.organizer}</p>}
           {r.description && <p class="concerts__description">{r.description}</p>}
           {r.url && (
             <p>
@@ -122,6 +124,7 @@ const rows = concerts.map((c) => {
   }
 
   .concerts__place,
+  .concerts__organizer,
   .concerts__description {
     color: var(--color-text-secondary);
   }

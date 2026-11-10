@@ -64,6 +64,7 @@
     "upcomingHeading": "Upcoming concerts",
     "all": "All upcoming concerts",
     "eventPage": "Event page",
+    "organizer": "Organised by {name}",
     "empty": "No public concerts are announced right now. New dates appear here and on {handle}.",
     "publicOnly": "Public concerts only. Corporate events and private celebrations are never listed."
   },
