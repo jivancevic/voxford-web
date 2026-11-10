@@ -1,6 +1,6 @@
 ---
 title: "About Voxford, five voices from Zagreb"
-description: "Meet Voxford: five singers from across Croatia, based in Zagreb since {foundingYear}, who blend modern a cappella with the Dalmatian klapa sound."
+description: "Meet Voxford: we are five singers from across Croatia, based in Zagreb since {foundingYear}, blending modern a cappella with the Dalmatian klapa sound."
 heading: "About Voxford"
 source: "brand/biografija.md, brand/u-medijima.md, ljudi-i-procesi/ekipa.md, posao/klijenti/reference.md"
 ---
@@ -11,7 +11,7 @@ The five of us come from choir singing, music education and the Dalmatian klapa 
 
 ## The sound
 
-Modern a cappella meets klapa, which is part of Croatia's intangible cultural heritage. Blend and harmony come first, and beatbox stays in the background. For bigger concerts a pianist and a cajón player join the five.
+Modern a cappella meets klapa, which is part of Croatia's intangible cultural heritage. Blend and harmony come first, and beatbox stays in the background. For bigger concerts a pianist and a cajón player join us.
 
 ## With other artists
 

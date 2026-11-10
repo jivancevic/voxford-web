@@ -50,7 +50,7 @@ Canonical numbers (Josip, 2026-11-10): **800K+ followers** across networks, **30
 - No impressum/privacy page (Josip: not needed). One line under the form says the data is used only to reply to the inquiry.
 
 ### SEO / GEO
-- All text and JSON-LD in **static HTML** (AI crawlers do not run JS). Scroll effects only enhance content already in the DOM; nothing appears only after scroll/click for crawlers.
+- All text and JSON-LD in **static HTML** (AI crawlers do not run JS). Scroll effects only enhance content already in the DOM; nothing appears only after scroll/click for crawlers (FAQ answers sit in closed `<details>`, still in the HTML: see Acceptance).
 - JSON-LD: `MusicGroup` (sameAs: Instagram, TikTok, Facebook, YouTube, Spotify; `member` with roles; `foundingDate` 2021; `areaServed`; `genre`; location Zagreb), one `Service` per selling page with an `Offer` per package (no price; `src/lib/jsonld.ts` › `pageServiceJsonLd` says why), `VideoObject` on watch pages, `Event` for public concerts, `FAQPage`, `BreadcrumbList`. Entity disambiguation in copy: always "Voxford, a cappella group from Zagreb, Croatia" (confusion with vOx Chamber Choir Oxford is real).
 - `robots.txt` allows search and AI crawlers, including OAI-SearchBot, ChatGPT-User, GPTBot, Claude-SearchBot, Claude-User, ClaudeBot, PerplexityBot, Google-Extended, Applebot-Extended. Cloudflare's default AI-crawler block must be off for the zone (Josip, dashboard).
 - `llms.txt` as a cheap extra, built from the same site-facts as the JSON-LD (no proven effect; not a pillar).
@@ -90,7 +90,7 @@ Canonical numbers (Josip, 2026-11-10): **800K+ followers** across networks, **30
 
 ## Acceptance (v1 done)
 - [ ] Every page above exists in EN and HR, with reciprocal hreflang, valid JSON-LD (Rich Results Test / Schema validator clean), in the sitemap.
-- [ ] All text readable with JS disabled; no content only behind scroll or click.
+- [ ] All text readable with JS disabled; no content only behind scroll or click, with one exception: FAQ answers. Josip (2026-11-10, #35) wants every FAQ as a click-to-open exclusive accordion (native `<details name>` + `<summary>`; click, tap, Enter or Space; not hover, which jumps the layout and does not exist on touch). The GEO value survives: a closed `<details>` keeps its answer in the static HTML, so crawlers and the `FAQPage` JSON-LD still carry every answer; the accordion works without JS, and a `#<faq id>` link opens its item.
 - [ ] Lighthouse mobile ≥ 95 in all four categories on Home and the Conferences page; field-ready CWV budgets: LCP ≤ 2.5 s, CLS ≤ 0.1, INP ≤ 200 ms on a mid-range phone profile.
 - [ ] WCAG 2.2 AA: contrast measured on composited frames, keyboard order, focus states, `prefers-reduced-motion` honoured, captions/labels on media.
 - [ ] Inquiry: valid submission emails `voxford.official@gmail.com` (or `mailto` fallback before the domain), spam blocked, prefill contract works from every CTA, success and error states designed.

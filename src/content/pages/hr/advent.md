@@ -7,7 +7,7 @@ source: "brand/biografija.md, brand/u-medijima.md, posao/klijenti/reference.md, 
 
 ## Kako izgleda gradski koncert
 
-Većina gradskih koncerata je GOLD: od {goldMin} do {goldMax} minuta, petorka uz stage piano i cajon. Klavir i cajon donosimo sami, a Vi osiguravate razglas i struju na pozornici. Prvi dio može ostati a cappella, kao u Orebiću u veljači 2026., a klavir se pridruži u drugom.
+Većina gradskih koncerata je GOLD: od {goldMin} do {goldMax} minuta, nas petero uz stage piano i cajon. Klavir i cajon donosimo sami, a Vi osiguravate razglas i struju na pozornici. Prvi dio može ostati a cappella, kao u Orebiću u veljači 2026., a klavir se pridruži u drugom.
 
 ## Advent
 

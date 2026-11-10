@@ -1,6 +1,6 @@
 ---
 title: "O Voxfordu, pet glasova iz Zagreba"
-description: "Upoznajte Voxford: pet pjevača iz raznih krajeva Hrvatske, od {foundingYear}. u Zagrebu, koji spajaju moderni a cappella i dalmatinsku klapu."
+description: "Upoznajte Voxford: petero pjevača iz raznih krajeva Hrvatske. Od {foundingYear}. u Zagrebu spajamo moderni a cappella i dalmatinsku klapu."
 heading: "O nama"
 source: "brand/biografija.md, brand/u-medijima.md, ljudi-i-procesi/ekipa.md, posao/klijenti/reference.md"
 ---
@@ -11,7 +11,7 @@ Svih pet nas dolazi iz zborskog pjevanja, glazbenog obrazovanja i dalmatinske kl
 
 ## Zvuk
 
-Moderni a cappella susreće klapu, dio hrvatske nematerijalne kulturne baštine. U prvom su planu stapanje glasova i harmonija, a beatbox ostaje u pozadini. Na većim koncertima petorci se pridružuju pijanist i cajonist.
+Moderni a cappella susreće klapu, dio hrvatske nematerijalne kulturne baštine. U prvom su planu stapanje glasova i harmonija, a beatbox ostaje u pozadini. Na većim koncertima pridružuju nam se pijanist i cajonist.
 
 ## S drugim izvođačima
 

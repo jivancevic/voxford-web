@@ -12,6 +12,7 @@ import type { Locale } from '@/i18n/locales';
 
 import crikvenicaPiano from '@/assets/photos/crikvenica-piano.jpg';
 import hakMore from '@/assets/photos/hak-more.jpg';
+import hakStage from '@/assets/photos/hak-stage.jpg';
 import popupCrkva from '@/assets/photos/popup-crkva.jpg';
 import shootCasaSat from '@/assets/photos/shoot-casa-sat.jpg';
 import shootCrnoFotelja from '@/assets/photos/shoot-crno-fotelja.jpg';
@@ -58,6 +59,16 @@ export const PHOTOS = {
     },
     label: { en: 'CORPORATE EVENT · ZAGREB · 2026', hr: 'POSLOVNI DOGAĐAJ · ZAGREB · 2026' },
     source: 'Media kit › 2026 HAK Esplanade',
+  },
+  hakStage: {
+    // Pre-cropped to 16:9 for the band on the Conferences page; same event as hakEsplanade.
+    src: hakStage,
+    alt: {
+      en: 'Voxford, five singers in black, on stage in front of an LED wall showing an island in a blue sea, guests standing in the foreground',
+      hr: 'Voxford, petero pjevača u crnom, na pozornici ispred LED zida s prizorom otoka u plavom moru, a u prvom planu stoje gosti',
+    },
+    label: { en: 'CORPORATE EVENT · ZAGREB · 2026', hr: 'POSLOVNI DOGAĐAJ · ZAGREB · 2026' },
+    source: 'Drive › 2026 HAK Esplanade › hak-120-full-373.jpg (1l9QnXjAUcmSZ-f5wSWgn4-c07nIwXbso)',
   },
   crikvenicaPiano: {
     src: crikvenicaPiano,
