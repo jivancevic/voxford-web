@@ -135,13 +135,14 @@ export const HERO_PLANES = {
 /**
  * One portrait per member, for the chord on the home page (KB brand/media-kit.md
  * › Gavella: the 2024 Journal.hr shoot has each member alone). Names come from
- * site-facts MEMBERS by key; the mapping of file to member follows the stage
- * order in the Unisport frames.
+ * site-facts MEMBERS by key. The first mapping (from the stage order in the
+ * Unisport frames) had Josip/David and Dora/Vita swapped; Josip corrected it on
+ * 2026-11-10 (jivancevic/voxford-web#32).
  */
 export const PORTRAITS: Record<MemberKey, { src: ImageMetadata; credit: string; source: string }> = {
-  josip: { src: portraitJosip, credit: 'Marko Lopac', source: 'Journal.hr 2024 › Voxford_Journal_Marko-Lopac-14.jpg' },
-  dora: { src: portraitDora, credit: 'Marko Lopac', source: 'Journal.hr 2024 › Voxford_Journal_Marko-Lopac-11.jpg' },
+  josip: { src: portraitJosip, credit: 'Marko Lopac', source: 'Journal.hr 2024 › Voxford_Journal_Marko-Lopac-13.jpg' },
+  dora: { src: portraitDora, credit: 'Marko Lopac', source: 'Journal.hr 2024 › Voxford_Journal_Marko-Lopac-12.jpg' },
   ante: { src: portraitAnte, credit: 'Marko Lopac', source: 'Journal.hr 2024 › Voxford_Journal_Marko-Lopac-15.jpg' },
-  vita: { src: portraitVita, credit: 'Marko Lopac', source: 'Journal.hr 2024 › Voxford_Journal_Marko-Lopac-12.jpg' },
-  david: { src: portraitDavid, credit: 'Marko Lopac', source: 'Journal.hr 2024 › Voxford_Journal_Marko-Lopac-13.jpg' },
+  vita: { src: portraitVita, credit: 'Marko Lopac', source: 'Journal.hr 2024 › Voxford_Journal_Marko-Lopac-11.jpg' },
+  david: { src: portraitDavid, credit: 'Marko Lopac', source: 'Journal.hr 2024 › Voxford_Journal_Marko-Lopac-14.jpg' },
 };

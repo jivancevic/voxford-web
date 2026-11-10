@@ -7,11 +7,11 @@
 // Every hidden or dimmed state in the CSS is scoped under those classes, so the
 // page reads complete with no JavaScript (spec › SEO/GEO).
 //
-// The chord (the signature move) lives here too: the scroll lights the voices
-// (one per member, as rendered) in stage order, taps override it, and Listen plays the Carol span
-// with a gain that follows the chord (src/lib/chord.ts).
+// The chord (the signature move) lives here too: one press of the play button
+// plays the Carol span, and each voice lights the moment it enters, read from
+// the audio clock against the cue table in src/lib/chord.ts.
 
-import { chordGain, litVoices, voicesLitAt } from '@/lib/chord';
+import { type ChordState, chordView, voiceEntries } from '@/lib/chord';
 
 const root = document.documentElement;
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
@@ -39,8 +39,6 @@ const acts: Act[] = [...document.querySelectorAll<HTMLElement>('[data-sc-act]')]
   stageHeight: 0,
   p: Number.NaN,
 }));
-
-const progressListeners = new Map<HTMLElement, (p: number) => void>();
 
 function motionAllowed(): boolean {
   return !reducedMotion.matches;
@@ -77,7 +75,6 @@ function frame(): void {
     if (Math.abs(p - act.p) < 0.0005) continue;
     act.p = p;
     act.el.style.setProperty('--sc-p', p.toFixed(4));
-    progressListeners.get(act.el)?.(p);
   }
 }
 
@@ -131,123 +128,91 @@ function watchReveals(): void {
 
 // ---- The chord
 
+/** Fade time constants (seconds) for the gain: in on play, out on pause, longer when the act scrolls away. */
+const FADE_IN = 0.08;
+const FADE_OUT = 0.1;
+const FADE_AWAY = 0.35;
+
 function mountChord(section: HTMLElement): void {
-  const voices = [...section.querySelectorAll<HTMLButtonElement>('[data-voice]')];
-  const listen = section.querySelector<HTMLButtonElement>('[data-chord-listen]');
+  const voices = [...section.querySelectorAll<HTMLElement>('[data-voice]')];
+  const button = section.querySelector<HTMLButtonElement>('[data-chord-play]');
+  const label = button?.querySelector<HTMLElement>('[data-chord-play-label]');
   const caption = section.querySelector<HTMLElement>('[data-chord-caption]');
   const total = voices.length;
   if (total === 0) return;
 
-  const overrides: (boolean | undefined)[] = [];
-  let scrollCount = motionAllowed() ? 0 : total;
-  let lastLit = -1;
-  let count = 0;
+  const cues = voiceEntries(voices.map((v) => v.dataset.voice ?? ''));
+  const sources = [...section.querySelectorAll<HTMLElement>('[data-chord-src]')].map((el) => ({
+    src: el.dataset.chordSrc ?? '',
+    type: el.dataset.chordType ?? '',
+  }));
+  const probe = document.createElement('audio');
+  const pick = sources.find((s) => s.src && probe.canPlayType(s.type) !== '');
+
+  let state: ChordState = pick && button ? 'idle' : 'blocked';
+  /** The audio clock as the lights last showed it; a pause rewinds the audio here, so resume picks up where they froze. */
+  let clock = 0;
+  let audio: HTMLAudioElement | undefined;
+  let ctx: AudioContext | undefined;
+  let gain: GainNode | undefined;
+  let raf = 0;
+  let pauseTimer = 0;
+  let shown = '';
 
   function render(): void {
-    const lit = litVoices(scrollCount, overrides, total);
-    count = lit.filter(Boolean).length;
-    lit.forEach((on, i) => {
-      const voice = voices[i]!;
-      const was = voice.getAttribute('aria-pressed') === 'true';
-      voice.setAttribute('aria-pressed', String(on));
-      if (on && !was) lastLit = i;
-    });
-    if (lastLit >= 0 && !lit[lastLit]) lastLit = lit.lastIndexOf(true);
-    section.toggleAttribute('data-full', count === total);
+    const view = chordView({ state, time: clock, motion: motionAllowed(), cues });
+    const key = `${state}|${view.lit.join()}|${view.last}`;
+    if (key === shown) return;
+    shown = key;
+    const count = view.lit.filter(Boolean).length;
+    view.lit.forEach((on, i) => voices[i]!.setAttribute('data-lit', String(on)));
+    section.dataset.chordState = state;
+    section.toggleAttribute('data-full', view.full);
     section.style.setProperty('--chord-count', String(count));
-    section.dataset.scVerifyExtra = `:lit${count}`;
+    section.dataset.scVerifyExtra = `:${state}:lit${count}`;
     // The full chord is an authored hold: every voice lit, the line complete, nothing else to do.
-    if (count === total) section.setAttribute('data-sc-verify-hold', 'true');
+    if (view.full) section.setAttribute('data-sc-verify-hold', 'true');
     else section.removeAttribute('data-sc-verify-hold');
-    if (caption) caption.textContent = lastLit >= 0 ? (voices[lastLit]!.dataset.caption ?? '') : '';
-    sound.follow(count);
+    if (caption) caption.textContent = view.last >= 0 ? (voices[view.last]!.dataset.caption ?? '') : '';
+    if (button && label) {
+      const text = button.getAttribute(`data-label-${view.action}`) ?? '';
+      label.textContent = text;
+    }
   }
 
-  // The voices ship disabled (inert without JavaScript); the script makes them toggles.
-  voices.forEach((voice, i) => {
-    voice.disabled = false;
-    voice.addEventListener('click', () => {
-      const lit = litVoices(scrollCount, overrides, total);
-      overrides[i] = !lit[i];
-      render();
-    });
-  });
-
-  progressListeners.set(section, (p) => {
-    if (!motionAllowed()) return;
-    const next = voicesLitAt(p, total);
-    if (next === scrollCount) return;
-    scrollCount = next;
+  function tick(): void {
+    raf = 0;
+    if (state !== 'playing' || !audio) return;
+    clock = audio.currentTime;
     render();
-  });
-
-  // With motion back on, the next frame republishes progress (remeasure resets it) and relights.
-  reducedMotion.addEventListener('change', () => {
-    scrollCount = motionAllowed() ? 0 : total;
-    render();
-  });
-
-  const sound = createSound(section, listen, total);
-  section.classList.add('is-armed');
-  render();
-}
-
-interface Sound {
-  follow(count: number): void;
-}
-
-/** Opt-in playback of the Carol span; never starts without a press of Listen. */
-function createSound(section: HTMLElement, button: HTMLButtonElement | null, total: number): Sound {
-  const sources = button
-    ? [...section.querySelectorAll<HTMLElement>('[data-chord-src]')].map((el) => ({
-        src: el.dataset.chordSrc ?? '',
-        type: el.dataset.chordType ?? '',
-      }))
-    : [];
-  let audio: HTMLAudioElement | undefined;
-  let gain: GainNode | undefined;
-  let ctx: AudioContext | undefined;
-  let on = false;
-  let inView = false;
-  let count = 0;
-
-  function level(): number {
-    return on && inView ? chordGain(count, total) : 0;
+    raf = requestAnimationFrame(tick);
   }
 
-  function ramp(): void {
+  function fade(target: number, tau: number): void {
     if (!audio) return;
-    const target = level();
     if (gain && ctx) {
       gain.gain.cancelScheduledValues(ctx.currentTime);
-      gain.gain.setTargetAtTime(target, ctx.currentTime, 0.35);
+      gain.gain.setTargetAtTime(target, ctx.currentTime, tau);
     } else {
       audio.volume = target;
-    }
-    if (target > 0 && audio.paused && !audio.ended) {
-      // An AbortError only means a pause overtook this play (scrolled away again); Listen stays on.
-      void audio.play().catch((error: unknown) => {
-        if (!(error instanceof DOMException && error.name === 'AbortError')) setOn(false);
-      });
-    }
-    if (target === 0 && !audio.paused) {
-      window.setTimeout(() => {
-        if (level() === 0) audio?.pause();
-      }, 900);
     }
   }
 
   function ensureAudio(): HTMLAudioElement | undefined {
-    if (audio) return audio;
-    const probe = document.createElement('audio');
-    const pick = sources.find((s) => s.src && probe.canPlayType(s.type) !== '');
-    if (!pick) return undefined;
+    if (audio || !pick) return audio;
     // iOS mutes Web Audio under the silent switch unless the session is "playback" (Safari 17+).
     const session = (navigator as Navigator & { audioSession?: { type: string } }).audioSession;
     if (session) session.type = 'playback';
     audio = new Audio(pick.src);
     audio.preload = 'auto';
-    audio.addEventListener('ended', () => setOn(false));
+    audio.addEventListener('ended', () => {
+      cancelAnimationFrame(raf);
+      raf = 0;
+      clock = audio?.duration ?? clock;
+      state = 'ended';
+      render();
+    });
+    audio.addEventListener('error', () => block());
     const Ctx = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
     if (Ctx) {
       ctx = new Ctx();
@@ -260,33 +225,71 @@ function createSound(section: HTMLElement, button: HTMLButtonElement | null, tot
     return audio;
   }
 
-  function setOn(next: boolean): void {
-    on = next && ensureAudio() !== undefined;
-    button?.setAttribute('aria-pressed', String(on));
-    section.toggleAttribute('data-sound', on);
-    if (on && audio) {
-      if (audio.ended) audio.currentTime = 0;
-      void ctx?.resume();
-    }
-    ramp();
+  /** The browser refused the audio: show the whole chord, so nothing is left dark. */
+  function block(): void {
+    cancelAnimationFrame(raf);
+    raf = 0;
+    window.clearTimeout(pauseTimer);
+    state = 'blocked';
+    render();
   }
 
-  if (button && sources.length) {
+  function play(): void {
+    const el = ensureAudio();
+    if (!el) return block();
+    window.clearTimeout(pauseTimer);
+    if (state === 'ended' || el.ended) el.currentTime = 0;
+    clock = el.currentTime;
+    state = 'playing';
+    render();
+    void ctx?.resume();
+    fade(1, FADE_IN);
+    // An AbortError only means a pause overtook this play; anything else is the browser saying no.
+    el.play().then(
+      () => {
+        if (state === 'playing' && !raf) raf = requestAnimationFrame(tick);
+      },
+      (error: unknown) => {
+        if (!(error instanceof DOMException && error.name === 'AbortError')) block();
+      },
+    );
+    raf ||= requestAnimationFrame(tick);
+  }
+
+  function pause(tau: number): void {
+    if (state !== 'playing' || !audio) return;
+    cancelAnimationFrame(raf);
+    raf = 0;
+    clock = audio.currentTime;
+    state = 'paused';
+    render();
+    fade(0, tau);
+    const held = clock;
+    pauseTimer = window.setTimeout(() => {
+      if (state === 'playing' || !audio) return;
+      audio.pause();
+      audio.currentTime = held;
+    }, tau * 3000);
+  }
+
+  if (button && pick) {
     button.hidden = false;
-    button.addEventListener('click', () => setOn(!on));
-    const io = new IntersectionObserver((entries) => {
-      inView = entries.some((e) => e.isIntersecting);
-      ramp();
-    });
-    io.observe(section);
+    section.classList.add('has-sound');
+    button.addEventListener('click', () => (state === 'playing' ? pause(FADE_OUT) : play()));
+    // Leaving the act fades the music out and pauses it; it waits for a press to come back.
+    new IntersectionObserver((entries) => {
+      if (!entries.some((e) => e.isIntersecting)) pause(FADE_AWAY);
+    }).observe(section);
   }
 
-  return {
-    follow(next: number) {
-      count = next;
-      ramp();
-    },
-  };
+  // Reduced motion lights all five whatever the music does; with motion back on, the voices follow it again.
+  reducedMotion.addEventListener('change', () => {
+    shown = '';
+    render();
+  });
+
+  section.classList.add('is-armed');
+  render();
 }
 
 // ---- Boot

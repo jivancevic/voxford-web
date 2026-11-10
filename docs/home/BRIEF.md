@@ -22,9 +22,9 @@ for whoever changes the home page next: change the curve here first, then the pa
 3. **Energy curve.** (authored) Low and warm at the top, one hush, the loudest point in the
    middle (the chord), then daylight and information, then quiet. Nothing loud after the chord.
 4. **Feeling and the one moment.** See the curve and the peak below.
-5. **The one thing no other site does.** (spec) "The five voices build a chord": the five
-   singers light up one by one under the visitor's scroll or tap, the light grows with the
-   chord, and with sound on the recording swells as the chord completes.
+5. **The one thing no other site does.** (spec, revised by Josip in #32) "The five voices build
+   a chord": one press plays *Carol of the Bells*, and each singer lights up the moment their
+   voice enters, so the light grows with the music until the chord is complete.
 6. **Distance from premium-minimal.** (authored) Dark and restrained, but not minimal: one
    saturated peak in brand RGB. Family: *premium-minimal with a single maximalist act*. The
    gradient is light, never a fill (spec), and appears at full strength only at the peak.
@@ -48,7 +48,7 @@ for whoever changes the home page next: change the curve here first, then the pa
 |---|---|---|
 | 1 | Recognition | A real gala, five singers at microphones: "this is the kind of event I am planning" |
 | 2 | Hush | The stage goes dark; one line |
-| 3 | The chord | They make the sound themselves, one voice at a time |
+| 3 | The chord | They press play and watch the chord build, one voice at a time |
 | 4 | Proof | Millions already listened; here are the videos |
 | 5 | Fit | Their own event is on the list (conferences first) and named clients booked it |
 | 6 | Commitment | One calm screen, one action |
@@ -79,24 +79,40 @@ exist; **typographic poster** throws away the photography that "carries the page
 
 ## Signature move: the chord
 
-Five portraits in stage order (Josip, Dora, Ante, Vita, David; KB `ljudi-i-procesi/ekipa.md`)
-stand in near-darkness. Scrolling through the pinned act lights them one at a time, each with
-its own colour of light from above, stepping pink → purple → blue along the brand gradient;
-when all five are lit the gradient line under them completes and the whole stage glows. Each
-portrait is also a button: a tap or Enter lights that voice directly, in any order. "Listen" is
-an opt-in toggle (never autoplay): with sound on, *Carol of the Bells* plays and its volume
-follows the chord: audible but low before the first voice (so Listen always answers), rising
-with each voice, full with five. There are no stems, so voices are
-visual and the recording swells (spec).
+Revised on 2026-11-10 from Josip's review of the live page (jivancevic/voxford-web#32): the
+first build lit the voices from the scroll and let a tap toggle each one, with an opt-in
+Listen; Josip asked for one big play button instead, with the singers lit by the music.
 
-- **No JavaScript:** all five portraits lit, names and voice parts visible, no Listen button.
-- **Reduced motion:** no pin; all five start lit; taps still toggle voices; Listen still works;
-  the hint says "tap" instead of "scroll or tap".
+Five portraits in stage order (Josip, Dora, Ante, Vita, David; KB `ljudi-i-procesi/ekipa.md`)
+stand in near-darkness, all five dim, with one large round play button centred on them. Pressing
+it plays *Carol of the Bells* (the 3.0 → 41.07 s span) and **each singer lights the moment
+their voice enters**, each with its own colour of light from above, stepping pink → purple →
+blue along the brand gradient; the gradient line under them grows with every voice and, with
+all five lit, completes and the whole stage glows. The entry times are one cue table,
+`VOICE_ENTRIES` in `src/lib/chord.ts` (seconds from the start of the clip, per member; they
+come from Josip). The voices follow the audio clock, not the scroll: the scroll only breathes
+the stage glow a little (`--sc-p`) and holds the stage pinned while the music plays.
+
+- **Before play:** all five dim, the play button centred on the portraits with its label
+  ("Listen" / "Poslušajte") and a hint above ("Press play and each singer lights up…").
+- **Playing:** the button steps back (smaller, translucent, full on hover or focus) and shows
+  pause; the caption under the line (phones) names the voice that just came in.
+- **Paused** (the button, or leaving the act): the lights hold where the music stopped, the
+  button offers Resume. Leaving the act fades the music out and pauses it; coming back stays
+  paused until a press (a transport, not a mode: nothing plays without a press).
+- **End:** all five lit, the line complete, the resolve line in full text colour, the button
+  offers "Listen again", which starts dim from the top.
+- **No JavaScript:** all five portraits lit, names and voice parts visible, no button.
+- **Audio blocked** (no source the browser can play, or `play()` refused): all five lit, the
+  resolve line up; with no playable source the button and hint stay hidden.
+- **Reduced motion:** no pin; all five lit from the start and they stay lit; the button still
+  plays the music, and the hint says only "Press play to hear all five."
 - **Short windows** (under 40rem tall for the hero, 34rem for the chord: a scaled laptop, a phone
-  on its side) do not pin; the acts scroll and the chord lights on flow progress.
+  on its side) do not pin; the act scrolls by.
 - **Phones:** the hero does not pin; the planes still part as it scrolls by, and the date widget
   (ticket D) sits on plain ground under the photo.
-- **Muted:** the light carries the whole move; sound is a bonus.
+- **Muted or silent switch:** iOS plays through the "playback" audio session where Safari has
+  one; audio only ever starts on a press.
 
 ## Fingerprint gate
 
@@ -126,13 +142,14 @@ pass should not report it as dead scroll.
 
 ## The peak
 
-> "The stage went dark and then the five of them lit up one by one as I scrolled, until the whole
-> thing was glowing, and when I hit Listen it was Carol of the Bells."
+> "The stage went dark, I hit play, and the five of them lit up one by one as their voices came
+> in, until the whole thing was glowing: Carol of the Bells."
 
-It lives in act 3, gets the most scroll room (about 3.4 viewport-heights against ≤1.8 for any
-other act), the best asset (five portraits) and the only sound.
+It lives in act 3, gets the most scroll room (about 2.4 viewport-heights against ≤1.8 for any
+other act; 3.4 while the scroll lit the voices, before #32), the best asset (five portraits) and
+the only sound.
 
-**It's the site where you light up five singers one by one and hear the chord build.**
+**It's the site where you press play and watch five singers light up as the chord builds.**
 
 ## Score
 
@@ -140,13 +157,13 @@ other act), the best asset (five portraits) and the only sound.
 |---|---|---|---|---|
 | 1 | Recognition | `parallax` on a sticky stage: far (defocused hall), subject (the five), front (audience heads), haze | ~1.7 vh | Depth from a real photograph: rack focus, front row sliding past |
 | 2 | Hush | `flow` + `in` | ~0.9 vh | One line on black; the cut is the content |
-| 3 | The chord | `pin` + bespoke chord | ~3.4 vh | The visitor plays it; the longest hold |
+| 3 | The chord | `pin` + bespoke chord | ~2.4 vh | The visitor presses play; the music lights it; the longest hold |
 | 4 | Proof | `reveal` (a wipe of light across the numeral) | ~1.2 vh | A number lit like a sign, paired with videos (never alone, spec) |
 | 5 | Fit | `flow` + `parallax` inside the media column | ~1.8 vh | Information, compressed; the white hall is the change of state |
 | 6 | Commitment | still | ~1 vh | The page stops moving |
 
 Four device families (parallax, flow, pin, reveal) plus the still close; never the same twice in
-a row; no scrub; one peak with the largest span; total ≈ 10 viewport-heights before the footer.
+a row; no scrub; one peak with the largest span; total ≈ 9 viewport-heights before the footer.
 
 ## Engine note
 
@@ -177,7 +194,7 @@ under `html.sc-ready`.
   Changed after the check: the hero headline no longer crosses Josip's face (the scene sits
   lower), the portraits fill their frames, and the end screen pulls the footer up so the
   close does not trail into a black band.
-- **Interaction:** taps and Enter toggle each voice; Listen toggles and requests the audio only
+- **Interaction** (before #32, superseded below): taps and Enter toggle each voice; Listen toggles and requests the audio only
   on press; under reduced motion all five start lit; with JavaScript off all five are lit, the
   resolve line shows and Listen is hidden.
 - **Lighthouse mobile** behind a local brotli server (as Cloudflare serves it), with ticket D's
@@ -186,3 +203,20 @@ under `html.sc-ready`.
   font files from the layout. SEO 69 only because the pre-domain build is `noindex` (ticket G).
 - **Not verified:** a real phone (iOS audio and the silent switch, touch scrolling through the
   pinned chord), audible playback by ear, and the numbers on the deployed build.
+
+## Verification log: the play button (#32, 2026-11-10, local build)
+
+Headless Chrome (Playwright) against the built site, desktop 1440×900 and mobile 390×844, EN
+and HR, with the placeholder cues in `VOICE_ENTRIES`:
+
+- Press play: every voice lit within 13 ms of its cue (read from the audio clock); full chord
+  after the last cue; label Pause.
+- Pause: the audio stops, the clock and the lights hold; Resume continues from there.
+- Leaving the act pauses the music; coming back stays paused until a press.
+- End: all five lit, label "Listen again"; a replay starts dim from the top.
+- No playable source: all five lit, no button. `play()` refused: all five lit, the button
+  offers play again. Reduced motion: all five lit before and during play. JavaScript off: all
+  five lit, resolve visible, no button.
+- The play disc is ≥ 48 px in every state (51 px at its smallest, on a phone while playing).
+- **Not verified:** a real phone (iOS silent switch, touch while pinned), audible playback by
+  ear, and the real entry times against the music.
