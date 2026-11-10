@@ -30,7 +30,10 @@ type ApiReply =
 type State = 'form' | 'sent' | 'mailto' | 'error';
 
 const TURNSTILE_SRC = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+/** How long a submit waits for an invisible Turnstile token before going on without one (mailto fallback). */
 const TOKEN_WAIT_MS = 8000;
+/** Once Turnstile shows a challenge, the visitor needs time to answer it. */
+const CHALLENGE_WAIT_MS = 120_000;
 
 export function enhanceInquiryForm(root: HTMLElement): void {
   const form = root.querySelector<HTMLFormElement>('[data-inquiry-form]');
@@ -57,6 +60,9 @@ function enhance(root: HTMLElement, form: HTMLFormElement): void {
   const turnstileBox = form.querySelector<HTMLElement>('[data-turnstile]');
   let widgetId: string | undefined;
   let token = '';
+  /** Turnstile cannot give a token (script blocked, widget error): stop waiting for one. */
+  let unavailable = !turnstileBox?.dataset.sitekey;
+  let challenged = false;
   let waiters: ((t: string) => void)[] = [];
   const settle = (t: string) => {
     token = t;
@@ -79,22 +85,28 @@ function enhance(root: HTMLElement, form: HTMLFormElement): void {
         'response-field': false,
         callback: (t: string) => settle(t),
         'expired-callback': () => (token = ''),
+        'before-interactive-callback': () => (challenged = true),
+        'after-interactive-callback': () => (challenged = false),
         'error-callback': () => {
+          unavailable = true;
           settle('');
           return true;
         },
       });
     });
     // Blocked or offline: submit without a token; the Worker answers with the mailto fallback.
-    script.addEventListener('error', () => settle(''));
+    script.addEventListener('error', () => {
+      unavailable = true;
+      settle('');
+    });
     document.head.append(script);
   }
 
   function getToken(): Promise<string> {
-    if (token || !turnstileBox) return Promise.resolve(token);
+    if (token || unavailable) return Promise.resolve(token);
     return new Promise((resolve) => {
       waiters.push(resolve);
-      setTimeout(() => resolve(token), TOKEN_WAIT_MS);
+      setTimeout(() => resolve(token), challenged ? CHALLENGE_WAIT_MS : TOKEN_WAIT_MS);
     });
   }
 
@@ -244,6 +256,8 @@ function enhance(root: HTMLElement, form: HTMLFormElement): void {
     if (!action) return;
     if (action === 'again') {
       event.preventDefault();
+      // Arrived on #inquiry-sent (the no-JS thank-you): drop the hash, or :target keeps the form hidden.
+      if (window.location.hash) history.replaceState(null, '', window.location.pathname + window.location.search);
       form.reset();
       show('form');
       dateInput.focus();

@@ -142,7 +142,7 @@ export function validateInquiry(source: FieldSource, today: string): InquiryVali
     lang,
     flexible,
     ...(oneOf(EVENT_TYPES, type) && { type }),
-    ...(date && { date }),
+    ...(isValidIsoDate(date) && { date }),
     ...(city && { city: city.slice(0, LIMITS.city) }),
     ...(oneOf(GUEST_RANGES, guests) && { guests }),
     ...(oneOf(PACKAGE_KEYS, pkg) && { package: pkg }),

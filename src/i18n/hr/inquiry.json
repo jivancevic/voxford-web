@@ -107,7 +107,7 @@
     "subject": "Upit: {details}",
     "flexibleDate": "fleksibilan datum",
     "dateFlexible": "{date} (fleksibilno)",
-    "greeting": "Pozdrav, Voxford,",
+    "greeting": "Pozdrav, {name},",
     "intro": "Zanima me jeste li slobodni.",
     "message": "Poruka",
     "footer": "Poslano s obrasca za upit na {site}. Za odgovor osobi {name} samo odgovorite na ovaj mail.",

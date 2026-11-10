@@ -57,7 +57,7 @@ export function composeInquiryMail(inquiry: DraftInquiry, options: { site?: stri
     [t.labels.phone, inquiry.phone],
   ];
 
-  const lines = [t.greeting, '', t.intro, '', ...rows.filter(([, v]) => v).map(([label, v]) => `${label}: ${v}`)];
+  const lines = [format(t.greeting, { name: GROUP.name }), '', t.intro, '', ...rows.filter(([, v]) => v).map(([label, v]) => `${label}: ${v}`)];
   if (inquiry.message) lines.push('', `${t.message}:`, inquiry.message);
   if (options.site) lines.push('', '—', format(t.footer, { site: options.site, name: inquiry.name ?? '' }));
 

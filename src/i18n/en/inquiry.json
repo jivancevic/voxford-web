@@ -107,7 +107,7 @@
     "subject": "Inquiry: {details}",
     "flexibleDate": "flexible date",
     "dateFlexible": "{date} (flexible)",
-    "greeting": "Hello Voxford,",
+    "greeting": "Hello {name},",
     "intro": "I would like to check your availability.",
     "message": "Message",
     "footer": "Sent from the inquiry form on {site}. Reply to this email to answer {name}.",

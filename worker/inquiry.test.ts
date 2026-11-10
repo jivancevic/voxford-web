@@ -126,6 +126,18 @@ describe('POST /api/inquiry validation', () => {
     expect(((await bad.json()) as { fields: object }).fields).toEqual({ date: 'invalid' });
   });
 
+  it.each(['abc', '2027-13-01', '2027-02-30'])('answers a malformed date %s with 422, and a plain POST with a mailto without it', async (date) => {
+    const json = await post({ date }, { json: true });
+    expect(json.status).toBe(422);
+    expect(((await json.json()) as { fields: object }).fields).toEqual({ date: 'invalid' });
+
+    const plain = await post({ date });
+    expect(plain.status).toBe(303);
+    const location = plain.headers.get('Location')!;
+    expect(location).toMatch(/^mailto:/);
+    expect(decodeURIComponent(location)).not.toMatch(/March|Date:/);
+  });
+
   it('rejects values outside the contract and over-long text', async () => {
     const res = await post(
       { type: 'party', guests: 'thousands', package: 'platinum', phone: 'call me', message: 'x'.repeat(2001) },
