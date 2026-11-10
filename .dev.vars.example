@@ -1,2 +1,12 @@
 # Runtime vars for `wrangler dev` (copy to .dev.vars). Production sets COMMIT_SHA at deploy.
 COMMIT_SHA=
+
+# Ticket D, inquiry. Cloudflare's published Turnstile test secret: always passes and
+# reports hostname example.com (https://developers.cloudflare.com/turnstile/troubleshooting/testing/).
+# Production: `wrangler secret put TURNSTILE_SECRET` (docs/deploy-cloudflare.md › Inquiry).
+TURNSTILE_SECRET=1x0000000000000000000000000000000AA
+# Hostnames siteverify may report; empty = the request's own host. example.com only with the test secret.
+TURNSTILE_HOSTNAMES=example.com
+# Sender on the domain onboarded to Email Sending (needs `send_email` in wrangler.jsonc).
+# Empty = no email transport: the form hands the inquiry to the visitor's mail app (mailto:).
+INQUIRY_FROM=

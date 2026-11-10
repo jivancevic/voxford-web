@@ -9,6 +9,14 @@ export interface Env {
   COMMIT_SHA?: string;
 
   // --- ticket D: inquiry ---
+  /** Turnstile secret key: a Worker secret (`wrangler secret put TURNSTILE_SECRET`); `.dev.vars` locally. */
+  TURNSTILE_SECRET?: string;
+  /** Optional comma-separated hostnames the widget may be solved on; default: the request's own host. */
+  TURNSTILE_HOSTNAMES?: string;
+  /** Cloudflare Email Sending (`send_email` in wrangler.jsonc), once the domain is onboarded. Absent: mailto fallback. */
+  EMAIL?: SendEmail;
+  /** Sender on the onboarded domain, e.g. `inquiry@<domain>`. Absent: mailto fallback. */
+  INQUIRY_FROM?: string;
 
   // --- ticket E: reels ---
 }

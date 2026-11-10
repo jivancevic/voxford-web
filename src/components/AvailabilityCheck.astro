@@ -1,0 +1,135 @@
+---
+// The date-first widget (spec › Audience: "date + city → check availability").
+// Owner: ticket D; B places it in the home hero, others may place it too.
+// Props are a seam: { lang, type?, class? }.
+//
+// A plain GET form to /{lang}/inquiry/ whose field names are the prefill
+// contract (src/lib/inquiry-url.ts): without JavaScript the browser itself
+// writes ?date=…&city=… and the visitor lands on the form (the form applies
+// the prefill with JS). The script drops empty fields from the URL. Sits on a
+// photo: its own scrim keeps the text readable.
+import Pill from '@/components/Pill.astro';
+import type { EventType } from '@/data/site-facts';
+import { getStrings, type Locale } from '@/i18n';
+import { pathFor } from '@/i18n/routes';
+import { LIMITS } from '@/lib/inquiry';
+
+export interface Props {
+  lang: Locale;
+  /** Prefill the occasion, e.g. 'conference' on the Conferences page. */
+  type?: EventType;
+  class?: string;
+}
+
+const { lang, type, class: className } = Astro.props;
+const t = getStrings(lang).inquiry.widget;
+const uid = `availability-${type ?? 'any'}-${lang}`;
+---
+
+<form
+  class:list={['availability', className]}
+  action={pathFor('inquiry', lang)}
+  method="get"
+  aria-label={t.label}
+  data-availability
+  data-lang={lang}
+>
+  {type && <input type="hidden" name="type" value={type} />}
+  <div class="availability__field">
+    <label class="label availability__label" for={`${uid}-date`}>{t.date}</label>
+    <input class="availability__input" id={`${uid}-date`} name="date" type="date" />
+  </div>
+  <div class="availability__field availability__field--city">
+    <label class="label availability__label" for={`${uid}-city`}>{t.city}</label>
+    <input
+      class="availability__input"
+      id={`${uid}-city`}
+      name="city"
+      type="text"
+      maxlength={LIMITS.city}
+      autocomplete="address-level2"
+    />
+  </div>
+  <Pill type="submit" class="availability__submit">{t.submit}</Pill>
+</form>
+
+<script>
+  import { isLocale } from '@/i18n/locales';
+  import { localIsoDate } from '@/lib/inquiry';
+  import { inquiryUrl, parseInquiryPrefill } from '@/lib/inquiry-url';
+
+  // Keep the URL to the contract: no empty `date=` or `city=`, values checked.
+  document.querySelectorAll<HTMLFormElement>('[data-availability]').forEach((form) => {
+    const date = form.querySelector<HTMLInputElement>('input[name="date"]');
+    if (date) date.min = localIsoDate();
+
+    form.addEventListener('submit', (event) => {
+      const lang = form.dataset.lang;
+      if (!isLocale(lang)) return;
+      event.preventDefault();
+      const params = new URLSearchParams();
+      new FormData(form).forEach((value, key) => typeof value === 'string' && params.append(key, value));
+      window.location.assign(inquiryUrl(lang, parseInquiryPrefill(params)));
+    });
+  });
+</script>
+
+<style>
+  .availability {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: var(--space-3) var(--space-4);
+    inline-size: min(100%, 44rem);
+    padding: var(--space-4) var(--space-5) var(--space-5);
+    border: var(--line-thin) solid var(--color-border);
+    border-radius: var(--radius-card);
+    background: var(--color-scrim);
+    backdrop-filter: blur(12px);
+    overflow: hidden;
+  }
+
+  /* Light from the top edge, as on the inquiry page's panels. */
+  .availability::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    block-size: var(--line-thin);
+    background: var(--gradient-light);
+  }
+
+  .availability__field {
+    display: grid;
+    gap: var(--space-1);
+    flex: 1 1 10rem;
+  }
+
+  .availability__field--city {
+    flex-basis: 13rem;
+  }
+
+  .availability__label {
+    color: var(--color-text-on-photo);
+  }
+
+  .availability__input {
+    inline-size: 100%;
+    min-block-size: var(--pill-height);
+    padding: 0 var(--space-4);
+    border: var(--line-thin) solid var(--color-border-strong);
+    border-radius: var(--radius-pill);
+    background: var(--color-bg-surface);
+    color: var(--color-text);
+    font: inherit;
+  }
+
+  .availability__input:focus-visible {
+    border-color: var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  .availability :global(.availability__submit) {
+    flex: none;
+  }
+</style>
