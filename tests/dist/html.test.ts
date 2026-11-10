@@ -97,9 +97,12 @@ describe('JSON-LD shapes', () => {
     const text = (s: string) =>
       s
         .replace(/<[^>]+>/g, ' ')
-        .replace(/&amp;/g, '&')
+        .replace(/&amp;|&#x26;|&#38;/g, '&')
         .replace(/&#39;|&#x27;/g, "'")
-        .replace(/&quot;/g, '"')
+        .replace(/&quot;|&#x22;|&#34;/g, '"')
+        .replace(/&lt;|&#x3C;|&#60;/gi, '<')
+        .replace(/&gt;|&#x3E;|&#62;/gi, '>')
+        .replace(/&nbsp;|&#xA0;|&#160;|\u00a0/gi, ' ')
         .replace(/\s+/g, ' ')
         .trim();
     const withFaq = pages.filter((p) => graphOf(p).some((n) => n['@type'] === 'FAQPage'));

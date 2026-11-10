@@ -66,7 +66,9 @@ const QLevel = showHeading || grouped ? 'h3' : 'h2';
   // A link to `#<faq id>` (from another page or this one) opens that item;
   // the browser only auto-opens <details> for targets inside the answer.
   function openTarget() {
-    const id = decodeURIComponent(location.hash.slice(1));
+    // FAQ ids are ASCII slugs, so the hash needs no decoding (a malformed
+    // `#%` would make decodeURIComponent throw).
+    const id = location.hash.slice(1);
     const target = id ? document.getElementById(id) : null;
     if (target instanceof HTMLDetailsElement && target.classList.contains('faq__item')) target.open = true;
   }
@@ -128,10 +130,15 @@ const QLevel = showHeading || grouped ? 'h3' : 'h2';
     color: var(--color-text);
   }
 
-  .faq__summary:hover .faq__q,
   .faq__item[open] .faq__q,
   .faq__item:target .faq__q {
     color: var(--color-text-accent);
+  }
+
+  @media (hover: hover) {
+    .faq__summary:hover .faq__q {
+      color: var(--color-text-accent);
+    }
   }
 
   /* Plus when closed, minus when open: the vertical bar turns flat. */
@@ -174,7 +181,7 @@ const QLevel = showHeading || grouped ? 'h3' : 'h2';
   .faq__a {
     display: grid;
     gap: var(--space-3);
-    max-inline-size: 68ch;
+    max-inline-size: var(--measure);
     padding-block-end: var(--space-6);
     color: var(--color-text-secondary);
   }
@@ -199,6 +206,8 @@ const QLevel = showHeading || grouped ? 'h3' : 'h2';
     .faq__item::details-content {
       block-size: 0;
       overflow: clip;
+      /* Room for the focus ring of a link at the edge of an answer. */
+      overflow-clip-margin: 0.5rem;
       opacity: 0;
       transition:
         block-size var(--duration-base) var(--ease-out),
