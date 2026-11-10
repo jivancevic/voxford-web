@@ -65,8 +65,7 @@
     "all": "Svi nadolazeći koncerti",
     "eventPage": "Stranica događaja",
     "empty": "Trenutno nema najavljenih javnih koncerata. Novi datumi pojavit će se ovdje i na {handle}.",
-    "publicOnly": "Samo javni koncerti. Poslovne događaje i privatne proslave ovdje ne objavljujemo.",
-    "free": "Ulaz slobodan"
+    "publicOnly": "Samo javni koncerti. Poslovne događaje i privatne proslave ovdje ne objavljujemo."
   },
   "conferences": {
     "lead": "{disambiguation}. Pet pjevača i pet mikrofona, bez benda koji treba postaviti: pjevamo na otvorenjima konferencija, između predavanja, na gala večerama i dodjelama nagrada, u Zagrebu, diljem Hrvatske i u regiji.",

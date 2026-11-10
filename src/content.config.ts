@@ -55,7 +55,7 @@ const concerts = defineCollection({
     /** One line on what the event is, e.g. a free street performance. */
     description: localized.optional(),
     /** Free entry, open to everyone (schema.org isAccessibleForFree). */
-    free: z.boolean().optional(),
+    free: z.boolean().default(false),
     url: z.url().optional(),
     source: z.string().min(1),
   }),
