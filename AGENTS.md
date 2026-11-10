@@ -52,8 +52,8 @@ Shared rules for B–E:
 
 This repo follows `~/.agents/STANDARDS.md` (the loop, the gates, the never-list, `/ship`). Below are only this repo's facts and where it is stricter.
 
-- **A merge to `main` is a production deploy**: Cloudflare Workers Builds builds and deploys every push to `main` (`npm run build`, then `npm run deploy`), no staging. Until ticket G the production URL is the `workers.dev` one, `noindex`.
+- **A merge to `main` is a production deploy**: Cloudflare Workers Builds builds and deploys every push to `main` (`npm run build`, then `npm run deploy`), no staging. Until ticket G the production URL is `https://voxford-web.josip-ivancevic00.workers.dev` (repo variable `PRODUCTION_URL`), `noindex`.
 - **Post-merge check**: the `smoke` workflow (`.github/workflows/smoke.yml`) waits for `$PRODUCTION_URL/healthz` to answer 200 with the merged commit. Red, or prod misbehaving after a merge: roll back first, diagnose after.
 - **Rollback**: `npx wrangler rollback` (to the previous version), then a revert PR. Runbook: `docs/deploy-cloudflare.md` → Rollback.
-- **Required checks**: `ci` and the Workers Builds check for `voxford-web`.
+- **Required checks**: `ci` and `Workers Builds: voxford-web`.
 - **Stricter here**: nothing yet.
