@@ -1,6 +1,6 @@
 ---
 title: "A cappella for weddings in Croatia"
-description: "Voxford sings at weddings across Croatia and the region: five voices for the ceremony, a surprise for the couple or a concert during dinner."
+description: "Voxford sings at weddings across Croatia and the region: five voices for the ceremony or a surprise for the couple."
 heading: "Weddings"
 source: "brand/biografija.md, posao/ponuda/ponuda.md, posao/klijenti/reference.md › Vjenčanja, repertoar/repertoar.md, CONTEXT.md › Predujam"
 ---

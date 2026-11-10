@@ -27,8 +27,9 @@ import portraitDavid from '@/assets/photos/home/portrait-david.jpg';
 import portraitDora from '@/assets/photos/home/portrait-dora.jpg';
 import portraitJosip from '@/assets/photos/home/portrait-josip.jpg';
 import portraitVita from '@/assets/photos/home/portrait-vita.jpg';
-// Stages and artists (ReferencesWall, #33): our own photos from Drive › Photo.
-// The files carry no photographer in their metadata, so these have no credit.
+// Stages and artists (ReferencesWall, #33): photos from Drive › Photo. The files
+// carry no photographer in their metadata; credits are Josip's (2026-11-11).
+// The two Tvornica frames have no known author yet, so they show no credit.
 import stageArena from '@/assets/photos/stages/arena-zagreb-2025.webp';
 import stageDanijela from '@/assets/photos/stages/danijela-martinovic-2025.webp';
 import stageKutlic from '@/assets/photos/stages/marko-kutlic-2023.jpg';
@@ -127,6 +128,7 @@ export const PHOTOS = {
       hr: 'Voxford, pet pjevača za mikrofonima, na zamračenoj pozornici Arene Zagreb',
     },
     label: { en: 'WITH DALMATINO · 2025', hr: 'S DALMATINOM · 2025' },
+    credit: 'Jurica Cvitanić',
     source: 'Drive › Photo › 2025 Arena Dalmatino › 20250215-dsd-6926.webp',
   },
   stageTvornica: {
@@ -154,6 +156,7 @@ export const PHOTOS = {
       hr: 'Danijela Martinović u crvenoj haljini pjeva s Voxfordom u blagdanski uređenom TV studiju',
     },
     label: { en: 'CHRISTMAS SPECIAL · HRT · 2025', hr: 'BOŽIĆNA EMISIJA · HRT · 2025' },
+    credit: 'HRT',
     source: 'Drive › Photo › 2025 Božić s Danijelom › Voxford i Danijela.webp',
   },
 } as const satisfies Record<string, Photo>;

@@ -220,7 +220,14 @@ const Heading = `h${headingLevel}` as const;
     display: none;
   }
 
-  .video-card__button:focus-visible {
+  /* The frame clips its children, so the focus ring goes on the frame itself:
+     for the button, and for the poster link once a failed video falls back to it. */
+  .video-card__button:focus-visible,
+  .video-card__poster:focus-visible {
+    outline: none;
+  }
+
+  .video-card__frame:has(:is(.video-card__button, .video-card__poster):focus-visible) {
     outline: 2px solid var(--color-focus);
     outline-offset: 3px;
   }

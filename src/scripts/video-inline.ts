@@ -54,6 +54,7 @@ function playInline(frame: HTMLElement, button: HTMLButtonElement) {
   last?.addEventListener('error', () => restorePoster(frame, video), { once: true });
   const poster = frame.querySelector('img');
   if (poster?.currentSrc) video.poster = poster.currentSrc;
+  frame.classList.remove('is-playing'); // the loop's fade-in starts over if it ever comes back
   frame.classList.add('is-full');
   frame.querySelector('.video-card__poster')?.setAttribute('hidden', '');
   button.remove();
