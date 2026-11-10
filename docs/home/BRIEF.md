@@ -82,6 +82,9 @@ exist; **typographic poster** throws away the photography that "carries the page
 Revised on 2026-11-10 from Josip's review of the live page (jivancevic/voxford-web#32): the
 first build lit the voices from the scroll and let a tap toggle each one, with an opt-in
 Listen; Josip asked for one big play button instead, with the singers lit by the music.
+On 2026-11-11 the transport choices below were kept as recommended in PR #34: a pause that
+holds when the visitor scrolls back, a pin of 2.4 viewport-heights, and one button with no
+separate stop. They stand unless Josip changes them; `docs/spec.md` records the same.
 
 Five portraits in stage order (Josip, Dora, Ante, Vita, David; KB `ljudi-i-procesi/ekipa.md`)
 stand in near-darkness, all five dim, with one large round play button centred on them. Pressing
