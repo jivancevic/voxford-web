@@ -14,10 +14,13 @@
     "binding": "ASSETS",
     "html_handling": "auto-trailing-slash",
     "not_found_handling": "404-page",
-    "run_worker_first": ["/", "/healthz", "/api/*"]
+    "run_worker_first": ["/", "/healthz", "/api/*", "/media/*"]
   },
   // Daily reels sync (ticket E fills worker/reels.ts).
   "triggers": { "crons": ["17 4 * * *"] },
-  "observability": { "enabled": true }
-  // Ticket E adds "r2_buckets" here; ticket G adds "routes" for the domain.
+  "observability": { "enabled": true },
+  // Top videos and synced reels (ticket E), served by the Worker at /media/*.
+  // `wrangler dev` uses a local bucket; fill it with scripts/upload-media.sh --local.
+  "r2_buckets": [{ "binding": "MEDIA", "bucket_name": "voxford-media" }]
+  // Ticket G adds "routes" for the domain.
 }

@@ -2,6 +2,7 @@ import type { Env } from './env';
 import { handleHealthz } from './healthz';
 import { handleInquiry } from './inquiry';
 import { handleRootRedirect } from './lang-redirect';
+import { handleMedia, MEDIA_PREFIX } from './media';
 import { syncReels } from './reels';
 
 // The Worker in front of the static site. wrangler.jsonc routes only the paths
@@ -15,6 +16,7 @@ export default {
     if (pathname === '/') return handleRootRedirect(request);
     if (pathname === '/healthz' || pathname === '/healthz/') return handleHealthz(env);
     if (pathname === '/api/inquiry' || pathname === '/api/inquiry/') return handleInquiry(request, env, ctx);
+    if (pathname.startsWith(MEDIA_PREFIX)) return handleMedia(request, env);
     if (pathname.startsWith('/api/')) {
       return Response.json({ ok: false, error: 'not_found' }, { status: 404 });
     }
