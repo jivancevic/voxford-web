@@ -1,3 +1,392 @@
 {
-  "breadcrumbHome": "Home"
+  "breadcrumbHome": "Home",
+  "photoCredit": "Photo: {credit}",
+  "factsLabel": "In short",
+  "seePackages": "Compare the packages",
+  "package": "Package",
+  "moments": {
+    "package": "Package",
+    "length": "Length"
+  },
+  "end": {
+    "heading": "Send us the date and the city",
+    "body": "{managerName} of {managerCompany} replies with the offer and the riders. The price depends on the date and the place; travel costs are separate."
+  },
+  "faq": {
+    "heading": "Questions people ask before booking",
+    "all": "All questions",
+    "groups": {
+      "booking": "Booking",
+      "music": "Music",
+      "sound": "Sound and stage",
+      "day": "On the day"
+    }
+  },
+  "packages": {
+    "length": "Length",
+    "lineup": "On stage",
+    "fits": "Fits",
+    "inquire": "Ask about {name}",
+    "compareHeading": "Side by side",
+    "compareCaption": "The three packages compared. Prices on request.",
+    "rows": {
+      "type": "Type",
+      "length": "Length",
+      "instruments": "Instruments",
+      "engineer": "Sound engineer"
+    },
+    "items": {
+      "pop-up": {
+        "type": "Ceremonial set",
+        "fits": "Weddings, openings, award ceremonies and the special moments of an event. Fully a cappella.",
+        "instruments": "None, a cappella",
+        "engineer": "Yours"
+      },
+      "classic": {
+        "type": "A cappella concert",
+        "fits": "A standalone concert: Croatian and international hits in five voices, with no instruments.",
+        "instruments": "None, a cappella",
+        "engineer": "Yours or ours"
+      },
+      "gold": {
+        "type": "Full evening concert",
+        "fits": "Seven performers: five voices with piano and cajón, as the main music of the evening.",
+        "instruments": "Piano and cajón",
+        "engineer": "Yours or ours"
+      }
+    },
+    "duration": {
+      "upTo": "up to {max} min",
+      "range": "{min} to {max} min"
+    }
+  },
+  "concerts": {
+    "upcomingHeading": "Upcoming concerts",
+    "all": "All upcoming concerts",
+    "eventPage": "Event page",
+    "empty": "No public concerts are announced right now. New dates appear here and on {handle}.",
+    "publicOnly": "Public concerts only. Corporate events and private celebrations are never listed."
+  },
+  "conferences": {
+    "lead": "{disambiguation}. Five singers and five microphones, with no band to set up: we sing at conference openings, between sessions, at gala dinners and award nights, in Zagreb and across Croatia and the region.",
+    "facts": [
+      {
+        "term": "Who",
+        "detail": "Five a cappella singers from Zagreb, together since {foundingYear}"
+      },
+      {
+        "term": "How long",
+        "detail": "Up to {popUpMax} minutes, {classicMin} to {classicMax}, or {goldMin} to {goldMax} with piano and cajón"
+      },
+      {
+        "term": "Where",
+        "detail": "Zagreb, the rest of Croatia and the region"
+      },
+      {
+        "term": "What we need",
+        "detail": "A PA and five microphones, or our own sound engineer. No stage build."
+      }
+    ],
+    "programmeHeading": "Where it fits in your programme",
+    "programmeIntro": "Four places in a conference day where we usually come in, in the order they happen.",
+    "moments": [
+      {
+        "title": "Opening",
+        "package": "pop-up",
+        "body": "Up to {popUpMax} minutes before the first keynote or the anniversary speech. It gets the room's attention faster than a playlist does."
+      },
+      {
+        "title": "Between sessions",
+        "package": "pop-up",
+        "body": "Short mixes as interludes, so a break has a moment in it. We did this at the MAKK 2022 conference in Zagreb."
+      },
+      {
+        "title": "Gala dinner or awards night",
+        "package": "classic",
+        "body": "{classicMin} to {classicMax} minutes of a cappella around the courses or the awards, while the guests stay at their tables."
+      },
+      {
+        "title": "The evening concert",
+        "package": "gold",
+        "body": "{goldMin} to {goldMax} minutes with piano and cajón, as the main act of an anniversary night or a Christmas party."
+      }
+    ],
+    "referencesHeading": "Who has booked us",
+    "referencesIntro": "Companies, associations and public institutions we have sung for. Private clients are never named.",
+    "references": [
+      {
+        "name": "HAK, Croatian Auto Club",
+        "what": "Anniversary celebration, Hotel Esplanade Zagreb",
+        "year": "2026"
+      },
+      {
+        "name": "Unisport Hrvatska",
+        "what": "Unisport Stars gala, The Westin Zagreb",
+        "year": "2026"
+      },
+      {
+        "name": "GP Krk",
+        "what": "Company anniversary, Opatija",
+        "year": "2026"
+      },
+      {
+        "name": "JGL",
+        "what": "Christmas event, Rijeka",
+        "year": "2025"
+      },
+      {
+        "name": "Croatian Bureau of Statistics",
+        "what": "Anniversary event, Zagreb",
+        "year": "2025"
+      },
+      {
+        "name": "Faculty of Economics, University of Zagreb",
+        "what": "Christmas reception",
+        "year": "2025"
+      },
+      {
+        "name": "Disney and Blitz-CineStar",
+        "what": "Premieres of Wish and Mufasa, Zagreb",
+        "year": "2023, 2024"
+      },
+      {
+        "name": "Infobip",
+        "what": "Company event",
+        "year": "2023"
+      },
+      {
+        "name": "HEP",
+        "what": "Christmas concerts",
+        "year": "2023"
+      },
+      {
+        "name": "Hrvatski Telekom",
+        "what": "Christmas event",
+        "year": "2022"
+      },
+      {
+        "name": "MAKK, HDS ZAMP",
+        "what": "International conference on authors' creativity, Zagreb",
+        "year": "2022"
+      }
+    ],
+    "serviceType": "Live music for conferences and corporate events"
+  },
+  "weddings": {
+    "lead": "{disambiguation}. Five voices for the ceremony, a surprise at the party or the whole evening, at weddings across Croatia and in Slovenia.",
+    "facts": [
+      {
+        "term": "Ceremony",
+        "detail": "POP-UP, up to {popUpMax} minutes, fully a cappella"
+      },
+      {
+        "term": "Celebration",
+        "detail": "CLASSIC, {classicMin} to {classicMax} minutes, or GOLD with piano and cajón"
+      },
+      {
+        "term": "Where",
+        "detail": "Croatia and the region; travel costs are separate"
+      },
+      {
+        "term": "To confirm the date",
+        "detail": "A contract and a deposit, paid when you sign"
+      }
+    ],
+    "programmeHeading": "Moments we sing at",
+    "programmeIntro": "In the order of the day. Pick one or combine them.",
+    "moments": [
+      {
+        "title": "The ceremony",
+        "package": "pop-up",
+        "body": "The walk in, the moment after the vows, the way out. Up to {popUpMax} minutes, five voices and nothing else."
+      },
+      {
+        "title": "A surprise for the couple",
+        "package": "pop-up",
+        "body": "We walk into the party unannounced, and the couple finds out when the first chord starts."
+      },
+      {
+        "title": "During dinner",
+        "package": "classic",
+        "body": "{classicMin} to {classicMax} minutes between the courses: klapa songs and the Croatian and international hits your guests know."
+      },
+      {
+        "title": "The whole evening",
+        "package": "gold",
+        "body": "{goldMin} to {goldMax} minutes with piano and cajón, when you want live music to carry the night."
+      }
+    ],
+    "serviceType": "Live music for weddings"
+  },
+  "advent": {
+    "lead": "{disambiguation}. Cities and tourist boards book us for Advent stages, summer concerts and festivals: a full evening with piano and cajón, or a short a cappella set to open the programme.",
+    "facts": [
+      {
+        "term": "Format",
+        "detail": "GOLD, {goldMin} to {goldMax} minutes, five voices with piano and cajón"
+      },
+      {
+        "term": "Shorter",
+        "detail": "CLASSIC a cappella concert, {classicMin} to {classicMax} minutes, or a POP-UP opening"
+      },
+      {
+        "term": "Season",
+        "detail": "Advent in December, summer stages on the coast and the islands"
+      },
+      {
+        "term": "Where",
+        "detail": "All of Croatia and the region; travel costs are separate"
+      }
+    ],
+    "pastHeading": "Recent public concerts",
+    "past": [
+      {
+        "name": "Music evenings in Ivanić-Grad",
+        "year": "2025"
+      },
+      {
+        "name": "Advent in Jastrebarsko",
+        "year": "2024"
+      },
+      {
+        "name": "Summer concerts in Biograd na Moru",
+        "year": "2023 to 2025"
+      },
+      {
+        "name": "Concert in Orebić, the first on Pelješac",
+        "year": "2026"
+      },
+      {
+        "name": "St Anthony's Day concert, Korčula",
+        "year": "2026"
+      },
+      {
+        "name": "Pag Lace Festival",
+        "year": "2026"
+      },
+      {
+        "name": "Summer stages in Supetar and Vis",
+        "year": "2026"
+      },
+      {
+        "name": "Kvarner International Sparkling Wines Festival, Crikvenica",
+        "year": "2026"
+      },
+      {
+        "name": "Blitvijada, Podgora",
+        "year": "2026"
+      },
+      {
+        "name": "La Nuit des Chœurs, Villers-la-Ville, Belgium",
+        "year": "2026"
+      }
+    ],
+    "serviceType": "Advent and summer concerts for cities and tourist boards"
+  },
+  "private": {
+    "lead": "{disambiguation}. Birthdays, anniversaries and family celebrations: we walk in as a surprise of up to {popUpMax} minutes or give the guests a full concert.",
+    "facts": [
+      {
+        "term": "Surprise",
+        "detail": "POP-UP, up to {popUpMax} minutes"
+      },
+      {
+        "term": "Concert",
+        "detail": "CLASSIC, {classicMin} to {classicMax} minutes, or GOLD with piano and cajón"
+      },
+      {
+        "term": "Where",
+        "detail": "Zagreb, the rest of Croatia and the region"
+      },
+      {
+        "term": "Privacy",
+        "detail": "We never publish the names of private clients"
+      }
+    ],
+    "programmeHeading": "How it can go",
+    "programmeIntro": "Three ways to have us at a private celebration.",
+    "moments": [
+      {
+        "title": "The surprise",
+        "package": "pop-up",
+        "body": "We walk in unannounced, sing for the person you are celebrating and leave the party to carry on. Up to {popUpMax} minutes."
+      },
+      {
+        "title": "A concert for the guests",
+        "package": "classic",
+        "body": "{classicMin} to {classicMax} minutes of a cappella, with a set list built around the people in the room."
+      },
+      {
+        "title": "The evening",
+        "package": "gold",
+        "body": "{goldMin} to {goldMax} minutes with piano and cajón, for a celebration that should last all evening."
+      }
+    ],
+    "serviceType": "Live music for private celebrations"
+  },
+  "about": {
+    "lead": "{disambiguation}. Five singers from different parts of Croatia, based in Zagreb, who mix modern a cappella with the sound of Dalmatian klapa.",
+    "membersHeading": "The five",
+    "membersIntro": "As you see us on stage, from left to right.",
+    "numbersHeading": "Online",
+    "stagesHeading": "Stages we have sung on",
+    "stages": {
+      "Kursalon Hübner": "With Tonči Huljić's crossover project Mediterraneo",
+      "Križanke": "With Tonči Huljić's crossover project Mediterraneo",
+      "Arena Zagreb": "Surprise guests at Dalmatino's concert",
+      "Tvornica kulture": "Guests of Marko Kutlić, and later of Jasna Zlokić",
+      "Lisinski": "At Danijela Martinović's concert"
+    },
+    "pressHeading": "In the press",
+    "press": [
+      {
+        "outlet": "JUGinfo",
+        "date": "2026-02-28",
+        "what": "Report from the concert in Orebić",
+        "url": "https://juginfo.hr/najnovije/2026/02/28/tiktok-fenomen-uzivo-voxford-pokazao-da-drustvene-mreze-ne-moraju-biti-moderno-zlo-te-da-90-milijuna-pregleda-i-450-tisuca-pratitelja-nije-slucajno/"
+      },
+      {
+        "outlet": "Index.hr",
+        "date": "2025-02-16",
+        "what": "Dalmatino at a full Arena Zagreb, with Voxford as surprise guests",
+        "url": "https://www.index.hr/magazin/clanak/foto-grupa-dalmatino-nastupila-u-punoj-areni-zagreb/2642766.aspx"
+      },
+      {
+        "outlet": "Journal.hr",
+        "date": "2024-06-05",
+        "what": "Interview: the group's story, the klapa roots and the Mediterraneo concerts",
+        "url": "https://www.journal.hr/kultura/glazba/voxford-intervju/"
+      },
+      {
+        "outlet": "After5",
+        "date": "2023-07-24",
+        "what": "How it started in a student flat",
+        "url": "https://after5.hr/zivot-iza-5/kultura/voxford-a-capella-bend/"
+      },
+      {
+        "outlet": "Croatia Records",
+        "date": "2023-11-24",
+        "what": "Marko Kutlić at Tvornica kulture, singing with Voxford",
+        "url": "https://crorec.net/novosti/marko-kutlic-odrzao-vrhunski-koncert-u-punoj-tvornici-kulture-iznenadio-imidzem-i-pjevao-medu-odusevljenom-publikom-koja-je-znala-svaki-stih/"
+      },
+      {
+        "outlet": "MAKK",
+        "date": "2022-11-24",
+        "what": "Voxford at the MAKK 2022 conference",
+        "url": "https://www.makk.hr/makk-2022/voxford-a-capella-zacin-makk-u/"
+      }
+    ],
+    "managementHeading": "Management",
+    "management": "{managerName}, {managerCompany}. Bookings and press: {email}."
+  },
+  "packagesPage": {
+    "lead": "{disambiguation}. Three ways to book us, each with a fixed length and line-up. The price depends on the date and the place, so we send it on request.",
+    "serviceType": "Live a cappella performance"
+  },
+  "faqPage": {
+    "lead": "Short answers about booking {disambiguation}: music, sound and the day of the event. For anything else, write to {email}."
+  },
+  "concertsPage": {
+    "lead": "{disambiguation}, live: Advent stages, summer concerts and festivals where anyone can come and listen."
+  }
 }

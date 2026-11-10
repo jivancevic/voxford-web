@@ -1,0 +1,8 @@
+{
+  "name": { "en": "Voxford at Advent in Novalja", "hr": "Voxford na Adventu u Novalji" },
+  "startDate": "2026-12-05",
+  "venue": "Advent u Novalji",
+  "city": { "en": "Novalja", "hr": "Novalja" },
+  "countryCode": "HR",
+  "source": "Sufler list_gigs 2026-11-10 (signed; client TZ Grada Novalje); KB posao/klijenti/reference.md"
+}

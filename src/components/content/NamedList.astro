@@ -1,0 +1,97 @@
+---
+// A plain, crawlable list of names with what and when: references, past
+// concerts, press. Text, not logos, so search and AI answers can quote it.
+interface Item {
+  name: string;
+  what?: string;
+  year?: string;
+  url?: string;
+}
+
+interface Props {
+  id: string;
+  heading: string;
+  intro?: string;
+  items: readonly Item[];
+  class?: string;
+}
+
+const { id, heading, intro, items, class: className } = Astro.props;
+---
+
+<section class:list={['named container', className]} aria-labelledby={id}>
+  <div class="named__head">
+    <h2 id={id}>{heading}</h2>
+    {intro && <p class="named__intro">{intro}</p>}
+  </div>
+  <ul class="named__list" role="list">
+    {
+      items.map((i) => (
+        <li class="named__item">
+          <span class="named__name">{i.url ? <a href={i.url} rel="noopener">{i.name}</a> : i.name}</span>
+          {i.what && <span class="named__what">{i.what}</span>}
+          {i.year && <span class="label named__year">{i.year}</span>}
+        </li>
+      ))
+    }
+  </ul>
+</section>
+
+<style>
+  .named {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  .named__head {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .named__intro {
+    color: var(--color-text-secondary);
+  }
+
+  .named__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+    column-gap: var(--space-7);
+  }
+
+  .named__item {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--space-1) var(--space-4);
+    max-inline-size: none;
+    padding-block: var(--space-4);
+    border-block-start: var(--line-thin) solid var(--color-border);
+  }
+
+  .named__name {
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  .named__what {
+    grid-column: 1;
+    color: var(--color-text-secondary);
+    font-size: var(--text-small);
+  }
+
+  .named__year {
+    grid-column: 2;
+    grid-row: 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  @media (min-width: 60rem) {
+    .named {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+      gap: var(--space-8);
+      align-items: start;
+    }
+  }
+</style>

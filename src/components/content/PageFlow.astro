@@ -1,0 +1,13 @@
+---
+// Vertical rhythm of a content page: generous space between sections.
+---
+
+<div class="page-flow"><slot /></div>
+
+<style>
+  .page-flow {
+    display: grid;
+    gap: var(--section-gap);
+    padding-block-end: var(--space-6);
+  }
+</style>

@@ -1,0 +1,113 @@
+---
+// The top of a content page: the h1, an answer-first lead, the inquiry pill
+// (prefilled per page type) and, when given, a photo with its label and credit.
+// The h1 and lead are plain text in the HTML, so crawlers read the answer first.
+import InquiryCTA from '@/components/InquiryCTA.astro';
+import Pill from '@/components/Pill.astro';
+import type { PhotoKey } from '@/data/photos';
+import type { Locale } from '@/i18n';
+import type { InquiryPrefill } from '@/lib/inquiry-url';
+import CreditedPhoto from './CreditedPhoto.astro';
+
+interface Props {
+  lang: Locale;
+  heading: string;
+  lead: string;
+  photo?: PhotoKey;
+  prefill?: InquiryPrefill;
+  /** A second, quieter link next to the inquiry pill. */
+  secondary?: { href: string; label: string };
+}
+
+const { lang, heading, lead, photo, prefill, secondary } = Astro.props;
+---
+
+<header class:list={['content-hero container', photo ? 'content-hero--photo' : 'content-hero--plain']}>
+  <div class="content-hero__text">
+    <h1>{heading}</h1>
+    <span class="light-line content-hero__line" aria-hidden="true"></span>
+    <p class="lead content-hero__lead">{lead}</p>
+    <div class="content-hero__actions">
+      <InquiryCTA lang={lang} prefill={prefill} />
+      {secondary && <Pill href={secondary.href} variant="ghost">{secondary.label}</Pill>}
+    </div>
+  </div>
+  {
+    photo && (
+      <CreditedPhoto
+        photo={photo}
+        lang={lang}
+        priority
+        sizes="(min-width: 960px) 46vw, calc(100vw - 2rem)"
+        class="content-hero__photo"
+      />
+    )
+  }
+</header>
+
+<style>
+  .content-hero {
+    isolation: isolate;
+    display: grid;
+    gap: var(--space-7);
+    padding-block: var(--space-8) var(--space-7);
+  }
+
+  .content-hero__text {
+    display: grid;
+    gap: var(--space-5);
+    align-content: center;
+    justify-items: start;
+  }
+
+  .content-hero h1 {
+    max-inline-size: 12ch;
+  }
+
+  .content-hero__line {
+    inline-size: min(14rem, 50%);
+  }
+
+  .content-hero__lead {
+    color: var(--color-text);
+  }
+
+  .content-hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    padding-block-start: var(--space-2);
+  }
+
+  .content-hero :global(.content-hero__photo) {
+    --photo-ratio: 4 / 5;
+    position: relative;
+  }
+
+  /* The light falls on the photo from the stage edge: a soft glow behind it. */
+  .content-hero :global(.content-hero__photo)::before {
+    content: '';
+    position: absolute;
+    inset: 12% -6% auto auto;
+    inline-size: 70%;
+    aspect-ratio: 1;
+    z-index: -1;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, color-mix(in oklab, var(--brand-purple) 45%, transparent), transparent);
+    filter: blur(2.5rem);
+    pointer-events: none;
+  }
+
+  @media (min-width: 60rem) {
+    .content-hero--photo {
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+      align-items: center;
+      gap: var(--space-8);
+      padding-block: var(--space-9) var(--space-8);
+    }
+
+    .content-hero--plain {
+      padding-block: var(--space-9) var(--space-7);
+    }
+  }
+</style>

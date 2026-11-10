@@ -1,11 +1,20 @@
 ---
-// View for the `concerts` page (owner: ticket C). Both language routes
-// render this file; replace the placeholder with the real page.
-import PagePlaceholder from '@/components/PagePlaceholder.astro';
-import type { Locale } from '@/i18n';
+// Upcoming concerts (ticket C): public concerts only, never corporate or
+// private gigs. Each concert gets Event (MusicEvent) JSON-LD. With nothing
+// upcoming the page says so and is noindex, and the footer and sitemap leave
+// it out (src/lib/concerts.ts).
+import { getImage } from 'astro:assets';
+import ConcertList from '@/components/content/ConcertList.astro';
+import ContentHero from '@/components/content/ContentHero.astro';
+import EndCta from '@/components/content/EndCta.astro';
+import PageFlow from '@/components/content/PageFlow.astro';
+import { PHOTOS } from '@/data/photos';
+import { getStrings, type Locale } from '@/i18n';
 import type { PageKey } from '@/i18n/routes';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getUpcomingConcerts } from '@/lib/concerts';
+import { fillFacts } from '@/lib/copy';
+import { concertJsonLd } from '@/lib/jsonld';
 import { breadcrumbsFor, loadPage } from '@/lib/page';
 
 interface Props {
@@ -14,17 +23,57 @@ interface Props {
 
 const { lang } = Astro.props;
 const page: PageKey = 'concerts';
+const site = Astro.site!;
 const copy = await loadPage(page, lang);
-// Hidden when empty: noindex, and the footer and sitemap leave it out.
+const t = getStrings(lang);
 const upcoming = await getUpcomingConcerts();
+const image = await getImage({ src: PHOTOS.crikvenicaPiano.src, width: 1200, format: 'jpg' });
+const events = upcoming.map((c) =>
+  concertJsonLd(site, {
+    name: c.data.name[lang],
+    startDate: c.data.startDate,
+    venue: c.data.venue,
+    city: c.data.city[lang],
+    countryCode: c.data.countryCode,
+    image: new URL(image.src, site).href,
+    ...(c.data.url ? { url: c.data.url } : {}),
+  }),
+);
 ---
 
 <BaseLayout
   lang={lang}
   page={page}
   title={copy.data.title}
-  description={copy.data.description}
-  jsonLd={[breadcrumbsFor(Astro.site!, page, lang)]} noindex={upcoming.length === 0}
+  description={fillFacts(copy.data.description, lang)}
+  ogPhoto="crikvenicaPiano"
+  jsonLd={[breadcrumbsFor(site, page, lang), ...events]}
+  noindex={upcoming.length === 0}
 >
-  <PagePlaceholder lang={lang} heading={copy.data.heading} prefill={{ type: 'concert' }} />
+  <PageFlow>
+    <ContentHero lang={lang} heading={copy.data.heading} lead={fillFacts(t.content.concertsPage.lead, lang)} prefill={{ type: 'concert' }} />
+    <section class="container list" aria-label={copy.data.heading}>
+      {
+        upcoming.length > 0 ? (
+          <ConcertList lang={lang} concerts={upcoming} />
+        ) : (
+          <p class="lead">{fillFacts(t.content.concerts.empty, lang)}</p>
+        )
+      }
+      <p class="list__note">{t.content.concerts.publicOnly}</p>
+    </section>
+    <EndCta lang={lang} prefill={{ type: 'concert' }} />
+  </PageFlow>
 </BaseLayout>
+
+<style>
+  .list {
+    display: grid;
+    gap: var(--space-5);
+  }
+
+  .list__note {
+    color: var(--color-text-muted);
+    font-size: var(--text-small);
+  }
+</style>

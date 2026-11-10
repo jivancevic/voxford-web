@@ -1,11 +1,28 @@
 ---
-// View for the `advent` page (owner: ticket C). Both language routes
-// render this file; replace the placeholder with the real page.
-import PagePlaceholder from '@/components/PagePlaceholder.astro';
-import type { Locale } from '@/i18n';
-import type { PageKey } from '@/i18n/routes';
+// Advent & concerts (ticket C): for cities and tourist boards. Shows the next
+// public concerts (the full list and their Event JSON-LD live on the concerts
+// page) and recent public ones by name. JSON-LD: BreadcrumbList, one Service
+// per package (no prices), FAQPage.
+import ReferencesWall from '@/components/ReferencesWall.astro';
+import VideoRail from '@/components/VideoRail.astro';
+import ConcertList from '@/components/content/ConcertList.astro';
+import ContentHero from '@/components/content/ContentHero.astro';
+import EndCta from '@/components/content/EndCta.astro';
+import FactList from '@/components/content/FactList.astro';
+import FaqList from '@/components/content/FaqList.astro';
+import NamedList from '@/components/content/NamedList.astro';
+import PackageSection from '@/components/content/PackageSection.astro';
+import PageFlow from '@/components/content/PageFlow.astro';
+import Prose from '@/components/content/Prose.astro';
+import { getStrings, type Locale } from '@/i18n';
+import { pathFor, type PageKey } from '@/i18n/routes';
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getUpcomingConcerts } from '@/lib/concerts';
+import { fillFacts } from '@/lib/copy';
+import { getFaqs } from '@/lib/faq';
+import { faqPageJsonLd } from '@/lib/jsonld';
 import { breadcrumbsFor, loadPage } from '@/lib/page';
+import { servicesFor } from '@/lib/services';
 
 interface Props {
   lang: Locale;
@@ -13,15 +30,57 @@ interface Props {
 
 const { lang } = Astro.props;
 const page: PageKey = 'advent';
+const site = Astro.site!;
 const copy = await loadPage(page, lang);
+const t = getStrings(lang);
+const c = t.content.advent;
+const faqs = await getFaqs(lang, page);
+const upcoming = await getUpcomingConcerts();
+const prefill = { type: 'advent' } as const;
 ---
 
 <BaseLayout
   lang={lang}
   page={page}
   title={copy.data.title}
-  description={copy.data.description}
-  jsonLd={[breadcrumbsFor(Astro.site!, page, lang)]}
+  description={fillFacts(copy.data.description, lang)}
+  ogPhoto="crikvenicaPiano"
+  jsonLd={[breadcrumbsFor(site, page, lang), ...servicesFor(site, lang, page, c.serviceType), faqPageJsonLd(faqs)]}
 >
-  <PagePlaceholder lang={lang} heading={copy.data.heading} prefill={{ type: 'advent' }} />
+  <PageFlow>
+    <ContentHero
+      lang={lang}
+      heading={copy.data.heading}
+      lead={fillFacts(c.lead, lang)}
+      photo="crikvenicaPiano"
+      prefill={prefill}
+      secondary={{ href: '#packages-heading', label: t.content.seePackages }}
+    />
+    <FactList lang={lang} label={t.content.factsLabel} facts={c.facts} />
+    <Prose lang={lang} html={copy.rendered?.html ?? ''} />
+    {
+      upcoming.length > 0 && (
+        <section class="container upcoming" aria-labelledby="upcoming-heading">
+          <h2 id="upcoming-heading">{t.content.concerts.upcomingHeading}</h2>
+          <ConcertList lang={lang} concerts={upcoming.slice(0, 3)} level="h3" />
+          <p>
+            <a href={pathFor('concerts', lang)}>{t.content.concerts.all}</a>
+          </p>
+        </section>
+      )
+    }
+    <NamedList id="past" heading={c.pastHeading} items={c.past} />
+    <ReferencesWall lang={lang} class="container" />
+    <PackageSection lang={lang} type="advent" />
+    <FaqList lang={lang} id="faq" heading={t.content.faq.heading} faqs={faqs} more={{ href: pathFor('faq', lang), label: t.content.faq.all }} />
+    <VideoRail lang={lang} limit={4} class="container" />
+    <EndCta lang={lang} prefill={prefill} />
+  </PageFlow>
 </BaseLayout>
+
+<style>
+  .upcoming {
+    display: grid;
+    gap: var(--space-6);
+  }
+</style>

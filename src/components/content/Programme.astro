@@ -1,0 +1,141 @@
+---
+// Where Voxford fits in an event, in running order (the order carries the
+// meaning, so it is an <ol> along a line of light). Each moment names its
+// package and links to it on the packages page.
+import { PACKAGES } from '@/data/site-facts';
+import type { Locale } from '@/i18n';
+import { pathFor } from '@/i18n/routes';
+import { fillFacts, packageDuration } from '@/lib/copy';
+
+interface Props {
+  lang: Locale;
+  id: string;
+  heading: string;
+  intro?: string;
+  moments: readonly { title: string; package: string; body: string }[];
+}
+
+const { lang, id, heading, intro, moments } = Astro.props;
+const items = moments.map((m) => {
+  const pkg = PACKAGES.find((p) => p.key === m.package);
+  if (!pkg) throw new Error(`Unknown package "${m.package}" in content copy`);
+  return { ...m, pkg };
+});
+---
+
+<section class="programme container" aria-labelledby={id}>
+  <div class="programme__head">
+    <h2 id={id}>{heading}</h2>
+    {intro && <p class="programme__intro">{intro}</p>}
+  </div>
+  <ol class="programme__list">
+    {
+      items.map((m) => (
+        <li class="programme__item">
+          <h3 class="programme__title">{m.title}</h3>
+          <p class="programme__meta">
+            <a class="display programme__pkg" href={`${pathFor('packages', lang)}#${m.pkg.key}`}>
+              {m.pkg.name}
+            </a>
+            <span class="label">{packageDuration(m.pkg, lang)}</span>
+          </p>
+          <p class="programme__body">{fillFacts(m.body, lang)}</p>
+        </li>
+      ))
+    }
+  </ol>
+</section>
+
+<style>
+  .programme {
+    display: grid;
+    gap: var(--space-7);
+  }
+
+  .programme__head {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .programme__intro {
+    color: var(--color-text-secondary);
+  }
+
+  .programme__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-7);
+    position: relative;
+    padding-inline-start: var(--space-6);
+  }
+
+  /* The running order as a beam of light. */
+  .programme__list::before {
+    content: '';
+    position: absolute;
+    inset-block: 0.5rem 0.5rem;
+    inset-inline-start: 0;
+    inline-size: var(--line-thin);
+    background: var(--gradient-light-vertical);
+  }
+
+  .programme__item {
+    position: relative;
+    display: grid;
+    gap: var(--space-2);
+    max-inline-size: none;
+  }
+
+  .programme__item::before {
+    content: '';
+    position: absolute;
+    inset-inline-start: calc(-1 * var(--space-6) - 0.3125rem + 0.5px);
+    inset-block-start: 0.55rem;
+    inline-size: 0.625rem;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--color-bg);
+    border: var(--line-thin) solid var(--brand-pink);
+    box-shadow: var(--glow-pink);
+  }
+
+  .programme__title {
+    font-size: var(--text-heading);
+  }
+
+  .programme__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-3);
+  }
+
+  .programme__pkg {
+    font-size: var(--text-lead);
+    color: var(--color-text);
+    text-decoration-color: color-mix(in oklab, var(--brand-pink) 70%, transparent);
+  }
+
+  .programme__pkg:hover {
+    color: var(--color-text-accent);
+  }
+
+  .programme__body {
+    color: var(--color-text-secondary);
+  }
+
+  @media (min-width: 60rem) {
+    .programme {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+      gap: var(--space-8);
+      align-items: start;
+    }
+
+    .programme__head {
+      position: sticky;
+      top: 6rem;
+    }
+  }
+</style>

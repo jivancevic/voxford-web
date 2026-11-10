@@ -1,11 +1,23 @@
 ---
-// View for the `packages` page (owner: ticket C). Both language routes
-// render this file; replace the placeholder with the real page.
-import PagePlaceholder from '@/components/PagePlaceholder.astro';
-import type { Locale } from '@/i18n';
-import type { PageKey } from '@/i18n/routes';
+// Packages (ticket C): POP-UP, CLASSIC, GOLD with length, line-up, when each
+// fits and a side-by-side table. No prices, ever (spec › Decisions); each
+// card's pill prefills the inquiry with its package.
+// JSON-LD: BreadcrumbList, one Service per package with a price-less Offer, FAQPage.
+import ContentHero from '@/components/content/ContentHero.astro';
+import EndCta from '@/components/content/EndCta.astro';
+import FaqList from '@/components/content/FaqList.astro';
+import PackageCards from '@/components/content/PackageCards.astro';
+import PageFlow from '@/components/content/PageFlow.astro';
+import Prose from '@/components/content/Prose.astro';
+import { PACKAGES, PRICE_ON_REQUEST, type Package } from '@/data/site-facts';
+import { getStrings, type Locale } from '@/i18n';
+import { pathFor, type PageKey } from '@/i18n/routes';
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import { fillFacts, packageDuration } from '@/lib/copy';
+import { getFaqs } from '@/lib/faq';
+import { faqPageJsonLd } from '@/lib/jsonld';
 import { breadcrumbsFor, loadPage } from '@/lib/page';
+import { servicesFor } from '@/lib/services';
 
 interface Props {
   lang: Locale;
@@ -13,15 +25,123 @@ interface Props {
 
 const { lang } = Astro.props;
 const page: PageKey = 'packages';
+const site = Astro.site!;
 const copy = await loadPage(page, lang);
+const t = getStrings(lang);
+const pk = t.content.packages;
+const faqs = await getFaqs(lang, page);
+const rows: { label: string; cell: (p: Package) => string }[] = [
+  { label: pk.rows.type, cell: (p) => pk.items[p.key].type },
+  { label: pk.rows.length, cell: (p) => packageDuration(p, lang) },
+  { label: pk.lineup, cell: (p) => p.lineup[lang] },
+  { label: pk.rows.instruments, cell: (p) => pk.items[p.key].instruments },
+  { label: pk.rows.engineer, cell: (p) => pk.items[p.key].engineer },
+];
 ---
 
 <BaseLayout
   lang={lang}
   page={page}
   title={copy.data.title}
-  description={copy.data.description}
-  jsonLd={[breadcrumbsFor(Astro.site!, page, lang)]}
+  description={fillFacts(copy.data.description, lang)}
+  jsonLd={[
+    breadcrumbsFor(site, page, lang),
+    ...servicesFor(site, lang, page, t.content.packagesPage.serviceType),
+    faqPageJsonLd(faqs),
+  ]}
 >
-  <PagePlaceholder lang={lang} heading={copy.data.heading} />
+  <PageFlow>
+    <ContentHero lang={lang} heading={copy.data.heading} lead={fillFacts(t.content.packagesPage.lead, lang)} />
+    <section class="container cards" aria-label={copy.data.heading}>
+      <PackageCards lang={lang} level="h2" anchors />
+      <p class="cards__note">{PRICE_ON_REQUEST[lang]}</p>
+    </section>
+    <section class="container compare" aria-labelledby="compare-heading">
+      <h2 id="compare-heading">{pk.compareHeading}</h2>
+      <div class="compare__scroll" tabindex="0" role="region" aria-labelledby="compare-heading">
+        <table class="compare__table">
+          <caption class="visually-hidden">{pk.compareCaption}</caption>
+          <thead>
+            <tr>
+              <td></td>
+              {
+                PACKAGES.map((p) => (
+                  <th scope="col" class="display">
+                    {p.name}
+                  </th>
+                ))
+              }
+            </tr>
+          </thead>
+          <tbody>
+            {
+              rows.map((r) => (
+                <tr>
+                  <th scope="row" class="label">
+                    {r.label}
+                  </th>
+                  {PACKAGES.map((p) => (
+                    <td>{r.cell(p)}</td>
+                  ))}
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+    <Prose lang={lang} html={copy.rendered?.html ?? ''} />
+    <FaqList lang={lang} id="faq" heading={t.content.faq.heading} faqs={faqs} more={{ href: pathFor('faq', lang), label: t.content.faq.all }} />
+    <EndCta lang={lang} />
+  </PageFlow>
 </BaseLayout>
+
+<style>
+  .cards {
+    display: grid;
+    gap: var(--space-5);
+  }
+
+  .cards__note {
+    color: var(--color-text-secondary);
+  }
+
+  .compare {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  .compare__scroll {
+    overflow-x: auto;
+  }
+
+  .compare__table {
+    inline-size: 100%;
+    min-inline-size: 36rem;
+    border-collapse: collapse;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .compare__table th,
+  .compare__table td {
+    padding: var(--space-4) var(--space-3);
+    text-align: start;
+    vertical-align: top;
+    border-block-end: var(--line-thin) solid var(--color-border);
+  }
+
+  .compare__table thead th {
+    font-size: var(--text-heading);
+    border-block-end: calc(2 * var(--line-thin)) solid transparent;
+    border-image: var(--gradient-light) 1;
+  }
+
+  .compare__table tbody th {
+    padding-inline-start: 0;
+    inline-size: 9rem;
+  }
+
+  .compare__table td {
+    color: var(--color-text);
+  }
+</style>

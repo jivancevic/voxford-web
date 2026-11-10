@@ -1,10 +1,24 @@
 ---
-// View for the `about` page (owner: ticket C). Both language routes
-// render this file; replace the placeholder with the real page.
-import PagePlaceholder from '@/components/PagePlaceholder.astro';
-import type { Locale } from '@/i18n';
-import type { PageKey } from '@/i18n/routes';
+// About (ticket C): the five with their voice parts in stage order, the story,
+// the numbers (paired with the videos, never alone), the stages, the press and
+// the management. Names, numbers and stages come from site-facts.
+// JSON-LD: BreadcrumbList and FAQPage (the MusicGroup is site-wide).
+import ReferencesWall from '@/components/ReferencesWall.astro';
+import VideoRail from '@/components/VideoRail.astro';
+import ContentHero from '@/components/content/ContentHero.astro';
+import CreditedPhoto from '@/components/content/CreditedPhoto.astro';
+import EndCta from '@/components/content/EndCta.astro';
+import FaqList from '@/components/content/FaqList.astro';
+import NamedList from '@/components/content/NamedList.astro';
+import PageFlow from '@/components/content/PageFlow.astro';
+import Prose from '@/components/content/Prose.astro';
+import { MEMBERS, NUMBERS, STAGES } from '@/data/site-facts';
+import { getStrings, LOCALE_META, type Locale } from '@/i18n';
+import { pathFor, type PageKey } from '@/i18n/routes';
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import { fillFacts } from '@/lib/copy';
+import { getFaqs } from '@/lib/faq';
+import { faqPageJsonLd } from '@/lib/jsonld';
 import { breadcrumbsFor, loadPage } from '@/lib/page';
 
 interface Props {
@@ -13,15 +27,161 @@ interface Props {
 
 const { lang } = Astro.props;
 const page: PageKey = 'about';
+const site = Astro.site!;
 const copy = await loadPage(page, lang);
+const t = getStrings(lang);
+const a = t.content.about;
+const faqs = await getFaqs(lang, page);
+const stageContext: Record<string, string> = a.stages;
+const dateFmt = new Intl.DateTimeFormat(LOCALE_META[lang].htmlLang, { month: 'long', year: 'numeric', timeZone: 'UTC' });
+const press = a.press.map((p) => ({
+  name: p.outlet,
+  what: p.what,
+  year: dateFmt.format(new Date(`${p.date}T12:00:00Z`)),
+  url: p.url,
+}));
+const stages = STAGES.map((s) => ({ name: s.name, what: `${s.city[lang]}. ${stageContext[s.name] ?? ''}`.trim() }));
 ---
 
 <BaseLayout
   lang={lang}
   page={page}
   title={copy.data.title}
-  description={copy.data.description}
-  jsonLd={[breadcrumbsFor(Astro.site!, page, lang)]}
+  description={fillFacts(copy.data.description, lang)}
+  ogPhoto="shootUpperTown"
+  jsonLd={[breadcrumbsFor(site, page, lang), faqPageJsonLd(faqs)]}
 >
-  <PagePlaceholder lang={lang} heading={copy.data.heading} />
+  <PageFlow>
+    <ContentHero lang={lang} heading={copy.data.heading} lead={fillFacts(a.lead, lang)} photo="shootUpperTown" />
+    <section class="container members" aria-labelledby="members-heading">
+      <div class="members__head">
+        <h2 id="members-heading">{a.membersHeading}</h2>
+        <p class="members__intro">{a.membersIntro}</p>
+      </div>
+      <ol class="members__list" role="list">
+        {
+          MEMBERS.map((m) => (
+            <li class="members__item">
+              <span class="members__given" aria-hidden="true">
+                {m.givenName}
+              </span>
+              <span class="members__name">{m.name}</span>
+              <span class="label">{m.voice[lang]}</span>
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+    <Prose lang={lang} html={copy.rendered?.html ?? ''} />
+    <section class="container numbers" aria-labelledby="numbers-heading">
+      <h2 id="numbers-heading">{a.numbersHeading}</h2>
+      <dl class="numbers__list">
+        {
+          Object.values(NUMBERS).map((n) => (
+            <div class="numbers__item">
+              <dt class="numbers__label">{n.label[lang]}</dt>
+              <dd class="numeral numbers__value">{n.display}</dd>
+            </div>
+          ))
+        }
+      </dl>
+      <VideoRail lang={lang} limit={4} heading={false} />
+    </section>
+    <div class="container band">
+      <CreditedPhoto photo="shootArmchair" lang={lang} sizes="(min-width: 76rem) 76rem, 100vw" />
+    </div>
+    <NamedList id="stages" heading={a.stagesHeading} items={stages} />
+    <NamedList id="press" heading={a.pressHeading} items={press} />
+    <ReferencesWall lang={lang} class="container" />
+    <section class="container management" aria-labelledby="management-heading">
+      <h2 id="management-heading">{a.managementHeading}</h2>
+      <p class="lead">{fillFacts(a.management, lang)}</p>
+    </section>
+    <FaqList lang={lang} id="faq" heading={t.content.faq.heading} faqs={faqs} more={{ href: pathFor('faq', lang), label: t.content.faq.all }} />
+    <EndCta lang={lang} />
+  </PageFlow>
 </BaseLayout>
+
+<style>
+  .members,
+  .numbers,
+  .management {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  .members__head {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .members__intro {
+    color: var(--color-text-secondary);
+  }
+
+  .members__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+    gap: var(--space-5);
+  }
+
+  .members__item {
+    display: grid;
+    gap: var(--space-1);
+    padding-block-start: var(--space-4);
+    border-block-start: var(--line-thin) solid var(--color-border);
+  }
+
+  .members__item:nth-child(1) {
+    border-color: var(--brand-pink);
+  }
+
+  .members__item:nth-child(3) {
+    border-color: var(--brand-purple);
+  }
+
+  .members__item:nth-child(5) {
+    border-color: var(--brand-blue);
+  }
+
+  .members__given {
+    font-family: var(--font-headline);
+    font-weight: 800;
+    font-size: var(--text-title);
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .members__name {
+    color: var(--color-text);
+  }
+
+  .numbers__list {
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+    gap: var(--space-6);
+  }
+
+  .numbers__item {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: var(--space-2);
+  }
+
+  .numbers__value {
+    margin: 0;
+    font-size: var(--text-display);
+  }
+
+  .numbers__label {
+    color: var(--color-text-secondary);
+  }
+
+  .band :global(.credited-photo) {
+    --photo-ratio: 16 / 9;
+  }
+</style>

@@ -1,0 +1,53 @@
+---
+// A photo from the set with its stage label and, when the set records one, the
+// photographer's credit under it (e.g. the agency "kolektiff" on the Unisport
+// Westin photos). Ticket C; Photo.astro (A) renders the picture itself.
+import Photo from '@/components/Photo.astro';
+import { PHOTOS, type PhotoKey } from '@/data/photos';
+import { format, getStrings, type Locale } from '@/i18n';
+
+interface Props {
+  photo: PhotoKey;
+  lang: Locale;
+  sizes: string;
+  priority?: boolean;
+  showLabel?: boolean;
+  class?: string;
+}
+
+const { photo, lang, sizes, priority = false, showLabel = true, class: className } = Astro.props;
+const t = getStrings(lang);
+const p = PHOTOS[photo];
+const credit = 'credit' in p ? p.credit : undefined;
+---
+
+<div class:list={['credited-photo', className]}>
+  <Photo photo={photo} lang={lang} sizes={sizes} priority={priority} showLabel={showLabel} class="credited-photo__frame" />
+  {credit && <p class="credited-photo__credit">{format(t.content.photoCredit, { credit })}</p>}
+</div>
+
+<style>
+  .credited-photo {
+    display: grid;
+    gap: var(--space-2);
+    align-content: start;
+  }
+
+  .credited-photo :global(.credited-photo__frame) {
+    overflow: hidden;
+    border-radius: var(--radius-card);
+    aspect-ratio: var(--photo-ratio, 4 / 5);
+    background: var(--color-bg-surface);
+  }
+
+  .credited-photo :global(.credited-photo__frame picture) {
+    display: block;
+    block-size: 100%;
+  }
+
+  .credited-photo__credit {
+    font-size: var(--text-caption);
+    color: var(--color-text-muted);
+    text-align: end;
+  }
+</style>
