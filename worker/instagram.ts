@@ -35,6 +35,8 @@ export class InstagramError extends Error {
   constructor(
     message: string,
     readonly status: number,
+    /** Meta's error code, when the answer had one (190: invalid or revoked token). */
+    readonly code?: number,
   ) {
     super(message);
     this.name = 'InstagramError';
@@ -51,13 +53,15 @@ async function getJson<T>(fetchFn: Fetch, url: string): Promise<T> {
   if (!res.ok) {
     // Meta's error body names the problem (revoked token, rate limit); never echo the URL, it holds the token.
     let detail = '';
+    let code: number | undefined;
     try {
       const body = (await res.json()) as { error?: { message?: string; code?: number } };
+      code = body.error?.code;
       detail = body.error ? `${body.error.code ?? ''} ${body.error.message ?? ''}`.trim() : '';
     } catch {
       /* not JSON */
     }
-    throw new InstagramError(`Instagram API ${res.status}${detail ? `: ${detail}` : ''}`, res.status);
+    throw new InstagramError(`Instagram API ${res.status}${detail ? `: ${detail}` : ''}`, res.status, code);
   }
   return (await res.json()) as T;
 }
@@ -88,6 +92,20 @@ async function assignedAccounts(fetchFn: Fetch, token: string): Promise<string[]
 }
 
 /**
+ * Meta's answer when the token lacks what one lookup route needs (a permission,
+ * or an edge this kind of user has not): the other route may still work. Any
+ * other failure (an invalid or revoked token, a rate limit, an outage) stops
+ * the lookup and is reported as itself.
+ * https://developers.facebook.com/docs/graph-api/guides/error-handling
+ */
+const isRouteUnavailable = (err: unknown) =>
+  err instanceof InstagramError &&
+  err.status >= 400 &&
+  err.status < 500 &&
+  err.code !== undefined &&
+  (err.code === 10 || err.code === 100 || (err.code >= 200 && err.code <= 299));
+
+/**
  * The Instagram user id the token reaches: first through the Facebook Pages
  * assigned to its system user (the documented route; the Page's linked
  * Instagram account), then through Instagram accounts assigned directly.
@@ -100,7 +118,8 @@ export async function instagramAccountId(fetchFn: Fetch, token: string): Promise
     try {
       ids = [...new Set((await route(fetchFn, token)).filter(isInstagramUserId))];
     } catch (err) {
-      firstError ??= err as Error; // e.g. the token lacks this route's permission; try the next
+      if (!isRouteUnavailable(err)) throw err;
+      firstError ??= err as Error; // the token lacks this route's permission; try the next
       continue;
     }
     if (ids.length === 1) return ids[0]!;
