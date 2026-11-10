@@ -6,8 +6,12 @@
 // A plain GET form to /{lang}/inquiry/ whose field names are the prefill
 // contract (src/lib/inquiry-url.ts): without JavaScript the browser itself
 // writes ?date=…&city=… and the visitor lands on the form (the form applies
-// the prefill with JS). The script drops empty fields from the URL. Sits on a
-// photo: its own scrim keeps the text readable.
+// the prefill with JS). The script drops empty fields from the URL.
+//
+// Look (#31): one line on a glass panel, as if written on the stage: the date
+// and the city in big headline type on hairlines, the brand gradient drawing
+// in under the field that has focus, the pill at the end. The panel is glass
+// because it sits on a photo; the blur keeps the type readable over it.
 import Pill from '@/components/Pill.astro';
 import type { EventType } from '@/data/site-facts';
 import { getStrings, type Locale } from '@/i18n';
@@ -35,22 +39,24 @@ const uid = `availability-${type ?? 'any'}-${lang}`;
   data-lang={lang}
 >
   {type && <input type="hidden" name="type" value={type} />}
-  <div class="availability__field">
-    <label class="label availability__label" for={`${uid}-date`}>{t.date}</label>
-    <input class="availability__input" id={`${uid}-date`} name="date" type="date" />
+  <div class="availability__line">
+    <div class="availability__field availability__field--date">
+      <label class="label availability__label" for={`${uid}-date`}>{t.date}</label>
+      <input class="availability__input" id={`${uid}-date`} name="date" type="date" />
+    </div>
+    <div class="availability__field availability__field--city">
+      <label class="label availability__label" for={`${uid}-city`}>{t.city}</label>
+      <input
+        class="availability__input"
+        id={`${uid}-city`}
+        name="city"
+        type="text"
+        maxlength={LIMITS.city}
+        autocomplete="address-level2"
+      />
+    </div>
+    <Pill type="submit" class="availability__submit">{t.submit}</Pill>
   </div>
-  <div class="availability__field availability__field--city">
-    <label class="label availability__label" for={`${uid}-city`}>{t.city}</label>
-    <input
-      class="availability__input"
-      id={`${uid}-city`}
-      name="city"
-      type="text"
-      maxlength={LIMITS.city}
-      autocomplete="address-level2"
-    />
-  </div>
-  <Pill type="submit" class="availability__submit">{t.submit}</Pill>
 </form>
 
 <script>
@@ -61,7 +67,18 @@ const uid = `availability-${type ?? 'any'}-${lang}`;
   // Keep the URL to the contract: no empty `date=` or `city=`, values checked.
   document.querySelectorAll<HTMLFormElement>('[data-availability]').forEach((form) => {
     const date = form.querySelector<HTMLInputElement>('input[name="date"]');
-    if (date) date.min = localIsoDate();
+    if (date) {
+      date.min = localIsoDate();
+      // The whole line opens the calendar, not only the small icon. Where
+      // showPicker is missing or refused, the native control still works.
+      date.addEventListener('click', () => {
+        try {
+          date.showPicker?.();
+        } catch {
+          /* not allowed here (e.g. inside a cross-origin frame): keep the native behaviour */
+        }
+      });
+    }
 
     form.addEventListener('submit', (event) => {
       const lang = form.dataset.lang;
@@ -75,19 +92,18 @@ const uid = `availability-${type ?? 'any'}-${lang}`;
 </script>
 
 <style>
+  /* The form is the size container; the line inside lays out by its width, so
+     the widget fits wherever it is placed, not only at one breakpoint. */
   .availability {
     position: relative;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: end;
-    gap: var(--space-3) var(--space-4);
-    inline-size: min(100%, 44rem);
-    padding: var(--space-4) var(--space-5) var(--space-5);
+    container-type: inline-size;
+    inline-size: min(100%, 46rem);
     border: var(--line-thin) solid var(--color-border);
     border-radius: var(--radius-card);
+    /* The scrim tokens.css defines for text set on a photo, frosted. */
     background: var(--color-scrim);
-    backdrop-filter: blur(12px);
-    overflow: hidden;
+    backdrop-filter: blur(18px) saturate(140%);
+    overflow: clip;
   }
 
   /* Light from the top edge, as on the inquiry page's panels. */
@@ -97,39 +113,146 @@ const uid = `availability-${type ?? 'any'}-${lang}`;
     inset: 0 0 auto;
     block-size: var(--line-thin);
     background: var(--gradient-light);
+    opacity: 0.7;
+  }
+
+  /* Phones and narrow columns: date, city, then the pill, stacked. */
+  .availability__line {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-5);
+    padding: var(--space-5);
   }
 
   .availability__field {
+    position: relative;
     display: grid;
     gap: var(--space-1);
-    flex: 1 1 10rem;
   }
 
-  .availability__field--city {
-    flex-basis: 13rem;
+  /* The hairline under each field; the brand gradient draws in over it on focus. */
+  .availability__field::before,
+  .availability__field::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0;
+    block-size: var(--line-thin);
+    background: var(--color-border-strong);
+    pointer-events: none;
+  }
+
+  .availability__field::after {
+    block-size: 2px;
+    background: var(--gradient-light);
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+
+  .availability__field:focus-within::after {
+    transform: scaleX(1);
+  }
+
+  /* Forced colours drop backgrounds: draw the hairline as a border instead. */
+  @media (forced-colors: active) {
+    .availability__field::before {
+      border-block-end: var(--line-thin) solid CanvasText;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .availability__field::after {
+      transition: transform var(--duration-base) var(--ease-out);
+    }
   }
 
   .availability__label {
     color: var(--color-text-on-photo);
+    transition: color var(--duration-fast) var(--ease-out);
+  }
+
+  /* The label takes the focus colour: with the gradient line it marks the
+     field in focus at full contrast (the line's blue end alone would not). */
+  .availability__field:focus-within .availability__label {
+    color: var(--color-focus);
   }
 
   .availability__input {
     inline-size: 100%;
     min-block-size: var(--pill-height);
-    padding: 0 var(--space-4);
-    border: var(--line-thin) solid var(--color-border-strong);
-    border-radius: var(--radius-pill);
-    background: var(--color-bg-surface);
-    color: var(--color-text);
-    font: inherit;
+    padding: 0 0 var(--space-1);
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    /* The panel is always dark glass, wherever the widget is placed. */
+    color: var(--color-text-on-photo);
+    caret-color: var(--color-focus);
+    font-family: var(--font-headline);
+    font-size: var(--text-heading);
+    font-weight: 600;
+    line-height: var(--leading-heading);
+    letter-spacing: var(--tracking-display);
+    font-variant-numeric: tabular-nums;
+    appearance: none;
   }
 
+  /* The gradient line and the label in the focus colour are the focus
+     indicator; the browser ring would double them. The transparent outline
+     still shows in forced-colors mode, where backgrounds are dropped. */
   .availability__input:focus-visible {
-    border-color: var(--color-focus);
-    outline-offset: 2px;
+    outline: 2px solid transparent;
+    outline-offset: var(--space-1);
+  }
+
+  /* WebKit draws the date in its own boxes: keep it on the line, left-aligned,
+     and the calendar icon in the text colour. */
+  .availability__input::-webkit-date-and-time-value {
+    text-align: start;
+  }
+
+  .availability__input::-webkit-datetime-edit {
+    padding: 0;
+  }
+
+  .availability__input::-webkit-calendar-picker-indicator {
+    margin-inline-start: var(--space-2);
+    opacity: 0.75;
+    cursor: pointer;
+  }
+
+  .availability__input::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+  }
+
+  .availability__input[type='date'] {
+    cursor: pointer;
   }
 
   .availability :global(.availability__submit) {
-    flex: none;
+    justify-self: start;
+  }
+
+  /* From 38rem of width: one line, date | city | pill (the HR pill is the
+     widest, about 9rem; both fields at their minimum leave it 2rem spare). */
+  @container (inline-size >= 38rem) {
+    .availability__line {
+      grid-template-columns: minmax(10rem, 1fr) minmax(10rem, 1.25fr) auto;
+      align-items: end;
+      gap: 0;
+      padding: var(--space-4) var(--space-5) var(--space-5);
+    }
+
+    .availability__field--city {
+      margin-inline: var(--space-5);
+    }
+
+    /* A thin upright between date and city, like the seam on a ticket. */
+    .availability__field--city .availability__label::before {
+      content: '';
+      position: absolute;
+      inset-block: 0;
+      inset-inline-start: calc(-1 * var(--space-5) / 2);
+      inline-size: var(--line-thin);
+      background: var(--color-border);
+    }
   }
 </style>

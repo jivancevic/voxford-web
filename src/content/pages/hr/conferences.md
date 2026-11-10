@@ -7,7 +7,7 @@ source: "brand/biografija.md, posao/ponuda/ponuda.md, posao/rideri/rideri.md, po
 
 ## Zašto a cappella paše konferenciji
 
-Konferencija ima gust raspored, pa glazba mora stati između predavanja bez dugog prespajanja. Za nastup između predavanja ne treba nam bend koji se postavlja ni pozornica koja se gradi. Pet pjevača izađe, svatko uzme mikrofon i krenemo, a kad pjesma završi, sljedeći govornik može odmah na pozornicu.
+Konferencija ima gust raspored, pa glazba mora stati između predavanja bez dugog prespajanja. Za nastup između predavanja ne treba nam bend koji se postavlja ni pozornica koja se gradi. Izađemo, svatko uzme mikrofon i krenemo, a kad pjesma završi, sljedeći govornik može odmah na pozornicu.
 
 Mnogi Vaši gosti vidjeli su nas prije nego što nas čuju uživo. Naši videi imaju {views} pregleda na Instagramu, TikToku, Facebooku i YouTubeu, a samo Carol of the Bells ima {carolViews}.
 

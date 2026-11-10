@@ -1,79 +1,128 @@
 import { describe, expect, it } from 'vitest';
-import { chordGain, litVoices, voiceCues, voicesLitAt } from './chord';
+import { MEMBERS } from '@/data/site-facts';
+import { CLIP_SECONDS, chordView, lastEntered, litAt, VOICE_ENTRIES, voiceEntries } from './chord';
 
-describe('voiceCues', () => {
-  it('spaces five voices from 0.1 to 0.66, leaving the rest of the act for the full chord', () => {
-    expect(voiceCues(5).map((c) => Number(c.toFixed(2)))).toEqual([0.1, 0.24, 0.38, 0.52, 0.66]);
+const keys = MEMBERS.map((m) => m.key);
+
+describe('VOICE_ENTRIES', () => {
+  it('has an entry time for every member, and nothing else', () => {
+    expect(Object.keys(VOICE_ENTRIES).sort()).toEqual([...keys].sort());
   });
 
-  it('follows the number of members, so a sixth voice gets its own cue', () => {
-    const cues = voiceCues(6);
-    expect(cues).toHaveLength(6);
-    expect(cues[0]).toBeCloseTo(0.1);
-    expect(cues[5]).toBeCloseTo(0.66);
+  it('puts every entry inside the clip, so the chord is complete before the music ends', () => {
+    for (const key of keys) {
+      expect(VOICE_ENTRIES[key]).toBeGreaterThanOrEqual(0);
+      expect(VOICE_ENTRIES[key]).toBeLessThan(CLIP_SECONDS);
+    }
   });
 
-  it('gives a single voice the first cue', () => {
-    expect(voiceCues(1)).toEqual([0.1]);
-  });
-});
-
-describe('voicesLitAt', () => {
-  it('lights nothing before the first cue', () => {
-    expect(voicesLitAt(0, 5)).toBe(0);
-    expect(voicesLitAt(0.05, 5)).toBe(0);
+  it('brings the voices in as the arrangement does: Dora first, then Vita, David, Josip, Ante (Josip, #32)', () => {
+    const order = [...keys].sort((a, b) => VOICE_ENTRIES[a] - VOICE_ENTRIES[b]);
+    expect(order).toEqual(['dora', 'vita', 'david', 'josip', 'ante']);
+    expect(VOICE_ENTRIES.dora).toBe(0);
   });
 
-  it('lights one more voice at each cue, in stage order', () => {
-    const counts = [0.1, 0.24, 0.38, 0.52, 0.66].map((p) => voicesLitAt(p, 5));
-    expect(counts).toEqual([1, 2, 3, 4, 5]);
-  });
-
-  it('holds the full chord to the end of the act', () => {
-    expect(voicesLitAt(0.9, 5)).toBe(5);
-    expect(voicesLitAt(1, 5)).toBe(5);
-  });
-
-  it('clamps progress outside 0..1', () => {
-    expect(voicesLitAt(-3, 5)).toBe(0);
-    expect(voicesLitAt(7, 5)).toBe(5);
-    expect(voicesLitAt(Number.NaN, 5)).toBe(0);
-  });
-
-  it('lights every member when there are more than five', () => {
-    expect(voicesLitAt(1, 6)).toBe(6);
+  it('matches the length of the Carol span (3.0 → 41.07 s of "Carol new mix.wav")', () => {
+    expect(CLIP_SECONDS).toBeCloseTo(41.07 - 3.0, 2);
   });
 });
 
-describe('litVoices', () => {
-  it('follows the scroll when nobody tapped', () => {
-    expect(litVoices(2, [], 5)).toEqual([true, true, false, false, false]);
+describe('voiceEntries', () => {
+  it('reads the cue table in the order the voices are rendered (stage order)', () => {
+    expect(voiceEntries(keys)).toEqual(keys.map((k) => VOICE_ENTRIES[k]));
   });
 
-  it('lets a tap light a voice the scroll has not reached', () => {
-    expect(litVoices(1, [undefined, undefined, undefined, true], 5)).toEqual([true, false, false, true, false]);
-  });
-
-  it('lets a tap put out a voice the scroll lit', () => {
-    expect(litVoices(5, [false], 5)).toEqual([false, true, true, true, true]);
+  it('gives a voice the table does not know no entry, so it waits for the end of the clip', () => {
+    expect(voiceEntries(['josip', 'nobody'])).toEqual([VOICE_ENTRIES.josip, Number.POSITIVE_INFINITY]);
   });
 });
 
-describe('chordGain', () => {
-  it('is quiet but audible with no voice lit, so Listen always answers', () => {
-    expect(chordGain(0, 5)).toBeGreaterThan(0);
-    expect(chordGain(0, 5)).toBeLessThan(0.3);
+describe('litAt', () => {
+  const cues = [4, 0.5, 12, 8, 2];
+
+  it('lights nothing before the first entry', () => {
+    expect(litAt(0, cues)).toEqual([false, false, false, false, false]);
   });
 
-  it('swells with every voice and is full with all of them', () => {
-    const gains = [0, 1, 2, 3, 4, 5].map((n) => chordGain(n, 5));
-    for (let i = 1; i < gains.length; i++) expect(gains[i]).toBeGreaterThan(gains[i - 1]!);
-    expect(chordGain(5, 5)).toBe(1);
-    expect(chordGain(6, 6)).toBe(1);
+  it('lights a voice the moment its entry time is reached, in any order', () => {
+    expect(litAt(0.5, cues)).toEqual([false, true, false, false, false]);
+    expect(litAt(2, cues)).toEqual([false, true, false, false, true]);
+    expect(litAt(4.01, cues)).toEqual([true, true, false, false, true]);
   });
 
-  it('clamps counts outside 0..total', () => {
-    expect(chordGain(9, 5)).toBe(1);
-    expect(chordGain(-2, 5)).toBe(chordGain(0, 5));
+  it('holds every voice once all have entered', () => {
+    expect(litAt(12, cues)).toEqual([true, true, true, true, true]);
+    expect(litAt(99, cues)).toEqual([true, true, true, true, true]);
+  });
+
+  it('lights nothing for a time it cannot read', () => {
+    expect(litAt(Number.NaN, cues)).toEqual([false, false, false, false, false]);
+  });
+});
+
+describe('lastEntered', () => {
+  it('is the voice that came in most recently', () => {
+    expect(lastEntered(5, [4, 0.5, 12, 8, 2])).toBe(0);
+    expect(lastEntered(10, [4, 0.5, 12, 8, 2])).toBe(3);
+  });
+
+  it('is -1 before anyone has entered', () => {
+    expect(lastEntered(0.1, [4, 0.5])).toBe(-1);
+  });
+
+  it('picks the voice further right when two enter together', () => {
+    expect(lastEntered(3, [1, 1])).toBe(1);
+  });
+});
+
+describe('chordView', () => {
+  const cues = [0.5, 3, 6, 9, 12];
+  const all = [true, true, true, true, true];
+
+  it('shows all five dim before the first press', () => {
+    const v = chordView({ state: 'idle', time: 0, motion: true, cues });
+    expect(v.lit).toEqual([false, false, false, false, false]);
+    expect(v.full).toBe(false);
+    expect(v.action).toBe('play');
+  });
+
+  it('lights the voices that have entered while playing, and offers pause', () => {
+    const v = chordView({ state: 'playing', time: 3.2, motion: true, cues });
+    expect(v.lit).toEqual([true, true, false, false, false]);
+    expect(v.last).toBe(1);
+    expect(v.action).toBe('pause');
+  });
+
+  it('holds the chord where it was on pause, and offers resume', () => {
+    const v = chordView({ state: 'paused', time: 6.5, motion: true, cues });
+    expect(v.lit).toEqual([true, true, true, false, false]);
+    expect(v.action).toBe('resume');
+  });
+
+  it('ends on the full chord and offers to play again', () => {
+    const v = chordView({ state: 'ended', time: 38, motion: true, cues });
+    expect(v.lit).toEqual(all);
+    expect(v.full).toBe(true);
+    expect(v.action).toBe('replay');
+  });
+
+  it('is complete as soon as the last voice enters, before the music ends', () => {
+    expect(chordView({ state: 'playing', time: 12, motion: true, cues }).full).toBe(true);
+  });
+
+  it('shows the full chord when the audio is blocked, so nothing is left dark', () => {
+    const v = chordView({ state: 'blocked', time: 0, motion: true, cues });
+    expect(v.lit).toEqual(all);
+    expect(v.full).toBe(true);
+    expect(v.action).toBe('play');
+  });
+
+  it('shows the full chord under reduced motion, whatever the music is doing', () => {
+    for (const state of ['idle', 'playing', 'paused'] as const) {
+      const v = chordView({ state, time: 1, motion: false, cues });
+      expect(v.lit).toEqual(all);
+      expect(v.full).toBe(true);
+    }
+    expect(chordView({ state: 'playing', time: 1, motion: false, cues }).action).toBe('pause');
   });
 });

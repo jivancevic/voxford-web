@@ -7,7 +7,7 @@ source: "brand/biografija.md, brand/u-medijima.md, posao/klijenti/reference.md, 
 
 ## What a city concert looks like
 
-Most city concerts are GOLD: {goldMin} to {goldMax} minutes, the five singers with a stage piano and a cajón. We bring the piano and the cajón ourselves, and you provide the PA and power on stage. The first half can stay a cappella, as it did in Orebić in February 2026, with the piano joining for the second.
+Most city concerts are GOLD: {goldMin} to {goldMax} minutes, the five of us with a stage piano and a cajón. We bring the piano and the cajón ourselves, and you provide the PA and power on stage. The first half can stay a cappella, as it did in Orebić in February 2026, with the piano joining for the second.
 
 ## Advent
 

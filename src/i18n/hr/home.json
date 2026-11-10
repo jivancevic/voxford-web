@@ -1,5 +1,6 @@
 {
   "hero": {
+    "titleLead": "{group}:",
     "lead": "{group}. Pet pjevača za mikrofonima na konferencijama, galama, vjenčanjima i koncertima diljem Hrvatske i regije.",
     "chordLink": "Upalite akord",
     "photoCredit": "Foto: {credit}"
@@ -9,9 +10,12 @@
   },
   "chord": {
     "heading": "Pet glasova, jedan akord",
-    "hint": "Skrolajte ili dodirnite glas da ga upalite.",
-    "hintStill": "Dodirnite glas da ga upalite ili ugasite.",
-    "listen": "Poslušajte",
+    "hint": "Pustite snimku: pjevači se pale jedan po jedan, točno kad uđe njihov glas.",
+    "hintStill": "Pustite snimku i poslušajte svih pet.",
+    "play": "Poslušajte",
+    "pause": "Pauzirajte",
+    "resume": "Nastavite",
+    "replay": "Poslušajte ponovno",
     "voicesLabel": "Pet glasova, redom kako stoje na pozornici",
     "resolve": "Pet glasova i ništa više. Ovo je naš Carol of the Bells, pjesma našeg najgledanijeg videa ({views} pregleda).",
     "credit": "Portreti: {credit}"

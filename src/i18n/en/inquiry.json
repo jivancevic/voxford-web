@@ -98,10 +98,10 @@
     "mailto": "Send it by email"
   },
   "widget": {
-    "label": "Check availability",
+    "label": "Enquire",
     "date": "Date",
     "city": "City or venue",
-    "submit": "Check availability"
+    "submit": "Enquire"
   },
   "mail": {
     "subject": "Inquiry: {details}",

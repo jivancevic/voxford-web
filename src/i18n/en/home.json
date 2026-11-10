@@ -1,5 +1,6 @@
 {
   "hero": {
+    "titleLead": "{group}:",
     "lead": "{group}. Five singers at microphones for conferences, galas, weddings and concerts across Croatia and the region.",
     "chordLink": "Light the chord",
     "photoCredit": "Photo: {credit}"
@@ -9,9 +10,12 @@
   },
   "chord": {
     "heading": "Five voices, one chord",
-    "hint": "Scroll, or tap a voice to light it.",
-    "hintStill": "Tap a voice to turn it on or off.",
-    "listen": "Listen",
+    "hint": "Press play and each singer lights up the moment their voice comes in.",
+    "hintStill": "Press play to hear all five.",
+    "play": "Listen",
+    "pause": "Pause",
+    "resume": "Resume",
+    "replay": "Listen again",
     "voicesLabel": "The five voices, in stage order",
     "resolve": "Five voices and nothing else. This is our Carol of the Bells, the song of our most watched video ({views} views).",
     "credit": "Portraits: {credit}"

@@ -12,6 +12,7 @@ import type { Locale } from '@/i18n/locales';
 
 import crikvenicaPiano from '@/assets/photos/crikvenica-piano.jpg';
 import hakMore from '@/assets/photos/hak-more.jpg';
+import hakStage from '@/assets/photos/hak-stage.jpg';
 import popupCrkva from '@/assets/photos/popup-crkva.jpg';
 import shootCasaSat from '@/assets/photos/shoot-casa-sat.jpg';
 import shootCrnoFotelja from '@/assets/photos/shoot-crno-fotelja.jpg';
@@ -64,6 +65,16 @@ export const PHOTOS = {
     },
     label: { en: 'CORPORATE EVENT · ZAGREB · 2026', hr: 'POSLOVNI DOGAĐAJ · ZAGREB · 2026' },
     source: 'Media kit › 2026 HAK Esplanade',
+  },
+  hakStage: {
+    // Pre-cropped to 16:9 for the band on the Conferences page; same event as hakEsplanade.
+    src: hakStage,
+    alt: {
+      en: 'Voxford, five singers in black, on stage in front of an LED wall showing an island in a blue sea, guests standing in the foreground',
+      hr: 'Voxford, petero pjevača u crnom, na pozornici ispred LED zida s prizorom otoka u plavom moru, a u prvom planu stoje gosti',
+    },
+    label: { en: 'CORPORATE EVENT · ZAGREB · 2026', hr: 'POSLOVNI DOGAĐAJ · ZAGREB · 2026' },
+    source: 'Drive › 2026 HAK Esplanade › hak-120-full-373.jpg (1l9QnXjAUcmSZ-f5wSWgn4-c07nIwXbso)',
   },
   crikvenicaPiano: {
     src: crikvenicaPiano,
@@ -155,35 +166,38 @@ export const SHARE_PHOTO: PhotoKey = 'unisportStage';
 /**
  * The home hero as depth planes, all cut from one Unisport Stars 2026 frame
  * (Westin, Zagreb; Drive `2026 Hrvatski Akademski Sportski Savez` ›
- * `Unisport_stars_R1JC7247_JC.jpg`) and sharing its 2400×1600 frame, so they
- * line up by stacking. `far` is the whole frame defocused and dimmed, `subject`
- * the five singers on alpha (Apple Vision person matte), `front` the audience
- * heads below the stage line. Recipe: docs/home/BRIEF.md.
+ * `Unisport_stars_R1JC7655_JC.jpg`, all five singing) and sharing its
+ * 1800×1200 crop (3:2), so they line up by stacking. `far` is the whole crop
+ * at 1600 px, defocused and dimmed, `subject` the five singers on alpha (Apple Vision
+ * person matte, one tile per singer), `front` the audience below the stage
+ * line. Recipe: docs/home/BRIEF.md › Hero planes.
  */
 export const HERO_PLANES = {
   far: heroFar,
   subject: heroSubject,
   front: heroFront,
   alt: {
-    en: 'The five singers of Voxford at microphones on the Unisport Stars gala stage, lit in blue, the audience in silhouette',
-    hr: 'Petorka Voxforda za mikrofonima na pozornici gala večeri Unisport Stars, u plavom svjetlu, publika u silueti',
+    en: 'The five singers of Voxford singing at microphones on the Unisport Stars gala stage, the audience in silhouette in front',
+    hr: 'Petorka Voxforda pjeva za mikrofonima na pozornici gala večeri Unisport Stars, ispred njih publika u silueti',
   },
-  // Same gala and agency as unisportStage.
+  // Same gala as unisportStage. The credit is the file's own mandatory credit
+  // ("© Jozo Cabraja / kolektiff"), confirmed for #31.
   label: PHOTOS.unisportStage.label,
-  credit: PHOTOS.unisportStage.credit,
-  source: 'Drive › Photo › 2026 Hrvatski Akademski Sportski Savez (Unisport Stars, Westin)',
+  credit: 'Jozo Cabraja / kolektiff',
+  source: 'Drive › Photo › 2026 Hrvatski Akademski Sportski Savez › Unisport_stars_R1JC7655_JC.jpg (Unisport Stars, Westin)',
 } as const;
 
 /**
  * One portrait per member, for the chord on the home page (KB brand/media-kit.md
  * › Gavella: the 2024 Journal.hr shoot has each member alone). Names come from
- * site-facts MEMBERS by key; the mapping of file to member follows the stage
- * order in the Unisport frames.
+ * site-facts MEMBERS by key. The first mapping (from the stage order in the
+ * Unisport frames) had Josip/David and Dora/Vita swapped; Josip corrected it on
+ * 2026-11-10 (jivancevic/voxford-web#32).
  */
 export const PORTRAITS: Record<MemberKey, { src: ImageMetadata; credit: string; source: string }> = {
-  josip: { src: portraitJosip, credit: 'Marko Lopac', source: 'Journal.hr 2024 › Voxford_Journal_Marko-Lopac-14.jpg' },
-  dora: { src: portraitDora, credit: 'Marko Lopac', source: 'Journal.hr 2024 › Voxford_Journal_Marko-Lopac-11.jpg' },
+  josip: { src: portraitJosip, credit: 'Marko Lopac', source: 'Journal.hr 2024 › Voxford_Journal_Marko-Lopac-13.jpg' },
+  dora: { src: portraitDora, credit: 'Marko Lopac', source: 'Journal.hr 2024 › Voxford_Journal_Marko-Lopac-12.jpg' },
   ante: { src: portraitAnte, credit: 'Marko Lopac', source: 'Journal.hr 2024 › Voxford_Journal_Marko-Lopac-15.jpg' },
-  vita: { src: portraitVita, credit: 'Marko Lopac', source: 'Journal.hr 2024 › Voxford_Journal_Marko-Lopac-12.jpg' },
-  david: { src: portraitDavid, credit: 'Marko Lopac', source: 'Journal.hr 2024 › Voxford_Journal_Marko-Lopac-13.jpg' },
+  vita: { src: portraitVita, credit: 'Marko Lopac', source: 'Journal.hr 2024 › Voxford_Journal_Marko-Lopac-11.jpg' },
+  david: { src: portraitDavid, credit: 'Marko Lopac', source: 'Journal.hr 2024 › Voxford_Journal_Marko-Lopac-14.jpg' },
 };
