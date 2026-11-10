@@ -285,13 +285,28 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
     isolation: isolate;
   }
 
-  :global(.sc-motion) .hero {
-    block-size: calc(var(--span) * 100svh);
-  }
+  /* Pin only where the whole stage fits under the header; on a short window
+     (a scaled laptop, a phone on its side) the hero simply scrolls. The script
+     reads a stage that is not sticky as a flow act. */
+  @media (height >= 40rem) {
+    :global(.sc-motion) .hero {
+      block-size: calc(var(--span) * 100svh);
+    }
 
-  :global(.sc-motion) .hero__stage {
-    position: sticky;
-    top: var(--home-header-h);
+    :global(.sc-motion) .hero__stage {
+      position: sticky;
+      top: var(--home-header-h);
+    }
+
+    :global(.sc-motion) .hero__title {
+      transform: translateY(calc(var(--sc-p, 0) * -6svh));
+      opacity: calc(1 - max(0, var(--sc-p, 0) - 0.6) * 2.5);
+    }
+
+    :global(.sc-motion) .hero__copy,
+    :global(.sc-motion) .hero__caption {
+      opacity: calc(1 - max(0, var(--sc-p, 0) - 0.5) * 2.5);
+    }
   }
 
   /* One 3:2 frame holds every plane, so they line up by stacking. It covers the
@@ -417,16 +432,6 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
     transform: translateY(calc(var(--sc-p, 0) * 16%)) scale(calc(1.02 + 0.14 * var(--sc-p, 0)));
   }
 
-  :global(.sc-motion) .hero__title {
-    transform: translateY(calc(var(--sc-p, 0) * -6svh));
-    opacity: calc(1 - max(0, var(--sc-p, 0) - 0.6) * 2.5);
-  }
-
-  :global(.sc-motion) .hero__copy,
-  :global(.sc-motion) .hero__caption {
-    opacity: calc(1 - max(0, var(--sc-p, 0) - 0.5) * 2.5);
-  }
-
   /* Phones: no pin. Headline, then the singers across the width (the planes
      still part as the hero scrolls by), then the lead and the date widget on
      plain ground. The script reads the stage as a flow act here. */
@@ -457,8 +462,7 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
 
     .hero__scene :global(.hero__far),
     .hero__scene :global(.hero__subject),
-    .hero__scene :global(.hero__front),
-    .hero__haze {
+    .hero__scene :global(.hero__front) {
       mask-image: linear-gradient(to bottom, transparent, var(--color-bg) 18%, var(--color-bg) 78%, transparent);
     }
 
@@ -470,9 +474,12 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
       display: none;
     }
 
-    /* The headline is two lines in its face; reserve them, so the fallback
-       font's wider wrap does not push the photo down when the face loads (CLS). */
+    /* Sized so the headline is two lines in its face down to 320px (the longest
+       line, "PET GLASOVA. BEZ", is about 6.9em), and exactly those two lines are
+       reserved, so the fallback font's wider wrap cannot push the photo down
+       when the face loads (CLS). */
     .hero__title {
+      font-size: min(var(--text-display), 12.5vw);
       block-size: calc(2lh + clamp(var(--space-6), 7svh, var(--space-9)));
     }
 
@@ -538,14 +545,38 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
     isolation: isolate;
   }
 
-  :global(.sc-motion) .chord {
-    block-size: calc(var(--span) * 100svh);
-  }
+  /* Pinned only on windows tall enough for head, portraits and foot; below
+     that the chord lights as the section scrolls by (flow progress). */
+  @media (height >= 34rem) {
+    :global(.sc-motion) .chord {
+      block-size: calc(var(--span) * 100svh);
+    }
 
-  :global(.sc-motion) .chord__stage {
-    position: sticky;
-    top: var(--home-header-h);
-    block-size: var(--stage-h);
+    :global(.sc-motion) .chord__stage {
+      position: sticky;
+      top: var(--home-header-h);
+      block-size: var(--stage-h);
+    }
+
+    /* Pinned: the portraits take what is left of the stage, so the foot never clips. */
+    :global(.sc-motion) .chord__voices {
+      min-block-size: 0;
+      align-items: stretch;
+    }
+
+    :global(.sc-motion) .chord__voices li,
+    :global(.sc-motion) .voice {
+      min-block-size: 0;
+    }
+
+    :global(.sc-motion) .voice {
+      grid-template-rows: minmax(8rem, 1fr) auto auto;
+    }
+
+    :global(.sc-motion) .voice__frame {
+      block-size: auto;
+      max-block-size: 34rem;
+    }
   }
 
   .chord__glow {
@@ -759,25 +790,6 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
 
   :global(.sc-ready) .chord:global(.is-armed) .chord__glow {
     opacity: calc(var(--chord-count, 0) / var(--voices) * 0.4);
-  }
-
-  :global(.sc-motion) .chord__voices {
-    min-block-size: 0;
-    align-items: stretch;
-  }
-
-  :global(.sc-motion) .chord__voices li,
-  :global(.sc-motion) .voice {
-    min-block-size: 0;
-  }
-
-  :global(.sc-motion) .voice {
-    grid-template-rows: minmax(0, 1fr) auto auto;
-  }
-
-  :global(.sc-motion) .voice__frame {
-    block-size: auto;
-    max-block-size: 34rem;
   }
 
   .chord__foot {

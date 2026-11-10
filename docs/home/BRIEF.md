@@ -92,6 +92,8 @@ visual and the recording swells (spec).
 - **No JavaScript:** all five portraits lit, names and voice parts visible, no Listen button.
 - **Reduced motion:** no pin; all five start lit; taps still toggle voices; Listen still works;
   the hint says "tap" instead of "scroll or tap".
+- **Short windows** (under 40rem tall for the hero, 34rem for the chord: a scaled laptop, a phone
+  on its side) do not pin; the acts scroll and the chord lights on flow progress.
 - **Phones:** the hero does not pin; the planes still part as it scrolls by, and the date widget
   (ticket D) sits on plain ground under the photo.
 - **Muted:** the light carries the whole move; sound is a bonus.
@@ -178,9 +180,9 @@ under `html.sc-ready`.
 - **Interaction:** taps and Enter toggle each voice; Listen toggles and requests the audio only
   on press; under reduced motion all five start lit; with JavaScript off all five are lit, the
   resolve line shows and Listen is hidden.
-- **Lighthouse mobile** behind a local brotli server (as Cloudflare serves it): EN 99 / 100 / 100,
-  HR 97 / 100 / 100 (performance / accessibility / best practices); LCP 2.2 s EN, 2.5–2.6 s HR;
-  CLS 0; TBT 0 ms. Uncompressed: EN 96–97, HR 94–95. SEO 69 only because the pre-domain build is
-  `noindex` (ticket G lifts it). HR is slower by two latin-ext font files from the layout.
+- **Lighthouse mobile** behind a local brotli server (as Cloudflare serves it), with ticket D's
+  date widget in the hero: EN 99 / 100 / 100, HR 97 / 100 / 100 (performance / accessibility /
+  best practices); LCP 2.2 s EN, 2.6 s HR; CLS 0 / 0.001; TBT 0 ms. HR is slower by two latin-ext
+  font files from the layout. SEO 69 only because the pre-domain build is `noindex` (ticket G).
 - **Not verified:** a real phone (iOS audio and the silent switch, touch scrolling through the
   pinned chord), audible playback by ear, and the numbers on the deployed build.
