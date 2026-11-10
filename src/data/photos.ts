@@ -114,8 +114,8 @@ export const SHARE_PHOTO: PhotoKey = 'unisportStage';
  * The home hero as depth planes, all cut from one Unisport Stars 2026 frame
  * (Westin, Zagreb; Drive `2026 Hrvatski Akademski Sportski Savez` ›
  * `Unisport_stars_R1JC7655_JC.jpg`, all five singing) and sharing its
- * 1800×1200 crop, so they line up by stacking. `far` is the whole crop
- * defocused and dimmed, `subject` the five singers on alpha (Apple Vision
+ * 1800×1200 crop (3:2), so they line up by stacking. `far` is the whole crop
+ * at 1600 px, defocused and dimmed, `subject` the five singers on alpha (Apple Vision
  * person matte, one tile per singer), `front` the audience below the stage
  * line. Recipe: docs/home/BRIEF.md › Hero planes.
  */

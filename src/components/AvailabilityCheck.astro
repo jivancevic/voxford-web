@@ -152,6 +152,13 @@ const uid = `availability-${type ?? 'any'}-${lang}`;
     transform: scaleX(1);
   }
 
+  /* Forced colours drop backgrounds: draw the hairline as a border instead. */
+  @media (forced-colors: active) {
+    .availability__field::before {
+      border-block-end: var(--line-thin) solid CanvasText;
+    }
+  }
+
   @media (prefers-reduced-motion: no-preference) {
     .availability__field::after {
       transition: transform var(--duration-base) var(--ease-out);
@@ -176,7 +183,8 @@ const uid = `availability-${type ?? 'any'}-${lang}`;
     border: 0;
     border-radius: 0;
     background: transparent;
-    color: var(--color-text);
+    /* The panel is always dark glass, wherever the widget is placed. */
+    color: var(--color-text-on-photo);
     caret-color: var(--color-focus);
     font-family: var(--font-headline);
     font-size: var(--text-heading);
@@ -223,9 +231,9 @@ const uid = `availability-${type ?? 'any'}-${lang}`;
     justify-self: start;
   }
 
-  /* From 36rem of width: one line, date | city | pill (the HR pill is the
-     widest, about 10rem, and fits with both fields at their minimum). */
-  @container (inline-size >= 36rem) {
+  /* From 38rem of width: one line, date | city | pill (the HR pill is the
+     widest, about 9rem; both fields at their minimum leave it 2rem spare). */
+  @container (inline-size >= 38rem) {
     .availability__line {
       grid-template-columns: minmax(10rem, 1fr) minmax(10rem, 1.25fr) auto;
       align-items: end;
