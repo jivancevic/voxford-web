@@ -17,9 +17,10 @@ Build variables (Workers Builds › Settings › Build › Variables): `SITE_URL
 ## Setup (once, by Josip)
 
 1. Log wrangler in to the Cloudflare account that should own the site: `npx wrangler logout && npx wrangler login`, then `npx wrangler whoami` shows that account.
-2. Dashboard › Workers & Pages › Create › Import a repository › `jivancevic/voxford-web`, project name `voxford-web`, production branch `main`, the commands and variables above.
-3. After the first deploy, copy the `workers.dev` URL into the build variable `SITE_URL` and into the GitHub repository variable `PRODUCTION_URL` (`gh variable set PRODUCTION_URL --repo jivancevic/voxford-web --body "https://voxford-web.josip-ivancevic00.workers.dev"`, with the scheme: `smoke` calls `$PRODUCTION_URL/healthz` as is), then redeploy.
-4. Branch protection, auto-merge and the merge permission: see *Ready for auto-merge* below.
+2. Create the R2 bucket the Worker binds (`MEDIA`), or every deploy fails: `npx wrangler r2 bucket create voxford-media` (see *Media and the reels sync*).
+3. Dashboard › Workers & Pages › Create › Import a repository › `jivancevic/voxford-web`, project name `voxford-web`, production branch `main`, the commands and variables above.
+4. After the first deploy, copy the `workers.dev` URL into the build variable `SITE_URL` and into the GitHub repository variable `PRODUCTION_URL` (`gh variable set PRODUCTION_URL --repo jivancevic/voxford-web --body "https://voxford-web.josip-ivancevic00.workers.dev"`, with the scheme: `smoke` calls `$PRODUCTION_URL/healthz` as is), then redeploy.
+5. Branch protection, auto-merge and the merge permission: see *Ready for auto-merge* below.
 
 ## Ready for auto-merge
 
