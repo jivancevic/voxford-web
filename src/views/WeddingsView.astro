@@ -1,6 +1,7 @@
 ---
-// Weddings (ticket C): ceremony, a surprise for the couple, dinner, the whole
-// evening. Layout and JSON-LD: src/components/content/EventPage.astro.
+// Weddings (ticket C): exactly two options, the ceremony and a surprise for the
+// couple (Josip, #40), so no package cards. Layout and JSON-LD:
+// src/components/content/EventPage.astro.
 import EventPage from '@/components/content/EventPage.astro';
 import type { Locale } from '@/i18n';
 
@@ -11,4 +12,4 @@ interface Props {
 const { lang } = Astro.props;
 ---
 
-<EventPage lang={lang} page="weddings" type="wedding" heroPhoto="churchPopUp" bandPhoto="shootUpperTown" />
+<EventPage lang={lang} page="weddings" type="wedding" heroPhoto="churchPopUp" bandPhoto="shootUpperTown" packages={['pop-up']} />

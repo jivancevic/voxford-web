@@ -1,15 +1,15 @@
 ---
 // Upcoming concerts (ticket C): public concerts only, never corporate or
-// private gigs. Each concert gets Event (MusicEvent) JSON-LD. With nothing
-// upcoming the page says so and is noindex, and the footer and sitemap leave
-// it out (src/lib/concerts.ts).
+// private gigs, as tickets grouped by month (#40). Each concert gets Event
+// (MusicEvent) JSON-LD. With nothing upcoming the page says so and is noindex,
+// and the header, footer and sitemap leave it out (src/lib/concerts.ts).
 import { getImage } from 'astro:assets';
 import ConcertList from '@/components/content/ConcertList.astro';
 import ContentHero from '@/components/content/ContentHero.astro';
 import EndCta from '@/components/content/EndCta.astro';
 import PageFlow from '@/components/content/PageFlow.astro';
 import { PHOTOS } from '@/data/photos';
-import { getStrings, type Locale } from '@/i18n';
+import { getStrings, inLang, LOCALE_META, type Locale } from '@/i18n';
 import type { PageKey } from '@/i18n/routes';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getUpcomingConcerts } from '@/lib/concerts';
@@ -27,6 +27,14 @@ const site = Astro.site!;
 const copy = await loadPage(page, lang);
 const t = getStrings(lang);
 const upcoming = await getUpcomingConcerts();
+// One group per month, in date order: "December 2026", then "September 2027".
+const monthName = new Intl.DateTimeFormat(LOCALE_META[lang].htmlLang, { month: 'long', year: 'numeric', timeZone: 'UTC' });
+const months = Map.groupBy(upcoming, (c) => c.data.startDate.slice(0, 7));
+const groups = [...months].map(([ym, concerts]) => ({
+  id: `month-${ym}`,
+  title: monthName.format(new Date(`${ym}-15T12:00:00Z`)),
+  concerts,
+}));
 const image = await getImage({ src: PHOTOS.crikvenicaPiano.src, width: 1200, format: 'jpg' });
 const events = upcoming.map((c) =>
   concertJsonLd(site, {
@@ -35,7 +43,7 @@ const events = upcoming.map((c) =>
     venue: c.data.venue,
     city: c.data.city[lang],
     countryCode: c.data.countryCode,
-    organizer: c.data.organizer,
+    organizer: c.data.organizer && inLang(c.data.organizer, lang),
     isAccessibleForFree: c.data.free,
     description: c.data.description?.[lang],
     image: new URL(image.src, site).href,
@@ -54,17 +62,30 @@ const events = upcoming.map((c) =>
   noindex={upcoming.length === 0}
 >
   <PageFlow>
-    <ContentHero lang={lang} heading={copy.data.heading} lead={fillFacts(t.content.concertsPage.lead, lang)} prefill={{ type: 'concert' }} />
-    <section class="container list" aria-label={copy.data.heading}>
+    <ContentHero
+      lang={lang}
+      heading={copy.data.heading}
+      lead={fillFacts(t.content.concertsPage.lead, lang)}
+      photo="crikvenicaPiano"
+      prefill={{ type: 'concert' }}
+    />
+    <div class="container list">
       {
         upcoming.length > 0 ? (
-          <ConcertList lang={lang} concerts={upcoming} />
+          groups.map((g) => (
+            <section class="month" aria-labelledby={g.id}>
+              <h2 class="month__title" id={g.id}>
+                {g.title}
+              </h2>
+              <ConcertList lang={lang} concerts={g.concerts} level="h3" />
+            </section>
+          ))
         ) : (
           <p class="lead">{fillFacts(t.content.concerts.empty, lang)}</p>
         )
       }
       <p class="list__note">{t.content.concerts.publicOnly}</p>
-    </section>
+    </div>
     <EndCta lang={lang} prefill={{ type: 'concert' }} />
   </PageFlow>
 </BaseLayout>
@@ -72,7 +93,28 @@ const events = upcoming.map((c) =>
 <style>
   .list {
     display: grid;
+    gap: var(--space-8);
+  }
+
+  .month {
+    display: grid;
     gap: var(--space-5);
+  }
+
+  /* The month as a programme line: the name, then the stage light running out to the edge. */
+  .month__title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+    font-size: var(--text-heading);
+  }
+
+  .month__title::after {
+    content: '';
+    flex: 1;
+    block-size: var(--line-thin);
+    background: var(--gradient-light);
+    opacity: 0.6;
   }
 
   .list__note {

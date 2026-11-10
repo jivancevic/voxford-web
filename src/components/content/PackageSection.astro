@@ -18,9 +18,10 @@ const t = getStrings(lang);
 <section class="package-section container" aria-labelledby="packages-heading">
   <h2 id="packages-heading">{t.common.nav.packages}</h2>
   <PackageCards lang={lang} type={type} />
-  <p class="package-section__note">
-    {PRICE_ON_REQUEST[lang]} <a href={pathFor('packages', lang)}>{t.content.seePackages}</a>
-  </p>
+  <div class="package-section__note">
+    <p>{PRICE_ON_REQUEST[lang]}</p>
+    <a class="arrow-link" href={pathFor('packages', lang)}>{t.content.seePackages}</a>
+  </div>
 </section>
 
 <style>
@@ -30,6 +31,9 @@ const t = getStrings(lang);
   }
 
   .package-section__note {
+    display: grid;
+    justify-items: start;
+    gap: var(--space-1);
     color: var(--color-text-secondary);
   }
 </style>

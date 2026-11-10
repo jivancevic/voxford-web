@@ -8,7 +8,7 @@
 // Renders nothing while the collection is empty, so it never shows a hole.
 import { getCollection } from 'astro:content';
 import { Image } from 'astro:assets';
-import { getStrings, type Locale } from '@/i18n';
+import { getStrings, inLang, type Locale } from '@/i18n';
 
 export interface Props {
   lang: Locale;
@@ -21,7 +21,9 @@ export interface Props {
 
 const { lang, limit, heading, class: className } = Astro.props;
 const t = getStrings(lang);
-const all = (await getCollection('references')).sort((a, b) => a.data.order - b.data.order);
+const all = (await getCollection('references'))
+  .map((e) => ({ ...e, data: { ...e.data, name: inLang(e.data.name, lang) } }))
+  .sort((a, b) => a.data.order - b.data.order);
 // Stages and artists are names on their own lines: a stage's logo would read as a client.
 const organisations = all.filter((e) => e.data.kind !== 'artist' && e.data.kind !== 'venue').slice(0, limit);
 const lines = [

@@ -1,13 +1,13 @@
 ---
 title: "A cappella for weddings in Croatia"
-description: "Voxford sings at weddings across Croatia and the region: five voices for the ceremony, a surprise for the couple, or the whole evening."
+description: "Voxford sings at weddings across Croatia and the region: five voices for the ceremony or a surprise for the couple."
 heading: "Weddings"
-source: "brand/biografija.md, posao/ponuda/ponuda.md, posao/klijenti/reference.md › Vjenčanja, repertoar/repertoar.md, CONTEXT.md › Predujam"
+source: "brand/biografija.md, posao/ponuda/ponuda.md, posao/klijenti/reference.md › Vjenčanja, repertoar/repertoar.md, CONTEXT.md › Predujam; options and wedding songs: Josip, 2026-11-11 (#40)"
 ---
 
 ## Songs for the day
 
-The repertoire has the songs people ask for at weddings: Dalmatian klapa such as Nevista, Moj lipi anđele and Vera od suvog zlata, You Raise Me Up, Let It Be and All My Lovin', and the Croatian pop hits guests sing along to. Tell us which song matters to you and we will check whether it can go in the set.
+The repertoire has the songs people ask for at weddings. For a church ceremony: Dubine, Hvalospjev ljubavi and Srce predajem ti. For the party: Dalmatian klapa such as Moj lipi anđele, You Raise Me Up, Let It Be, Somewhere Only We Know, and the Croatian pop hits guests sing along to. Tell us which song matters to you and we will check whether it can go in the set.
 
 ## Outside Zagreb
 

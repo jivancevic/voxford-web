@@ -83,10 +83,14 @@ describe('JSON-LD shapes', () => {
   it('a page that sells has one Service, its packages as price-less Offers', () => {
     const selling = pages.filter((p) => graphOf(p).some((n) => n['@type'] === 'Service'));
     expect(selling.length).toBeGreaterThanOrEqual(10);
+    // Weddings offers only POP-UP, the surprise; its ceremony is no package (Josip, #40).
+    const weddings = new Set(['/en/weddings/', '/hr/vjencanja/']);
     for (const page of selling) {
       const services = graphOf(page).filter((n) => n['@type'] === 'Service');
       expect(services, page.path).toHaveLength(1);
-      expect(services[0]!.offers, page.path).toHaveLength(3);
+      const offers = services[0]!.offers as { name: string }[];
+      if (weddings.has(page.path)) expect(offers.map((o) => o.name), page.path).toEqual(['Voxford POP-UP']);
+      else expect(offers, page.path).toHaveLength(3);
       expect(JSON.stringify(services[0]), page.path).not.toMatch(/price/i);
     }
   });

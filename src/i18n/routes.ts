@@ -67,8 +67,12 @@ export function pageForPath(pathname: string): { page: PageKey; lang: Locale } |
   return undefined;
 }
 
-/** Pages in the primary navigation, in order. Home is the crest, inquiry is the pill. */
-export const NAV_PAGES: readonly PageKey[] = ['conferences', 'weddings', 'advent', 'about', 'videos', 'packages'];
+/**
+ * Pages in the primary navigation, in order. Home is the crest, inquiry is the
+ * pill. Concerts is in the header (Josip, #40) under its short label
+ * (`common.navShort`) and, like in the footer, only while one is upcoming.
+ */
+export const NAV_PAGES: readonly PageKey[] = ['conferences', 'weddings', 'advent', 'concerts', 'about', 'videos', 'packages'];
 
 /** Pages in the footer's secondary list. */
 export const FOOTER_PAGES: readonly PageKey[] = [

@@ -64,6 +64,9 @@
     "upcomingHeading": "Nadolazeći koncerti",
     "all": "Svi nadolazeći koncerti",
     "eventPage": "Stranica događaja",
+    "map": "Karta",
+    "addToCalendar": "Dodaj u kalendar",
+    "free": "Ulaz slobodan",
     "organizer": "Organizator: {name}",
     "empty": "Trenutno nema najavljenih javnih koncerata. Novi datumi pojavit će se ovdje i na {handle}.",
     "publicOnly": "Samo javni koncerti. Poslovne događaje i privatne proslave ovdje ne objavljujemo."
@@ -179,15 +182,15 @@
     "serviceType": "Glazba uživo za konferencije i poslovne događaje"
   },
   "weddings": {
-    "lead": "{disambiguation}. Pet glasova za obred, iznenađenje na slavlju ili cijelu večer, na vjenčanjima diljem Hrvatske i u Sloveniji.",
+    "lead": "{disambiguation}. Pet glasova za obred ili iznenađenje za mladence, na vjenčanjima diljem Hrvatske i regije.",
     "facts": [
       {
         "term": "Obred",
-        "detail": "POP-UP, do {popUpMax} minuta, potpuno a cappella"
+        "detail": "Od ulaska do izlaska, potpuno a cappella"
       },
       {
-        "term": "Slavlje",
-        "detail": "CLASSIC, od {classicMin} do {classicMax} minuta, ili GOLD uz klavir i cajon"
+        "term": "Iznenađenje",
+        "detail": "POP-UP, do {popUpMax} minuta, na slavlju"
       },
       {
         "term": "Gdje",
@@ -198,28 +201,18 @@
         "detail": "Ugovor i predujam, koji se plaća kod potpisa"
       }
     ],
-    "programmeHeading": "Trenuci u kojima pjevamo",
-    "programmeIntro": "Redom kojim ide dan. Odaberite jedan ili ih spojite.",
+    "programmeHeading": "Dva trenutka u kojima pjevamo",
+    "programmeIntro": "Redom kojim ide dan. Odaberite jedan ili oba.",
     "moments": [
       {
         "title": "Obred",
-        "package": "pop-up",
-        "body": "Ulazak, trenutak nakon zavjeta, izlazak. Do {popUpMax} minuta, samo pet glasova."
+        "note": "Potpuno a cappella",
+        "body": "Ulazak, trenutak nakon zavjeta, izlazak. Samo pet glasova."
       },
       {
         "title": "Iznenađenje za mladence",
         "package": "pop-up",
         "body": "Nenajavljeno uđemo na slavlje, a mladenci saznaju tek kad krene prvi akord."
-      },
-      {
-        "title": "Za vrijeme večere",
-        "package": "classic",
-        "body": "Od {classicMin} do {classicMax} minuta između sljedova: klapske pjesme te domaći i strani hitovi koje Vaši gosti znaju."
-      },
-      {
-        "title": "Cijela večer",
-        "package": "gold",
-        "body": "Od {goldMin} do {goldMax} minuta uz klavir i cajon, kad želite da večer nosi glazba uživo."
       }
     ],
     "serviceType": "Glazba uživo za vjenčanja"
@@ -247,27 +240,7 @@
     "pastHeading": "Nedavni javni koncerti",
     "past": [
       {
-        "name": "Glazbene večeri u Ivanić-Gradu",
-        "year": "2025."
-      },
-      {
-        "name": "Advent u Jastrebarskom",
-        "year": "2024."
-      },
-      {
-        "name": "Ljetni koncerti u Biogradu na Moru",
-        "year": "2023. do 2025."
-      },
-      {
-        "name": "Koncert u Orebiću, prvi na Pelješcu",
-        "year": "2026."
-      },
-      {
-        "name": "Koncert za blagdan sv. Antuna, Korčula",
-        "year": "2026."
-      },
-      {
-        "name": "Festival paške čipke",
+        "name": "Blitvijada, Podgora",
         "year": "2026."
       },
       {
@@ -279,12 +252,28 @@
         "year": "2026."
       },
       {
-        "name": "Blitvijada, Podgora",
+        "name": "Koncert za blagdan sv. Antuna, Korčula",
         "year": "2026."
       },
       {
-        "name": "La Nuit des Chœurs, Villers-la-Ville, Belgija",
+        "name": "Festival paške čipke",
         "year": "2026."
+      },
+      {
+        "name": "Koncert u Orebiću, prvi na Pelješcu",
+        "year": "2026."
+      },
+      {
+        "name": "Glazbene večeri u Ivanić-Gradu",
+        "year": "2025."
+      },
+      {
+        "name": "Ljetni koncerti u Biogradu na Moru",
+        "year": "2023. do 2025."
+      },
+      {
+        "name": "Advent u Jastrebarskom",
+        "year": "2024."
       }
     ],
     "serviceType": "Adventski i ljetni koncerti za gradove i turističke zajednice"
