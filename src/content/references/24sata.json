@@ -1,0 +1,7 @@
+{
+  "name": "24sata",
+  "kind": "media",
+  "logo": "../../assets/references/24sata.svg",
+  "mono": "grayscale",
+  "order": 110
+}

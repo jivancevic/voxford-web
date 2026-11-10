@@ -61,23 +61,35 @@ const concerts = defineCollection({
   }),
 });
 
-/** Top videos with their own watch pages (ticket E). videos/<slug>.json. */
+/** Top videos with their own watch pages (ticket E). videos/<slug>.json; the slug is the watch page's URL. */
 const videos = defineCollection({
   loader: glob({ pattern: '**/*.json', base: './src/content/videos' }),
   schema: ({ image }) =>
     z.object({
       title: localized,
       description: localized,
+      /** A frame of the video, 1080×1920 (scripts/encode-top-videos.sh writes it to src/assets/videos/). */
       poster: image(),
-      /** ISO 8601 date. */
+      /** ISO 8601 date: the Instagram post date, or the original file's creation date when that is unknown. */
       uploadDate: z.string().regex(/^\d{4}-\d{2}-\d{2}/),
+      /** Which of the two `uploadDate` is: the page says "Published" or "Recorded" accordingly. */
+      dateKind: z.enum(['published', 'recorded']),
       /** ISO 8601 duration, e.g. PT38S. */
-      duration: z.string().regex(/^PT/),
-      /** Self-hosted sources (R2), best first. */
-      sources: z.array(z.object({ src: z.url(), type: z.string() })).default([]),
-      /** The original post on a social profile. */
+      duration: z.string().regex(/^PT\d+S$/),
+      /**
+       * R2 key prefix of the encoded files, top/<slug>/<version> (set by
+       * scripts/encode-top-videos.sh), served at /media/<prefix>/: loop.{av1,h264}.mp4
+       * (muted loop) and full.{av1,h264}.mp4 (with sound). The version changes with
+       * the content, so the files are cached as immutable.
+       */
+      media: z.string().regex(/^top\/[a-z0-9-]+\/[0-9a-f]{8}$/),
+      /** The original post on a social profile, when known. */
       permalink: z.url().optional(),
+      /** A view count from site-facts NUMBERS shown with this video (a big number is never alone). */
+      viewsFact: z.enum(['carolViews']).optional(),
       order: z.number().int(),
+      /** KB file(s) the facts came from. */
+      source: z.string().min(1),
     }),
 });
 
@@ -87,8 +99,12 @@ const references = defineCollection({
   schema: ({ image }) =>
     z.object({
       name: z.string().min(1),
-      kind: z.enum(['company', 'city', 'tourist-board', 'institution', 'media', 'artist']),
+      /** `venue` (a stage Voxford was invited onto) and `artist` show as lines of names, never as logos. */
+      kind: z.enum(['company', 'city', 'tourist-board', 'institution', 'media', 'festival', 'event', 'venue', 'artist']),
+      /** Official logo (src/assets/references/README.md lists each source). Without one the name shows as text. */
       logo: image().optional(),
+      /** Monochrome treatment: `silhouette` (one light colour) or `grayscale` (keeps a filled box readable). */
+      mono: z.enum(['silhouette', 'grayscale']).default('silhouette'),
       url: z.url().optional(),
       order: z.number().int(),
     }),

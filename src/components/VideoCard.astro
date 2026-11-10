@@ -1,0 +1,182 @@
+---
+// One top video as a card: the poster (responsive, lazy) linking to its watch
+// page, with the title and length as text. With JavaScript, the poster turns
+// into a muted loop while the card is in view (src/scripts/video-loops.ts);
+// without it, or under reduced motion or Save-Data, the poster stays.
+// Owner: ticket E. Used by VideoRail, the Videos page and the watch pages.
+import type { CollectionEntry } from 'astro:content';
+import { Picture } from 'astro:assets';
+import { NUMBERS } from '@/data/site-facts';
+import type { Locale } from '@/i18n';
+import { videoPathFor } from '@/i18n/routes';
+import { formatDuration, videoSources } from '@/lib/media';
+
+interface Props {
+  lang: Locale;
+  video: CollectionEntry<'videos'>;
+  /** Programme number shown on the card (01, 02…). */
+  number?: number;
+  /** CSS `sizes` of the card's slot. */
+  sizes?: string;
+  /** Heading level of the title, to fit the page outline. */
+  headingLevel?: 2 | 3;
+  /** Above the fold (likely LCP): load the poster eagerly with high priority. */
+  priority?: boolean;
+}
+
+const { lang, video, number, sizes = '(min-width: 64rem) 15rem, 45vw', headingLevel = 3, priority = false } = Astro.props;
+const title = video.data.title[lang];
+const duration = formatDuration(video.data.duration);
+const loop = JSON.stringify(videoSources(video.data.media, 'loop'));
+// The most-watched video carries its number: a big number is never alone.
+const fact = video.data.viewsFact ? NUMBERS[video.data.viewsFact] : undefined;
+const views = fact ? `${fact.display} ${NUMBERS.views.label[lang]}` : undefined;
+const Heading = `h${headingLevel}` as const;
+---
+
+<article class="video-card">
+  <a class="video-card__link" href={videoPathFor(video.id, lang)}>
+    <div class="video-card__frame" data-loop={loop}>
+      <Picture
+        src={video.data.poster}
+        alt=""
+        formats={['avif', 'webp']}
+        widths={[270, 405, 540, 720]}
+        sizes={sizes}
+        loading={priority ? 'eager' : 'lazy'}
+        fetchpriority={priority ? 'high' : 'auto'}
+        decoding="async"
+      />
+      <span class="video-card__play" aria-hidden="true"></span>
+    </div>
+    <div class="video-card__text">
+      {number !== undefined && <span class="video-card__number numeral" aria-hidden="true">{String(number).padStart(2, '0')}</span>}
+      <Heading class="video-card__title">{title}</Heading>
+      <p class="label video-card__meta">
+        <time datetime={video.data.duration}>{duration}</time>
+        {views && <span class="video-card__views">{views}</span>}
+      </p>
+    </div>
+  </a>
+</article>
+
+<script>
+  import '@/scripts/video-loops';
+</script>
+
+<style>
+  .video-card {
+    min-inline-size: 0;
+  }
+
+  .video-card__link {
+    display: grid;
+    gap: var(--space-3);
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  .video-card__frame {
+    position: relative;
+    aspect-ratio: 9 / 16;
+    overflow: hidden;
+    border-radius: var(--radius-card);
+    background: var(--color-bg-raised);
+    isolation: isolate;
+  }
+
+  /* The poster and, once JS adds it, the loop fill the frame. */
+  .video-card__frame :global(img),
+  .video-card__frame :global(video) {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+  }
+
+  .video-card__frame :global(video) {
+    opacity: 0;
+    transition: opacity var(--duration-base) var(--ease-out);
+  }
+
+  .video-card__frame:global(.is-playing) :global(video) {
+    opacity: 1;
+  }
+
+  /* Stage light from the bottom edge, so the play mark always reads. */
+  .video-card__frame::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0;
+    block-size: 40%;
+    background: linear-gradient(to top, var(--color-scrim), transparent);
+    pointer-events: none;
+  }
+
+  .video-card__play {
+    position: absolute;
+    inset-inline-start: var(--space-4);
+    inset-block-end: var(--space-4);
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    inline-size: var(--pill-height);
+    block-size: var(--pill-height);
+    border-radius: var(--radius-pill);
+    background:
+      linear-gradient(var(--color-scrim), var(--color-scrim)) padding-box,
+      var(--gradient-light) border-box;
+    border: var(--line-thin) solid transparent;
+    transition: box-shadow var(--duration-base) var(--ease-out);
+  }
+
+  /* A play triangle drawn with borders, so no icon font or SVG request. */
+  .video-card__play::before {
+    content: '';
+    margin-inline-start: 0.2rem;
+    border-block: 0.45rem solid transparent;
+    border-inline-start: 0.7rem solid var(--color-text-on-photo);
+  }
+
+  .video-card__link:hover .video-card__play,
+  .video-card__link:focus-visible .video-card__play {
+    box-shadow: var(--glow-pink), var(--glow-blue);
+  }
+
+  .video-card__link:focus-visible {
+    outline: none;
+  }
+
+  .video-card__link:focus-visible .video-card__frame {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 3px;
+  }
+
+  .video-card__text {
+    display: grid;
+    gap: var(--space-1);
+  }
+
+  .video-card__number {
+    font-size: var(--text-heading);
+    line-height: 1;
+    color: var(--color-text-accent);
+  }
+
+  .video-card__title {
+    font-size: var(--text-lead);
+    line-height: var(--leading-heading);
+  }
+
+  .video-card__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-3);
+    margin: 0;
+  }
+
+  .video-card__views {
+    color: var(--color-text-accent);
+  }
+</style>

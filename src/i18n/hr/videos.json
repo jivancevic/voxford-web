@@ -1,8 +1,35 @@
 {
   "rail": {
-    "heading": "Pogledajte Voxford"
+    "heading": "Pogledajte Voxford",
+    "reelsHeading": "Najnoviji reelsi"
+  },
+  "page": {
+    "topHeading": "Najgledanije",
+    "reelsHeading": "Najnovije s Instagrama",
+    "reelsLead": "Novi reelsi s Instagrama, ovdje svako jutro.",
+    "follow": "Pratite {handle} na Instagramu",
+    "closing": "Svidjelo Vam se? Poslušajte nas uživo na svom događaju."
+  },
+  "watch": {
+    "back": "Svi videi",
+    "playerLabel": "{title} u izvedbi Voxforda",
+    "soundNote": "Pritisnite play za zvuk.",
+    "noVideo": "Vaš preglednik ne može reproducirati ovaj video.",
+    "onInstagram": "Pogledajte na Instagramu",
+    "uploaded": "Objavljeno",
+    "length": "Trajanje",
+    "more": "Još videa",
+    "closing": "Želite ovo uživo na svom događaju?",
+    "recorded": "Snimljeno"
+  },
+  "reel": {
+    "play": "Pokrenite reel: {caption}",
+    "playUntitled": "Pokrenite reel od {date}",
+    "onInstagram": "Otvorite na Instagramu"
   },
   "references": {
-    "heading": "Gdje smo nastupali"
+    "heading": "Vjerovali su nam",
+    "artists": "Na pozornici s",
+    "stages": "Pozornice"
   }
 }

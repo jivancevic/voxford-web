@@ -1,11 +1,19 @@
 ---
-// View for the `videos` page (owner: ticket E). Both language routes
-// render this file; replace the placeholder with the real page.
-import PagePlaceholder from '@/components/PagePlaceholder.astro';
-import type { Locale } from '@/i18n';
+// View for the `videos` page (owner: ticket E): the top videos as a numbered
+// programme, each linking to its watch page, then the latest reels from the
+// daily sync (absent when the feed is), the reference wall, then the inquiry. All text is static
+// HTML; the loops and the reel player only enhance it.
+import { getCollection, render } from 'astro:content';
+import InquiryCTA from '@/components/InquiryCTA.astro';
+import ReferencesWall from '@/components/ReferencesWall.astro';
+import VideoCard from '@/components/VideoCard.astro';
+import VideoRail from '@/components/VideoRail.astro';
+import { GROUP, PROFILES } from '@/data/site-facts';
+import { format, getStrings, type Locale } from '@/i18n';
 import type { PageKey } from '@/i18n/routes';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { breadcrumbsFor, loadPage } from '@/lib/page';
+import { loadReels } from '@/lib/reels';
 
 interface Props {
   lang: Locale;
@@ -13,7 +21,11 @@ interface Props {
 
 const { lang } = Astro.props;
 const page: PageKey = 'videos';
+const t = getStrings(lang);
 const copy = await loadPage(page, lang);
+const { Content } = await render(copy);
+const videos = (await getCollection('videos')).sort((a, b) => a.data.order - b.data.order);
+const hasReels = (await loadReels(Astro.site)).length > 0;
 ---
 
 <BaseLayout
@@ -23,5 +35,156 @@ const copy = await loadPage(page, lang);
   description={copy.data.description}
   jsonLd={[breadcrumbsFor(Astro.site!, page, lang)]}
 >
-  <PagePlaceholder lang={lang} heading={copy.data.heading} />
+  <header class="videos-intro container">
+    <h1>{copy.data.heading}</h1>
+    <span class="light-line videos-intro__line" aria-hidden="true"></span>
+    <div class="lead videos-intro__lead"><Content /></div>
+  </header>
+
+  <section class="videos-top container" aria-labelledby="videos-top-heading">
+    <h2 class="label videos-section-label" id="videos-top-heading">{t.videos.page.topHeading}</h2>
+    <ol class="videos-top__grid" role="list">
+      {
+        videos.map((video, i) => (
+          <li class:list={['videos-top__item', { 'videos-top__item--lead': i === 0 }]}>
+            <VideoCard
+              lang={lang}
+              video={video}
+              number={i + 1}
+              headingLevel={3}
+              priority={i === 0}
+              sizes={i === 0 ? '(min-width: 64rem) 24rem, 90vw' : '(min-width: 64rem) 15rem, 45vw'}
+            />
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+
+  {
+    hasReels && (
+      <section class="videos-reels container" aria-labelledby="videos-reels-heading">
+        <div class="videos-reels__head">
+          <h2 class="label videos-section-label" id="videos-reels-heading">
+            {t.videos.page.reelsHeading}
+          </h2>
+          <p class="videos-reels__lead">{t.videos.page.reelsLead}</p>
+        </div>
+        <VideoRail lang={lang} source="reels" heading={false} />
+        <p>
+          <a href={PROFILES.instagram} rel="noopener">
+            {format(t.videos.page.follow, { handle: GROUP.handle })}
+          </a>
+        </p>
+      </section>
+    )
+  }
+
+  <ReferencesWall lang={lang} class="videos-references container" />
+
+  <section class="videos-closing container">
+    <span class="light-line videos-closing__line" aria-hidden="true"></span>
+    <p class="videos-closing__text">{t.videos.page.closing}</p>
+    <InquiryCTA lang={lang} />
+  </section>
 </BaseLayout>
+
+<style>
+  .videos-intro {
+    display: grid;
+    gap: var(--space-5);
+    justify-items: start;
+    padding-block: var(--space-9) var(--space-7);
+  }
+
+  .videos-intro__line {
+    inline-size: min(16rem, 60%);
+  }
+
+  .videos-intro__lead :global(p) {
+    max-inline-size: 52ch;
+  }
+
+  .videos-section-label {
+    margin-block-end: var(--space-5);
+  }
+
+  /* The programme: the most-watched video leads, the rest follow in a row. */
+  .videos-top__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-6) var(--space-5);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .videos-top__item {
+    max-inline-size: none;
+  }
+
+  .videos-top__item--lead {
+    grid-column: 1 / -1;
+    max-inline-size: 24rem;
+  }
+
+  @media (min-width: 48rem) {
+    .videos-top__grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .videos-top__grid {
+      grid-template-columns: minmax(0, 1.6fr) repeat(4, minmax(0, 1fr));
+      align-items: end;
+    }
+
+    .videos-top__item--lead {
+      grid-column: auto;
+      max-inline-size: none;
+    }
+  }
+
+  .videos-reels {
+    display: grid;
+    gap: var(--space-5);
+    padding-block-start: var(--section-gap);
+  }
+
+  .videos-reels__head {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .videos-reels__head .videos-section-label {
+    margin: 0;
+  }
+
+  .videos-reels__lead {
+    color: var(--color-text-secondary);
+  }
+
+  .videos-references {
+    padding-block-start: var(--section-gap);
+  }
+
+  .videos-closing {
+    display: grid;
+    gap: var(--space-5);
+    justify-items: start;
+    padding-block: var(--section-gap);
+  }
+
+  .videos-closing__line {
+    inline-size: min(10rem, 40%);
+  }
+
+  .videos-closing__text {
+    font-family: var(--font-headline);
+    font-weight: 800;
+    font-size: var(--text-heading);
+    line-height: var(--leading-heading);
+    text-transform: uppercase;
+  }
+</style>

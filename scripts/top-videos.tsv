@@ -1,0 +1,7 @@
+# The top videos: one row per original. Read by scripts/encode-top-videos.sh.
+# original                                         slug                poster_at  loop_start  loop_len
+copy_29547F7C-AF55-427E-B90E-DE6B35DA607A.mov     carol-of-the-bells  10         0           8
+copy_50365CAD-EA6D-4129-8FB8-837B6353F1A2.mov     u-meni-jesen-je     6          0           8
+copy_BBA951E7-FD80-4199-A984-A89DFCB1FAF8.MOV     dreams              6          0           8
+copy_6C398154-D21E-4B0D-B045-4C8832E6223B.mov     jingle-bell-rock    6          0           8
+copy_C055D77C-052C-46B1-A10F-C95BA791E1BE.mov     somebody-to-love    6          0           8

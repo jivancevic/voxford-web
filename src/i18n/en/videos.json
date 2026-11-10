@@ -1,8 +1,35 @@
 {
   "rail": {
-    "heading": "Watch Voxford"
+    "heading": "Watch Voxford",
+    "reelsHeading": "Latest reels"
+  },
+  "page": {
+    "topHeading": "Most watched",
+    "reelsHeading": "Latest from Instagram",
+    "reelsLead": "New reels on Instagram, brought here every morning.",
+    "follow": "Follow {handle} on Instagram",
+    "closing": "Heard enough? Have it live at your event."
+  },
+  "watch": {
+    "back": "All videos",
+    "playerLabel": "{title}, sung by Voxford",
+    "soundNote": "Press play for sound.",
+    "noVideo": "Your browser cannot play this video.",
+    "onInstagram": "Watch on Instagram",
+    "uploaded": "Published",
+    "length": "Length",
+    "more": "More videos",
+    "closing": "Want this live at your event?",
+    "recorded": "Recorded"
+  },
+  "reel": {
+    "play": "Play reel: {caption}",
+    "playUntitled": "Play reel from {date}",
+    "onInstagram": "Open on Instagram"
   },
   "references": {
-    "heading": "Where we have performed"
+    "heading": "Trusted by",
+    "artists": "On stage with",
+    "stages": "Stages"
   }
 }

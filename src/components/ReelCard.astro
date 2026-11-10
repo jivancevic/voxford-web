@@ -1,0 +1,115 @@
+---
+// One synced Instagram reel (src/lib/reels.ts): its thumbnail, the first line
+// of the caption and a link to the post. Without JavaScript the thumbnail links
+// to Instagram; with it, a play button swaps the thumbnail for the reel itself,
+// played from R2 with sound on the visitor's tap (src/scripts/reel-play.ts).
+// Owner: ticket E.
+import { format, getStrings, LOCALE_META, type Locale } from '@/i18n';
+import { captionExcerpt, type Reel } from '@/lib/reels';
+
+interface Props {
+  lang: Locale;
+  reel: Reel;
+}
+
+const { lang, reel } = Astro.props;
+const t = getStrings(lang);
+const caption = captionExcerpt(reel.caption);
+const date = new Date(reel.timestamp);
+const dateText = new Intl.DateTimeFormat(LOCALE_META[lang].htmlLang, { day: 'numeric', month: 'long', year: 'numeric' }).format(date);
+const playLabel = caption ? format(t.videos.reel.play, { caption }) : format(t.videos.reel.playUntitled, { date: dateText });
+---
+
+<article class="reel">
+  <div class="reel__frame" data-reel={reel.video}>
+    <a class="reel__thumb" href={reel.permalink} rel="noopener" tabindex="-1" aria-hidden="true">
+      <img src={reel.thumbnail} alt="" width="540" height="960" loading="lazy" decoding="async" />
+    </a>
+    <button class="reel__play" type="button" aria-label={playLabel} hidden></button>
+  </div>
+  {caption && <p class="reel__caption">{caption}</p>}
+  <p class="label reel__meta">
+    <time datetime={date.toISOString()}>{dateText}</time>
+    <a href={reel.permalink} rel="noopener">{t.videos.reel.onInstagram}</a>
+  </p>
+</article>
+
+<script>
+  import '@/scripts/reel-play';
+</script>
+
+<style>
+  .reel {
+    display: grid;
+    gap: var(--space-3);
+    align-content: start;
+    min-inline-size: 0;
+  }
+
+  .reel__frame {
+    position: relative;
+    aspect-ratio: 9 / 16;
+    overflow: hidden;
+    border-radius: var(--radius-card);
+    background: var(--color-bg-raised);
+  }
+
+  .reel__frame img,
+  .reel__frame :global(video) {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+  }
+
+  .reel__play {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    display: grid;
+    place-items: center;
+    inline-size: 3.5rem;
+    block-size: 3.5rem;
+    padding: 0;
+    border: var(--line-thin) solid transparent;
+    border-radius: var(--radius-pill);
+    background:
+      linear-gradient(var(--color-scrim), var(--color-scrim)) padding-box,
+      var(--gradient-light) border-box;
+    cursor: pointer;
+    transition: box-shadow var(--duration-base) var(--ease-out);
+  }
+
+  .reel__play[hidden] {
+    display: none;
+  }
+
+  .reel__play::before {
+    content: '';
+    margin-inline-start: 0.25rem;
+    border-block: 0.55rem solid transparent;
+    border-inline-start: 0.85rem solid var(--color-text-on-photo);
+  }
+
+  .reel__play:hover,
+  .reel__play:focus-visible {
+    box-shadow: var(--glow-pink), var(--glow-blue);
+  }
+
+  .reel__caption {
+    color: var(--color-text-secondary);
+    font-size: var(--text-small);
+  }
+
+  .reel__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-3);
+    margin: 0;
+  }
+
+  .reel__meta a {
+    color: var(--color-link);
+  }
+</style>

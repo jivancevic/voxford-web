@@ -1,0 +1,7 @@
+{
+  "name": "HRT – Hrvatska radiotelevizija",
+  "kind": "media",
+  "logo": "../../assets/references/hrt.svg",
+  "mono": "silhouette",
+  "order": 50
+}

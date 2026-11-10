@@ -1,0 +1,17 @@
+{
+  "title": {
+    "en": "Dreams",
+    "hr": "Dreams"
+  },
+  "description": {
+    "en": "The Cranberries’ Dreams, sung a cappella by Voxford, a cappella group from Zagreb, Croatia, and filmed in a church.",
+    "hr": "Dreams grupe The Cranberries u a cappella izvedbi Voxforda, a cappella skupine iz Zagreba, snimljeno u crkvi."
+  },
+  "poster": "../../assets/videos/dreams.jpg",
+  "uploadDate": "2025-10-08",
+  "dateKind": "recorded",
+  "duration": "PT27S",
+  "media": "top/dreams/79a3f596",
+  "order": 30,
+  "source": "uploadDate: creation date of the original file (~/Downloads/voxford-top-videos); song identified from its audio and the TikToks audio mixes on Drive (brand/mediji-inventar.md)"
+}

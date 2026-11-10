@@ -1,11 +1,14 @@
 ---
-// SEAM (ticket E fills it; the props are fixed): a horizontal rail of videos.
+// SEAM (ticket E; the props are fixed): a horizontal rail of videos.
 // `top` = the curated top videos (the `videos` collection, each with a watch
-// page); `reels` = the latest reels from the daily sync. Reads its own data,
-// so callers pass no data. Renders nothing while there is nothing to show.
+// page); `reels` = the latest reels from the daily sync (read at build time,
+// src/lib/reels.ts). Reads its own data, so callers pass no data. Renders
+// nothing while there is nothing to show (no reels when the feed is down).
 import { getCollection } from 'astro:content';
+import ReelCard from '@/components/ReelCard.astro';
+import VideoCard from '@/components/VideoCard.astro';
 import { getStrings, type Locale } from '@/i18n';
-import { videoPathFor } from '@/i18n/routes';
+import { loadReels } from '@/lib/reels';
 
 export interface Props {
   lang: Locale;
@@ -19,22 +22,70 @@ export interface Props {
 
 const { lang, source = 'top', limit, heading, class: className } = Astro.props;
 const t = getStrings(lang);
-const videos =
-  source === 'top' ? (await getCollection('videos')).sort((a, b) => a.data.order - b.data.order).slice(0, limit) : [];
-const title = heading === false ? undefined : (heading ?? t.videos.rail.heading);
+const top = source === 'top' ? (await getCollection('videos')).sort((a, b) => a.data.order - b.data.order).slice(0, limit) : [];
+const reels = source === 'reels' ? (await loadReels(Astro.site)).slice(0, limit) : [];
+const count = top.length + reels.length;
+const defaultHeading = source === 'top' ? t.videos.rail.heading : t.videos.rail.reelsHeading;
+const title = heading === false ? undefined : (heading ?? defaultHeading);
+const headingId = `video-rail-${source}`;
 ---
 
 {
-  videos.length > 0 && (
-    <section class:list={['video-rail', className]} data-stub="video-rail" data-source={source}>
-      {title && <h2 class="label">{title}</h2>}
-      <ul>
-        {videos.map((v) => (
+  count > 0 && (
+    <section
+      class:list={['video-rail', className]}
+      data-source={source}
+      aria-labelledby={title ? headingId : undefined}
+    >
+      {title && (
+        <h2 class="video-rail__heading" id={headingId}>
+          {title}
+        </h2>
+      )}
+      <ul class="video-rail__list" role="list">
+        {top.map((video, i) => (
           <li>
-            <a href={videoPathFor(v.id, lang)}>{v.data.title[lang]}</a>
+            <VideoCard lang={lang} video={video} number={i + 1} sizes="(min-width: 64rem) 15rem, 60vw" />
+          </li>
+        ))}
+        {reels.map((reel) => (
+          <li>
+            <ReelCard lang={lang} reel={reel} />
           </li>
         ))}
       </ul>
     </section>
   )
 }
+
+<style>
+  .video-rail {
+    display: grid;
+    gap: var(--space-5);
+  }
+
+  .video-rail__heading {
+    font-size: var(--text-title);
+  }
+
+  /* A row that scrolls sideways on small screens and fits on wide ones. */
+  .video-rail__list {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(11rem, 15rem);
+    gap: var(--space-5);
+    margin: 0;
+    padding: 0 0 var(--space-3);
+    list-style: none;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border) transparent;
+  }
+
+  .video-rail__list > li {
+    scroll-snap-align: start;
+    max-inline-size: none;
+  }
+</style>

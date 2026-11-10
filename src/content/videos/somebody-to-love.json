@@ -1,0 +1,17 @@
+{
+  "title": {
+    "en": "Somebody to Love",
+    "hr": "Somebody to Love"
+  },
+  "description": {
+    "en": "Queen’s Somebody to Love, arranged for five voices and sung a cappella by Voxford, a cappella group from Zagreb, Croatia.",
+    "hr": "Somebody to Love grupe Queen u aranžmanu za pet glasova, a cappella izvedba Voxforda, skupine iz Zagreba."
+  },
+  "poster": "../../assets/videos/somebody-to-love.jpg",
+  "uploadDate": "2023-11-28",
+  "dateKind": "recorded",
+  "duration": "PT19S",
+  "media": "top/somebody-to-love/304f742c",
+  "order": 50,
+  "source": "uploadDate: creation date of the original file (~/Downloads/voxford-top-videos); song identified from its audio and the TikToks audio mixes on Drive (brand/mediji-inventar.md)"
+}
