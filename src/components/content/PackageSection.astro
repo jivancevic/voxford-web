@@ -1,0 +1,35 @@
+---
+// The packages block on an event page: heading, the three cards with the
+// event type prefilled, and the price-on-request line from site-facts.
+import { PRICE_ON_REQUEST, type EventType } from '@/data/site-facts';
+import { getStrings, type Locale } from '@/i18n';
+import { pathFor } from '@/i18n/routes';
+import PackageCards from './PackageCards.astro';
+
+interface Props {
+  lang: Locale;
+  type: EventType;
+}
+
+const { lang, type } = Astro.props;
+const t = getStrings(lang);
+---
+
+<section class="package-section container" aria-labelledby="packages-heading">
+  <h2 id="packages-heading">{t.common.nav.packages}</h2>
+  <PackageCards lang={lang} type={type} />
+  <p class="package-section__note">
+    {PRICE_ON_REQUEST[lang]} <a href={pathFor('packages', lang)}>{t.content.seePackages}</a>
+  </p>
+</section>
+
+<style>
+  .package-section {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  .package-section__note {
+    color: var(--color-text-secondary);
+  }
+</style>

@@ -1,0 +1,134 @@
+---
+// The three packages, lit by the brand gradient from the top edge (spec ›
+// Design). Durations, line-ups and names come from site-facts; prices never
+// appear. Each card's pill opens the inquiry form with the package filled in.
+import InquiryCTA from '@/components/InquiryCTA.astro';
+import { PACKAGES, type EventType } from '@/data/site-facts';
+import { format, getStrings, type Locale } from '@/i18n';
+import { packageDuration } from '@/lib/copy';
+
+interface Props {
+  lang: Locale;
+  /** Prefill the event type too, when the cards sit on a page for one kind of event. */
+  type?: EventType;
+  /** Heading level of each package name. */
+  level?: 'h2' | 'h3';
+  /** Give each card an id (the package key) for #anchors; only one place per page may. */
+  anchors?: boolean;
+}
+
+const { lang, type, level = 'h3', anchors = false } = Astro.props;
+const t = getStrings(lang);
+const Name = level;
+---
+
+<ul class="packages" role="list">
+  {
+    PACKAGES.map((p) => {
+      const copy = t.content.packages.items[p.key];
+      return (
+        <li class="packages__card" id={anchors ? p.key : undefined}>
+          <Name class="display packages__name">{p.name}</Name>
+          <p class="label packages__type">{copy.type}</p>
+          <dl class="packages__facts">
+            <div>
+              <dt class="label">{t.content.packages.length}</dt>
+              <dd class="display packages__length">{packageDuration(p, lang)}</dd>
+            </div>
+            <div>
+              <dt class="label">{t.content.packages.lineup}</dt>
+              <dd>{p.lineup[lang]}</dd>
+            </div>
+          </dl>
+          <p class="packages__fits">{copy.fits}</p>
+          <InquiryCTA
+            lang={lang}
+            prefill={{ ...(type ? { type } : {}), package: p.key }}
+            label={format(t.content.packages.inquire, { name: p.name })}
+            variant="ghost"
+            class="packages__cta"
+          />
+        </li>
+      );
+    })
+  }
+</ul>
+
+<style>
+  .packages {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+    gap: var(--space-5);
+  }
+
+  .packages__card {
+    --card-light: var(--brand-pink);
+    position: relative;
+    display: grid;
+    grid-template-rows: auto auto auto 1fr auto;
+    gap: var(--space-4);
+    max-inline-size: none;
+    padding: var(--space-6) var(--space-5) var(--space-5);
+    border-radius: var(--radius-card);
+    border: var(--line-thin) solid var(--color-border-subtle);
+    background:
+      radial-gradient(120% 60% at 50% 0%, color-mix(in oklab, var(--card-light) 22%, transparent), transparent 70%),
+      var(--color-bg-surface);
+    overflow: hidden;
+  }
+
+  .packages__card:nth-child(2) {
+    --card-light: var(--brand-purple);
+  }
+
+  .packages__card:nth-child(3) {
+    --card-light: var(--brand-blue);
+  }
+
+  /* The stage edge: a line of light along the top of each card. */
+  .packages__card::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    block-size: 2px;
+    background: linear-gradient(90deg, transparent, var(--card-light), transparent);
+  }
+
+  .packages__name {
+    font-size: clamp(2.5rem, 1.8rem + 2.4vw, 3.5rem);
+  }
+
+  .packages__type {
+    margin-block-start: calc(-1 * var(--space-2));
+  }
+
+  .packages__facts {
+    display: grid;
+    gap: var(--space-3);
+    margin: 0;
+  }
+
+  .packages__facts div {
+    display: grid;
+    gap: var(--space-1);
+  }
+
+  .packages__facts dd {
+    margin: 0;
+  }
+
+  .packages__length {
+    font-size: var(--text-heading);
+  }
+
+  .packages__fits {
+    color: var(--color-text-secondary);
+  }
+
+  .packages__card :global(.packages__cta) {
+    justify-self: start;
+  }
+</style>

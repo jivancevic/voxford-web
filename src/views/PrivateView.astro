@@ -1,11 +1,24 @@
 ---
-// View for the `private` page (owner: ticket C). Both language routes
-// render this file; replace the placeholder with the real page.
-import PagePlaceholder from '@/components/PagePlaceholder.astro';
-import type { Locale } from '@/i18n';
-import type { PageKey } from '@/i18n/routes';
+// Private celebrations (ticket C): surprise, concert, the evening; private clients never named. JSON-LD: BreadcrumbList, one Service per package
+// (no prices), FAQPage for the questions shown here.
+import VideoRail from '@/components/VideoRail.astro';
+import ContentHero from '@/components/content/ContentHero.astro';
+import CreditedPhoto from '@/components/content/CreditedPhoto.astro';
+import EndCta from '@/components/content/EndCta.astro';
+import FactList from '@/components/content/FactList.astro';
+import FaqList from '@/components/content/FaqList.astro';
+import PackageSection from '@/components/content/PackageSection.astro';
+import PageFlow from '@/components/content/PageFlow.astro';
+import Programme from '@/components/content/Programme.astro';
+import Prose from '@/components/content/Prose.astro';
+import { getStrings, type Locale } from '@/i18n';
+import { pathFor, type PageKey } from '@/i18n/routes';
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import { fillFacts } from '@/lib/copy';
+import { getFaqs } from '@/lib/faq';
+import { faqPageJsonLd } from '@/lib/jsonld';
 import { breadcrumbsFor, loadPage } from '@/lib/page';
+import { servicesFor } from '@/lib/services';
 
 interface Props {
   lang: Locale;
@@ -13,15 +26,46 @@ interface Props {
 
 const { lang } = Astro.props;
 const page: PageKey = 'private';
+const site = Astro.site!;
 const copy = await loadPage(page, lang);
+const t = getStrings(lang);
+const c = t.content.private;
+const faqs = await getFaqs(lang, page);
+const prefill = { type: 'private' } as const;
 ---
 
 <BaseLayout
   lang={lang}
   page={page}
   title={copy.data.title}
-  description={copy.data.description}
-  jsonLd={[breadcrumbsFor(Astro.site!, page, lang)]}
+  description={fillFacts(copy.data.description, lang)}
+  ogPhoto="shootArmchair"
+  jsonLd={[breadcrumbsFor(site, page, lang), ...servicesFor(site, lang, page, c.serviceType), faqPageJsonLd(faqs)]}
 >
-  <PagePlaceholder lang={lang} heading={copy.data.heading} prefill={{ type: 'private' }} />
+  <PageFlow>
+    <ContentHero
+      lang={lang}
+      heading={copy.data.heading}
+      lead={fillFacts(c.lead, lang)}
+      photo="shootArmchair"
+      prefill={prefill}
+      secondary={{ href: '#packages-heading', label: t.content.seePackages }}
+    />
+    <FactList lang={lang} label={t.content.factsLabel} facts={c.facts} />
+    <Programme lang={lang} id="programme" heading={c.programmeHeading} intro={c.programmeIntro} moments={c.moments} />
+    <div class="container band">
+      <CreditedPhoto photo="shootGlass" lang={lang} sizes="(min-width: 76rem) 76rem, 100vw" />
+    </div>
+    <Prose lang={lang} html={copy.rendered?.html ?? ''} />
+    <PackageSection lang={lang} type="private" />
+    <FaqList lang={lang} id="faq" heading={t.content.faq.heading} faqs={faqs} more={{ href: pathFor('faq', lang), label: t.content.faq.all }} />
+    <VideoRail lang={lang} limit={4} class="container" />
+    <EndCta lang={lang} prefill={prefill} />
+  </PageFlow>
 </BaseLayout>
+
+<style>
+  .band :global(.credited-photo) {
+    --photo-ratio: 16 / 9;
+  }
+</style>

@@ -34,6 +34,8 @@ const faq = defineCollection({
     order: z.number().int(),
     /** Page keys whose FAQ block shows this entry (the FAQ page shows all). */
     pages: z.array(z.string()).default([]),
+    /** Section on the FAQ page (labels in the `content` namespace: content.faq.groups). */
+    group: z.enum(['booking', 'music', 'sound', 'day']),
     source: z.string().min(1),
   }),
 });

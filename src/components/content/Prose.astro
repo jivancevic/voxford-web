@@ -1,0 +1,80 @@
+---
+// Long-form copy from a page's Markdown body (src/content/pages/<lang>/<page>.md),
+// filled with site-facts. Each `##` section becomes its own row: the heading on
+// the left, the text on the right, so the page reads like a printed programme.
+import type { Locale } from '@/i18n';
+import { fillFactsHtml } from '@/lib/copy';
+
+interface Props {
+  lang: Locale;
+  /** HTML rendered from Markdown (entry.rendered.html). */
+  html: string;
+}
+
+const { lang, html } = Astro.props;
+const sections = fillFactsHtml(html, lang)
+  .split(/(?=<h2[\s>])/)
+  .map((part) => part.trim())
+  .filter(Boolean)
+  .map((part) => {
+    const match = /^(<h2[\s\S]*?<\/h2>)([\s\S]*)$/.exec(part);
+    return match ? { heading: match[1], body: match[2] ?? '' } : { heading: '', body: part };
+  });
+---
+
+{
+  sections.length > 0 && (
+    <div class="prose container">
+      {sections.map((s) => (
+        <section class="prose__section">
+          {s.heading && <Fragment set:html={s.heading} />}
+          <div class="prose__body" set:html={s.body} />
+        </section>
+      ))}
+    </div>
+  )
+}
+
+<style>
+  .prose {
+    display: grid;
+    gap: var(--space-8);
+  }
+
+  .prose__section {
+    display: grid;
+    gap: var(--space-5);
+  }
+
+  .prose__section :global(h2) {
+    font-size: var(--text-title);
+    max-inline-size: 16ch;
+  }
+
+  .prose__body {
+    display: grid;
+    gap: var(--space-4);
+    font-size: var(--text-lead);
+    line-height: 1.5;
+    color: var(--color-text-secondary);
+  }
+
+  .prose__body :global(strong) {
+    color: var(--color-text);
+  }
+
+  .prose__body :global(ul) {
+    display: grid;
+    gap: var(--space-3);
+    margin: 0;
+    padding-inline-start: 1.25em;
+  }
+
+  @media (min-width: 60rem) {
+    .prose__section {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+      gap: var(--space-8);
+      align-items: start;
+    }
+  }
+</style>

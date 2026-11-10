@@ -1,0 +1,49 @@
+---
+// The calm end of a page (spec › Design): the crest as a seal, one line of
+// light, one sentence and one pill.
+import Crest from '@/components/Crest.astro';
+import InquiryCTA from '@/components/InquiryCTA.astro';
+import { getStrings, type Locale } from '@/i18n';
+import { fillFacts } from '@/lib/copy';
+import type { InquiryPrefill } from '@/lib/inquiry-url';
+
+interface Props {
+  lang: Locale;
+  prefill?: InquiryPrefill;
+}
+
+const { lang, prefill } = Astro.props;
+const t = getStrings(lang);
+---
+
+<section class="end container" aria-labelledby="end-heading">
+  <Crest variant="symbol" width={56} />
+  <span class="light-line end__line" aria-hidden="true"></span>
+  <h2 id="end-heading" class="end__heading">{t.content.end.heading}</h2>
+  <p class="end__body">{fillFacts(t.content.end.body, lang)}</p>
+  <InquiryCTA lang={lang} prefill={prefill} />
+</section>
+
+<style>
+  .end {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-5);
+    text-align: center;
+    padding-block: var(--space-8) var(--space-9);
+  }
+
+  .end__line {
+    inline-size: min(18rem, 70%);
+  }
+
+  .end__heading {
+    font-size: var(--text-title);
+    max-inline-size: 18ch;
+  }
+
+  .end__body {
+    color: var(--color-text-secondary);
+    max-inline-size: 48ch;
+  }
+</style>

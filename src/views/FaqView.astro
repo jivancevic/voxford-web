@@ -1,10 +1,16 @@
 ---
-// View for the `faq` page (owner: ticket C). Both language routes
-// render this file; replace the placeholder with the real page.
-import PagePlaceholder from '@/components/PagePlaceholder.astro';
-import type { Locale } from '@/i18n';
+// FAQ (ticket C): every question from the `faq` collection, grouped, all
+// answers open in the HTML. JSON-LD: BreadcrumbList, FAQPage.
+import ContentHero from '@/components/content/ContentHero.astro';
+import EndCta from '@/components/content/EndCta.astro';
+import FaqList from '@/components/content/FaqList.astro';
+import PageFlow from '@/components/content/PageFlow.astro';
+import { getStrings, type Locale } from '@/i18n';
 import type { PageKey } from '@/i18n/routes';
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import { fillFacts } from '@/lib/copy';
+import { getFaqs } from '@/lib/faq';
+import { faqPageJsonLd } from '@/lib/jsonld';
 import { breadcrumbsFor, loadPage } from '@/lib/page';
 
 interface Props {
@@ -13,15 +19,22 @@ interface Props {
 
 const { lang } = Astro.props;
 const page: PageKey = 'faq';
+const site = Astro.site!;
 const copy = await loadPage(page, lang);
+const t = getStrings(lang);
+const faqs = await getFaqs(lang);
 ---
 
 <BaseLayout
   lang={lang}
   page={page}
   title={copy.data.title}
-  description={copy.data.description}
-  jsonLd={[breadcrumbsFor(Astro.site!, page, lang)]}
+  description={fillFacts(copy.data.description, lang)}
+  jsonLd={[breadcrumbsFor(site, page, lang), faqPageJsonLd(faqs)]}
 >
-  <PagePlaceholder lang={lang} heading={copy.data.heading} />
+  <PageFlow>
+    <ContentHero lang={lang} heading={copy.data.heading} lead={fillFacts(t.content.faqPage.lead, lang)} />
+    <FaqList lang={lang} id="faq" heading={copy.data.heading} faqs={faqs} showHeading={false} grouped />
+    <EndCta lang={lang} />
+  </PageFlow>
 </BaseLayout>

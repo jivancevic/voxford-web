@@ -1,0 +1,55 @@
+---
+// The quick answer under the hero: who, how long, where, what is needed, as a
+// definition list. Facts arrive as copy with {tokens}; this fills them.
+import type { Locale } from '@/i18n';
+import { fillFacts } from '@/lib/copy';
+
+interface Props {
+  lang: Locale;
+  /** Accessible name of the list; not shown. */
+  label: string;
+  facts: readonly { term: string; detail: string }[];
+}
+
+const { lang, label, facts } = Astro.props;
+---
+
+<section class="facts container" aria-label={label}>
+  <span class="light-line" aria-hidden="true"></span>
+  <dl class="facts__list">
+    {
+      facts.map((f) => (
+        <div class="facts__item">
+          <dt class="label">{fillFacts(f.term, lang)}</dt>
+          <dd>{fillFacts(f.detail, lang)}</dd>
+        </div>
+      ))
+    }
+  </dl>
+</section>
+
+<style>
+  .facts {
+    display: grid;
+    gap: var(--space-5);
+  }
+
+  .facts__list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+    gap: var(--space-5) var(--space-6);
+    margin: 0;
+  }
+
+  .facts__item {
+    display: grid;
+    gap: var(--space-2);
+    align-content: start;
+  }
+
+  .facts__item dd {
+    margin: 0;
+    font-size: var(--text-body);
+    color: var(--color-text);
+  }
+</style>

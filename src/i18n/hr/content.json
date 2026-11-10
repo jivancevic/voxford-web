@@ -1,3 +1,400 @@
 {
-  "breadcrumbHome": "Naslovnica"
+  "breadcrumbHome": "Naslovnica",
+  "photoCredit": "Fotografija: {credit}",
+  "factsLabel": "Ukratko",
+  "seePackages": "Usporedite pakete",
+  "package": "Paket",
+  "moments": {
+    "package": "Paket",
+    "length": "Trajanje"
+  },
+  "end": {
+    "heading": "Pošaljite nam datum i grad",
+    "body": "Naša menadžerica {managerName} ({managerCompany}) javit će Vam se s ponudom i riderima. Cijena ovisi o datumu i mjestu, a putni troškovi su zasebni."
+  },
+  "faq": {
+    "heading": "Pitanja koja nam postavljate prije rezervacije",
+    "all": "Sva pitanja",
+    "groups": {
+      "booking": "Rezervacija",
+      "music": "Glazba",
+      "sound": "Ozvučenje i pozornica",
+      "day": "Na dan nastupa"
+    }
+  },
+  "packages": {
+    "length": "Trajanje",
+    "lineup": "Na pozornici",
+    "fits": "Za",
+    "inquire": "Upit za {name}",
+    "compareHeading": "Usporedba",
+    "compareCaption": "Tri paketa jedan uz drugi. Cijene na upit.",
+    "rows": {
+      "type": "Vrsta nastupa",
+      "length": "Trajanje",
+      "performers": "Izvođači",
+      "instruments": "Instrumenti",
+      "soundcheck": "Tonska proba",
+      "engineer": "Tonac"
+    },
+    "items": {
+      "pop-up": {
+        "type": "Ceremonijalni nastup",
+        "fits": "Vjenčanja, otvorenja, dodjele i posebni trenuci događanja. Potpuno a cappella.",
+        "performers": "5 pjevača",
+        "instruments": "Bez, a cappella",
+        "soundcheck": "20 min",
+        "engineer": "Vaš"
+      },
+      "classic": {
+        "type": "A cappella koncert",
+        "fits": "Samostalni koncert: domaći i strani hitovi u pet glasova, bez instrumenata.",
+        "performers": "5 pjevača",
+        "instruments": "Bez, a cappella",
+        "soundcheck": "30 min",
+        "engineer": "Vaš ili naš"
+      },
+      "gold": {
+        "type": "Cjelovečernji koncert",
+        "fits": "Sedam izvođača: pet glasova uz klavir i cajon, kao središnji glazbeni događaj večeri.",
+        "performers": "7 izvođača",
+        "instruments": "Klavir i cajon",
+        "soundcheck": "45 min",
+        "engineer": "Vaš ili naš"
+      }
+    }
+  },
+  "concerts": {
+    "upcomingHeading": "Nadolazeći koncerti",
+    "all": "Svi nadolazeći koncerti",
+    "eventPage": "Stranica događaja",
+    "empty": "Trenutno nema najavljenih javnih koncerata. Novi datumi pojavit će se ovdje i na {handle}.",
+    "publicOnly": "Samo javni koncerti. Poslovne događaje i privatne proslave ovdje ne objavljujemo."
+  },
+  "conferences": {
+    "lead": "{disambiguation}. Pet pjevača i pet mikrofona, bez benda koji treba postaviti: pjevamo na otvorenjima konferencija, između predavanja, na gala večerama i dodjelama nagrada, u Zagrebu, diljem Hrvatske i u regiji.",
+    "facts": [
+      {
+        "term": "Tko",
+        "detail": "Pet a cappella pjevača iz Zagreba, zajedno od {foundingYear}"
+      },
+      {
+        "term": "Koliko traje",
+        "detail": "Do {popUpMax} minuta, od {classicMin} do {classicMax} ili od {goldMin} do {goldMax} uz klavir i cajon"
+      },
+      {
+        "term": "Gdje",
+        "detail": "Zagreb, ostatak Hrvatske i regija"
+      },
+      {
+        "term": "Što nam treba",
+        "detail": "Razglas i pet mikrofona ili naš tonac. Pozornicu ne treba graditi."
+      }
+    ],
+    "programmeHeading": "Gdje nas smjestiti u program",
+    "programmeIntro": "Četiri trenutka konferencijskog dana u kojima najčešće nastupamo, redom kojim dolaze.",
+    "moments": [
+      {
+        "title": "Otvorenje",
+        "package": "pop-up",
+        "body": "Do {popUpMax} minuta prije prvog predavanja ili svečanog govora. Dvoranu utiša brže od bilo koje playliste."
+      },
+      {
+        "title": "Između predavanja",
+        "package": "pop-up",
+        "body": "Kratki mixevi kao glazbene međuigre, da i pauza ima svoj trenutak. Tako smo pjevali na konferenciji MAKK 2022. u Zagrebu."
+      },
+      {
+        "title": "Gala večera ili dodjela nagrada",
+        "package": "classic",
+        "body": "Od {classicMin} do {classicMax} minuta a cappelle između sljedova ili oko dodjele, kao na gala večeri Unisport Stars u hotelu The Westin Zagreb."
+      },
+      {
+        "title": "Večernji koncert",
+        "package": "gold",
+        "body": "Od {goldMin} do {goldMax} minuta uz klavir i cajon, kao glavni program obljetnice ili božićnog domjenka."
+      }
+    ],
+    "referencesHeading": "Tko nas je zvao",
+    "referencesIntro": "Tvrtke, udruge i javne ustanove za koje smo pjevali. Privatne naručitelje nikad ne navodimo.",
+    "references": [
+      {
+        "name": "HAK, Hrvatski autoklub",
+        "what": "Proslava obljetnice, hotel Esplanade Zagreb",
+        "year": "2026."
+      },
+      {
+        "name": "Unisport Hrvatska",
+        "what": "Gala večer Unisport Stars, The Westin Zagreb",
+        "year": "2026."
+      },
+      {
+        "name": "GP Krk",
+        "what": "Obljetnica tvrtke, Opatija",
+        "year": "2026."
+      },
+      {
+        "name": "JGL",
+        "what": "Božićni event, Rijeka",
+        "year": "2025."
+      },
+      {
+        "name": "Državni zavod za statistiku",
+        "what": "Obljetnica, Zagreb",
+        "year": "2025."
+      },
+      {
+        "name": "Ekonomski fakultet Sveučilišta u Zagrebu",
+        "what": "Božićni domjenak",
+        "year": "2025."
+      },
+      {
+        "name": "Disney i Blitz-CineStar",
+        "what": "Premijere filmova Želja i Mufasa, Zagreb",
+        "year": "2023. i 2024."
+      },
+      {
+        "name": "Infobip",
+        "what": "Event tvrtke, Zagreb",
+        "year": "2023."
+      },
+      {
+        "name": "HEP",
+        "what": "Božićni koncerti",
+        "year": "2023."
+      },
+      {
+        "name": "Hrvatski Telekom",
+        "what": "Božićni event",
+        "year": "2022."
+      },
+      {
+        "name": "MAKK, HDS ZAMP",
+        "what": "Međunarodna konferencija autorske kreativnosti, Zagreb",
+        "year": "2022."
+      }
+    ],
+    "serviceType": "Glazba uživo za konferencije i poslovne događaje"
+  },
+  "weddings": {
+    "lead": "{disambiguation}. Pet glasova za obred, iznenađenje na slavlju ili cijelu večer, na vjenčanjima diljem Hrvatske i u Sloveniji.",
+    "facts": [
+      {
+        "term": "Obred",
+        "detail": "POP-UP, do {popUpMax} minuta, potpuno a cappella"
+      },
+      {
+        "term": "Slavlje",
+        "detail": "CLASSIC, od {classicMin} do {classicMax} minuta, ili GOLD uz klavir i cajon"
+      },
+      {
+        "term": "Gdje",
+        "detail": "Hrvatska i regija, putni troškovi su zasebni"
+      },
+      {
+        "term": "Potvrda termina",
+        "detail": "Ugovor i predujam, koji se plaća kod potpisa"
+      }
+    ],
+    "programmeHeading": "Trenuci u kojima pjevamo",
+    "programmeIntro": "Redom kojim ide dan. Odaberite jedan ili ih spojite.",
+    "moments": [
+      {
+        "title": "Obred",
+        "package": "pop-up",
+        "body": "Ulazak, trenutak nakon zavjeta, izlazak. Do {popUpMax} minuta, samo pet glasova."
+      },
+      {
+        "title": "Iznenađenje za mladence",
+        "package": "pop-up",
+        "body": "Prijatelji i obitelj znali su nas pozvati da nenajavljeno uđemo na slavlje. Mladenci saznaju tek kad krene prvi akord."
+      },
+      {
+        "title": "Za vrijeme večere",
+        "package": "classic",
+        "body": "Od {classicMin} do {classicMax} minuta između sljedova: klapske pjesme te domaći i strani hitovi koje Vaši gosti znaju."
+      },
+      {
+        "title": "Cijela večer",
+        "package": "gold",
+        "body": "Od {goldMin} do {goldMax} minuta uz klavir i cajon, kad želite da večer nosi glazba uživo."
+      }
+    ],
+    "serviceType": "Glazba uživo za vjenčanja"
+  },
+  "advent": {
+    "lead": "{disambiguation}. Gradovi i turističke zajednice zovu nas na adventske pozornice, ljetne koncerte i festivale: za cijelu večer uz klavir i cajon ili za kratki a cappella nastup na otvorenju programa.",
+    "facts": [
+      {
+        "term": "Format",
+        "detail": "GOLD, od {goldMin} do {goldMax} minuta, pet glasova uz klavir i cajon"
+      },
+      {
+        "term": "Kraće",
+        "detail": "CLASSIC a cappella koncert od {classicMin} do {classicMax} minuta ili POP-UP na otvorenju"
+      },
+      {
+        "term": "Sezona",
+        "detail": "Advent u prosincu, ljeti pozornice na obali i otocima"
+      },
+      {
+        "term": "Gdje",
+        "detail": "Cijela Hrvatska i regija, putni troškovi su zasebni"
+      }
+    ],
+    "pastHeading": "Nedavni javni koncerti",
+    "past": [
+      {
+        "name": "Advent u Zagrebu, Ledeni park",
+        "year": "2025."
+      },
+      {
+        "name": "Glazbene večeri u Ivanić-Gradu",
+        "year": "2025."
+      },
+      {
+        "name": "Advent u Jastrebarskom",
+        "year": "2024."
+      },
+      {
+        "name": "Ljetni koncerti u Biogradu na Moru",
+        "year": "2023. do 2025."
+      },
+      {
+        "name": "Koncert u Orebiću, prvi na Pelješcu",
+        "year": "2026."
+      },
+      {
+        "name": "Koncert za blagdan sv. Antuna, Korčula",
+        "year": "2026."
+      },
+      {
+        "name": "Festival paške čipke",
+        "year": "2026."
+      },
+      {
+        "name": "Ljetne pozornice u Supetru i na Visu",
+        "year": "2026."
+      },
+      {
+        "name": "Kvarner International Sparkling Wines Festival, Crikvenica",
+        "year": "2026."
+      },
+      {
+        "name": "Blitvijada, Podgora",
+        "year": "2026."
+      },
+      {
+        "name": "La Nuit des Chœurs, Villers-la-Ville, Belgija",
+        "year": "2026."
+      }
+    ],
+    "serviceType": "Adventski i ljetni koncerti za gradove i turističke zajednice"
+  },
+  "private": {
+    "lead": "{disambiguation}. Rođendani, obljetnice i obiteljska slavlja: uđemo kao iznenađenje do {popUpMax} minuta ili gostima održimo cijeli koncert.",
+    "facts": [
+      {
+        "term": "Iznenađenje",
+        "detail": "POP-UP, do {popUpMax} minuta"
+      },
+      {
+        "term": "Koncert",
+        "detail": "CLASSIC, od {classicMin} do {classicMax} minuta, ili GOLD uz klavir i cajon"
+      },
+      {
+        "term": "Gdje",
+        "detail": "Zagreb, ostatak Hrvatske i regija"
+      },
+      {
+        "term": "Privatnost",
+        "detail": "Imena privatnih naručitelja nikad ne objavljujemo"
+      }
+    ],
+    "programmeHeading": "Kako to može izgledati",
+    "programmeIntro": "Tri načina da nas imate na privatnom slavlju.",
+    "moments": [
+      {
+        "title": "Iznenađenje",
+        "package": "pop-up",
+        "body": "Uđemo nenajavljeno, otpjevamo slavljeniku i pustimo da se slavlje nastavi. Do {popUpMax} minuta."
+      },
+      {
+        "title": "Koncert za goste",
+        "package": "classic",
+        "body": "Od {classicMin} do {classicMax} minuta a cappelle, sa setlistom složenom za ljude u prostoriji."
+      },
+      {
+        "title": "Cijela večer",
+        "package": "gold",
+        "body": "Od {goldMin} do {goldMax} minuta uz klavir i cajon, za slavlje koje traje cijelu večer."
+      }
+    ],
+    "serviceType": "Glazba uživo za privatne proslave"
+  },
+  "about": {
+    "lead": "{disambiguation}. Pet pjevača iz raznih dijelova Hrvatske koji djeluju u Zagrebu i spajaju moderni a cappella sa zvukom dalmatinske klape.",
+    "membersHeading": "Petorka",
+    "membersIntro": "Onako kako stojimo na pozornici, slijeva nadesno.",
+    "numbersHeading": "Na mrežama",
+    "stagesHeading": "Pozornice na kojima smo pjevali",
+    "stages": {
+      "Kursalon Hübner": "U crossover projektu Mediterraneo Tončija Huljića",
+      "Križanke": "U crossover projektu Mediterraneo Tončija Huljića",
+      "Arena Zagreb": "Gosti iznenađenja na koncertu Dalmatina",
+      "Tvornica kulture": "Gosti Marka Kutlića, a poslije i Jasne Zlokić",
+      "Lisinski": "Na koncertu Danijele Martinović"
+    },
+    "pressHeading": "U medijima",
+    "press": [
+      {
+        "outlet": "JUGinfo",
+        "date": "2026-02-28",
+        "what": "Izvještaj s koncerta u Orebiću",
+        "url": "https://juginfo.hr/najnovije/2026/02/28/tiktok-fenomen-uzivo-voxford-pokazao-da-drustvene-mreze-ne-moraju-biti-moderno-zlo-te-da-90-milijuna-pregleda-i-450-tisuca-pratitelja-nije-slucajno/"
+      },
+      {
+        "outlet": "Index.hr",
+        "date": "2025-02-16",
+        "what": "Dalmatino u punoj Areni Zagreb, Voxford kao gost iznenađenja",
+        "url": "https://www.index.hr/magazin/clanak/foto-grupa-dalmatino-nastupila-u-punoj-areni-zagreb/2642766.aspx"
+      },
+      {
+        "outlet": "Journal.hr",
+        "date": "2024-06-05",
+        "what": "Intervju: priča skupine, klapski korijeni i koncerti Mediterranea",
+        "url": "https://www.journal.hr/kultura/glazba/voxford-intervju/"
+      },
+      {
+        "outlet": "After5",
+        "date": "2023-07-24",
+        "what": "Kako je sve počelo u studentskoj garsonijeri",
+        "url": "https://after5.hr/zivot-iza-5/kultura/voxford-a-capella-bend/"
+      },
+      {
+        "outlet": "Croatia Records",
+        "date": "2023-11-24",
+        "what": "Marko Kutlić u Tvornici kulture, uz Voxford",
+        "url": "https://crorec.net/novosti/marko-kutlic-odrzao-vrhunski-koncert-u-punoj-tvornici-kulture-iznenadio-imidzem-i-pjevao-medu-odusevljenom-publikom-koja-je-znala-svaki-stih/"
+      },
+      {
+        "outlet": "MAKK",
+        "date": "2022-11-24",
+        "what": "Voxford na konferenciji MAKK 2022",
+        "url": "https://www.makk.hr/makk-2022/voxford-a-capella-zacin-makk-u/"
+      }
+    ],
+    "managementHeading": "Menadžment",
+    "management": "{managerName}, {managerCompany}. Rezervacije i mediji: {email}."
+  },
+  "packagesPage": {
+    "lead": "Tri načina da nas rezervirate, svaki s točnim trajanjem i postavom. Cijena ovisi o datumu i mjestu, pa je šaljemo na upit.",
+    "serviceType": "A cappella nastup uživo"
+  },
+  "faqPage": {
+    "lead": "Kratki odgovori o rezervaciji, glazbi, ozvučenju i danu nastupa. Za sve ostalo pišite na {email}."
+  },
+  "concertsPage": {
+    "lead": "Adventske pozornice, ljetni koncerti i festivali na koje može doći svatko."
+  }
 }
