@@ -223,16 +223,22 @@ const Heading = `h${headingLevel}` as const;
   /* The frame clips its children, so the focus ring goes on the frame itself:
      for the button, and for the poster link once a failed video falls back to it. */
   .video-card__button:focus-visible,
-  .video-card__poster:focus-visible {
+  .video-card__poster:focus-visible,
+  .video-card__frame :global(video:focus-visible) {
     outline: none;
   }
 
-  .video-card__frame:has(:is(.video-card__button, .video-card__poster):focus-visible) {
+  .video-card__frame:has(:is(.video-card__button, .video-card__poster, video):focus-visible) {
     outline: 2px solid var(--color-focus);
     outline-offset: 3px;
   }
 
   /* Playing: native controls take the frame; the mark and the shade step aside. */
+  /* A muted loop is decoration: clicks go to the link or button under it. */
+  .video-card__frame:not(:global(.is-full)) :global(video) {
+    pointer-events: none;
+  }
+
   .video-card__frame:global(.is-full)::after,
   .video-card__frame:global(.is-full) .video-card__play {
     display: none;

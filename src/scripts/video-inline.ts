@@ -50,8 +50,16 @@ function playInline(frame: HTMLElement, button: HTMLButtonElement) {
     last.type = s.type;
     video.append(last);
   }
-  // The last source failing means none could play: back to the poster.
-  last?.addEventListener('error', () => restorePoster(frame, video), { once: true });
+  // The last source failing (none could load) or the video itself failing
+  // (loaded, then could not decode): back to the poster.
+  let failed = false;
+  const fail = () => {
+    if (failed) return;
+    failed = true;
+    restorePoster(frame, video);
+  };
+  last?.addEventListener('error', fail, { once: true });
+  video.addEventListener('error', fail, { once: true });
   const poster = frame.querySelector('img');
   if (poster?.currentSrc) video.poster = poster.currentSrc;
   frame.classList.remove('is-playing'); // the loop's fade-in starts over if it ever comes back
@@ -69,6 +77,7 @@ function playInline(frame: HTMLElement, button: HTMLButtonElement) {
 function restorePoster(frame: HTMLElement, video: HTMLVideoElement) {
   video.remove();
   frame.classList.remove('is-full');
+  frame.dataset.loopFailed = 'true'; // the media did not play: no loop over the link either
   const poster = frame.querySelector<HTMLAnchorElement>('.video-card__poster');
   if (!poster) return;
   poster.hidden = false;
