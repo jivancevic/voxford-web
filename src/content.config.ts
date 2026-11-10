@@ -81,6 +81,8 @@ const videos = defineCollection({
       media: z.string().regex(/^top\/[a-z0-9-]+$/),
       /** The original post on a social profile, when known. */
       permalink: z.url().optional(),
+      /** A view count from site-facts NUMBERS shown with this video (a big number is never alone). */
+      viewsFact: z.enum(['carolViews']).optional(),
       order: z.number().int(),
       /** KB file(s) the facts came from. */
       source: z.string().min(1),

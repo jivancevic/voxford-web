@@ -36,7 +36,7 @@ const h264 = sources.find((s) => s.src.endsWith('.h264.mp4'))!;
 const uploaded = new Intl.DateTimeFormat(LOCALE_META[lang].htmlLang, { month: 'long', year: 'numeric' }).format(
   new Date(video.data.uploadDate),
 );
-const views = video.id === 'carol-of-the-bells' ? NUMBERS.carolViews : undefined;
+const views = video.data.viewsFact ? NUMBERS[video.data.viewsFact] : undefined;
 const others = (await getCollection('videos')).filter((v) => v.id !== video.id).sort((a, b) => a.data.order - b.data.order);
 ---
 

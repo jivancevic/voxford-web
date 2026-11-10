@@ -40,7 +40,7 @@ _Avoid_: "travel included"
 The occasion an inquiry is for: conference, wedding, advent, concert, private, other. Conferences and corporate events are the site's primary audience.
 
 **Reference** (HR **referenca**):
-An organisation Voxford performed for or worked with (a company, a city or tourist board, an institution, an artist who invited them), shown by name and logo. Private clients are never references.
+An organisation Voxford performed for or worked with (a company, a city or tourist board, an institution, a festival, a stage it was invited onto, an artist who invited them), shown by name and logo, or by name when no clean official logo exists. Private clients are never references.
 _Avoid_: client (includes people who only asked), partner
 
 **Public concert**:

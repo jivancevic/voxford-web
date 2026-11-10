@@ -27,7 +27,8 @@ const title = video.data.title[lang];
 const duration = formatDuration(video.data.duration);
 const loop = JSON.stringify(videoSources(video.data.media, 'loop'));
 // The most-watched video carries its number: a big number is never alone.
-const views = video.id === 'carol-of-the-bells' ? `${NUMBERS.carolViews.display} ${NUMBERS.views.label[lang]}` : undefined;
+const fact = video.data.viewsFact ? NUMBERS[video.data.viewsFact] : undefined;
+const views = fact ? `${fact.display} ${NUMBERS.views.label[lang]}` : undefined;
 const Heading = `h${headingLevel}` as const;
 ---
 

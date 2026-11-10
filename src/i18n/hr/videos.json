@@ -22,9 +22,9 @@
     "closing": "Želite ovo uživo na svom događaju?"
   },
   "reel": {
-    "play": "Pokreni reel: {caption}",
-    "playUntitled": "Pokreni reel od {date}",
-    "onInstagram": "Otvori na Instagramu"
+    "play": "Pokrenite reel: {caption}",
+    "playUntitled": "Pokrenite reel od {date}",
+    "onInstagram": "Otvorite na Instagramu"
   },
   "references": {
     "heading": "Vjerovali su nam",

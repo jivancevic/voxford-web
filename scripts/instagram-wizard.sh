@@ -260,12 +260,19 @@ ask_secret INSTAGRAM_TOKEN "Paste the token (hidden):"
 while [[ -z "$INSTAGRAM_TOKEN" ]]; do ask_secret INSTAGRAM_TOKEN "Empty. Paste the token:"; done
 
 say "Checking it against the Instagram API…"
-if who=$(curl -fsS -G "$IG_API/me" --data-urlencode "fields=username" --data-urlencode "access_token=$INSTAGRAM_TOKEN" 2>/dev/null); then
+# ig_get PATH QUERY… calls the API with the token read from stdin (curl -K -), so it never shows in `ps`.
+ig_get() {
+  local path="$1"; shift
+  local args=()
+  for q in "$@"; do args+=(--data-urlencode "$q"); done
+  printf 'data-urlencode = "access_token=%s"\n' "$INSTAGRAM_TOKEN" | curl -fsS -G -K - "${args[@]}" "$IG_API/$path" 2>/dev/null
+}
+
+if who=$(ig_get me "fields=username"); then
   username=$(printf '%s' "$who" | sed -n 's/.*"username":"\([^"]*\)".*/\1/p')
   printf '  %s✓ the token reads @%s%s\n' "$GREEN" "$username" "$RESET"
   [[ "$username" == "voxford.official" ]] || warn "that is not voxford.official: generate the token for the right account"
-  reels=$(curl -fsS -G "$IG_API/me/media" --data-urlencode "fields=media_product_type" --data-urlencode "limit=25" \
-    --data-urlencode "access_token=$INSTAGRAM_TOKEN" 2>/dev/null | grep -o '"REELS"' | wc -l | tr -d ' ')
+  reels=$(ig_get me/media "fields=media_product_type" "limit=25" | grep -o '"REELS"' | wc -l | tr -d ' ')
   note "reels among the 25 newest posts: $reels (the site shows the newest 6)"
 else
   warn "Instagram refused the token. Copy it again (whole string), then re-run: scripts/instagram-wizard.sh token"
