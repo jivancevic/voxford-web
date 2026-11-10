@@ -3,7 +3,6 @@
 // (prefilled per page type) and, when given, a photo with its label and credit.
 // The h1 and lead are plain text in the HTML, so crawlers read the answer first.
 import InquiryCTA from '@/components/InquiryCTA.astro';
-import Pill from '@/components/Pill.astro';
 import type { PhotoKey } from '@/data/photos';
 import type { Locale } from '@/i18n';
 import type { InquiryPrefill } from '@/lib/inquiry-url';
@@ -15,7 +14,7 @@ interface Props {
   lead: string;
   photo?: PhotoKey;
   prefill?: InquiryPrefill;
-  /** A second, quieter link next to the inquiry pill. */
+  /** A second, quieter link next to the inquiry pill: an arrow link, since the pill is the block's one primary action (#40). */
   secondary?: { href: string; label: string };
   /** The photo's frame, default 4 / 5; a landscape stage photo with all five in it wants 3 / 2. */
   photoRatio?: string;
@@ -34,7 +33,13 @@ const { lang, heading, lead, photo, prefill, secondary, photoRatio } = Astro.pro
     <p class="lead content-hero__lead">{lead}</p>
     <div class="content-hero__actions">
       <InquiryCTA lang={lang} prefill={prefill} />
-      {secondary && <Pill href={secondary.href} variant="ghost">{secondary.label}</Pill>}
+      {
+        secondary && (
+          <a class="arrow-link" href={secondary.href}>
+            {secondary.label}
+          </a>
+        )
+      }
     </div>
   </div>
   {
@@ -80,7 +85,8 @@ const { lang, heading, lead, photo, prefill, secondary, photoRatio } = Astro.pro
   .content-hero__actions {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-3);
+    align-items: center;
+    gap: var(--space-3) var(--space-6);
     padding-block-start: var(--space-2);
   }
 
