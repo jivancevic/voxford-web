@@ -17,10 +17,10 @@ export const CLIP_SECONDS = 38.07;
  *
  * Josip, 2026-11-10 (#32): "početak Dora, 00:07:25 Vita, 00:11:80 David,
  * 00:16:10 Josip, 00:20:50 Ante", read as seconds.hundredths in the WAV. The clip
- * starts 3.0 s into the WAV, so each is 3.0 s earlier here; the clip's own
- * loudness confirms it (each entry lands on a jump in the 180–500 Hz band, and
- * Josip's beatbox and Ante's bass on the two big jumps below 120 Hz, at 13.25
- * and 17.5 s). Read as clip time, none of them would.
+ * starts 3.0 s into the WAV, so each is 3.0 s earlier here. The clip's own
+ * loudness agrees: at each of these times it rises (+4 to +7 dB, 1 s after
+ * against 1 s before, below 120 Hz or in 180–500 Hz), while at the clip-time
+ * reading it stays flat or falls. To be confirmed by ear (PR #34).
  */
 export const VOICE_ENTRIES: Readonly<Record<MemberKey, number>> = {
   josip: 13.1,
