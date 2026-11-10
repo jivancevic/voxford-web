@@ -19,7 +19,8 @@
     "uploaded": "Objavljeno",
     "length": "Trajanje",
     "more": "Još videa",
-    "closing": "Želite ovo uživo na svom događaju?"
+    "closing": "Želite ovo uživo na svom događaju?",
+    "recorded": "Snimljeno"
   },
   "reel": {
     "play": "Pokrenite reel: {caption}",
@@ -28,6 +29,7 @@
   },
   "references": {
     "heading": "Vjerovali su nam",
-    "artists": "Na pozornici s"
+    "artists": "Na pozornici s",
+    "stages": "Pozornice"
   }
 }

@@ -1,15 +1,36 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Env } from './env';
 import { handleMedia, mediaKey, parseRange } from './media';
 import { FakeR2 } from './test-support/fake-r2';
 
 let bucket: FakeR2;
+let pending: Promise<unknown>[];
+const ctx = { waitUntil: (p: Promise<unknown>) => void pending.push(p) };
 const env = () => ({ MEDIA: bucket.asBinding() }) as unknown as Env;
-const get = (path: string, headers?: HeadersInit, method = 'GET') =>
-  handleMedia(new Request(`https://voxford.example${path}`, { method, headers }), env());
+const get = (path: string, headers?: HeadersInit, method = 'GET', cache?: Cache) =>
+  handleMedia(new Request(`https://voxford.example${path}`, { method, headers }), env(), ctx, cache);
+
+/** A Cache API stand-in: stores full responses by URL, answers a Range from them like Cloudflare does. */
+class FakeCache {
+  readonly store = new Map<string, { body: Uint8Array; headers: Headers }>();
+  async match(request: Request): Promise<Response | undefined> {
+    const hit = this.store.get(request.url);
+    if (!hit) return undefined;
+    const m = /^bytes=(\d+)-(\d*)$/.exec(request.headers.get('Range') ?? '');
+    if (!m) return new Response(hit.body, { headers: hit.headers });
+    const start = Number(m[1]);
+    const end = m[2] ? Number(m[2]) : hit.body.length - 1;
+    return new Response(hit.body.slice(start, end + 1), { status: 206, headers: hit.headers });
+  }
+  async put(request: Request, response: Response): Promise<void> {
+    if (response.status !== 200) throw new Error('Cache.put refuses non-200');
+    this.store.set(request.url, { body: new Uint8Array(await response.arrayBuffer()), headers: response.headers });
+  }
+}
 
 beforeEach(async () => {
   bucket = new FakeR2();
+  pending = [];
   await bucket.put('top/carol/loop.h264.mp4', '0123456789', { httpMetadata: { contentType: 'video/mp4' } });
   await bucket.put('reels/manifest.json', '{"reels":[]}', { httpMetadata: { contentType: 'application/json' } });
   await bucket.put('private/notes.txt', 'secret');
@@ -33,7 +54,7 @@ describe('mediaKey', () => {
 });
 
 describe('GET /media/*', () => {
-  it('serves an object with its type, an ETag and a week of caching', async () => {
+  it('serves an object with its type, an ETag and a year of immutable caching', async () => {
     const res = await get('/media/top/carol/loop.h264.mp4');
     expect(res.status).toBe(200);
     expect(await res.text()).toBe('0123456789');
@@ -41,7 +62,7 @@ describe('GET /media/*', () => {
     expect(res.headers.get('Content-Length')).toBe('10');
     expect(res.headers.get('Accept-Ranges')).toBe('bytes');
     expect(res.headers.get('ETag')).toMatch(/^".+"$/);
-    expect(res.headers.get('Cache-Control')).toBe('public, max-age=604800');
+    expect(res.headers.get('Cache-Control')).toBe('public, max-age=31536000, immutable');
   });
 
   it('caches the reels manifest briefly', async () => {
@@ -87,6 +108,36 @@ describe('GET /media/*', () => {
   it('404s missing objects and private prefixes', async () => {
     expect((await get('/media/top/nope.mp4')).status).toBe(404);
     expect((await get('/media/private/notes.txt')).status).toBe(404);
+  });
+
+  it('keeps a full copy in the edge cache and answers repeats from it', async () => {
+    const cache = new FakeCache();
+    const gets = vi.spyOn(bucket, 'get');
+    expect(await (await get('/media/top/carol/loop.h264.mp4', undefined, 'GET', cache as unknown as Cache)).text()).toBe('0123456789');
+    await Promise.all(pending);
+    const again = await get('/media/top/carol/loop.h264.mp4', { Range: 'bytes=2-3' }, 'GET', cache as unknown as Cache);
+    expect(again.status).toBe(206);
+    expect(await again.text()).toBe('23');
+    expect(gets).toHaveBeenCalledTimes(1);
+  });
+
+  it('fills the edge cache with the whole file after a range miss', async () => {
+    const cache = new FakeCache();
+    const first = await get('/media/top/carol/loop.h264.mp4', { Range: 'bytes=0-1' }, 'GET', cache as unknown as Cache);
+    expect(await first.text()).toBe('01');
+    await Promise.all(pending);
+    const stored = cache.store.get('https://voxford.example/media/top/carol/loop.h264.mp4')!;
+    expect(new TextDecoder().decode(stored.body)).toBe('0123456789');
+    expect(stored.headers.get('Content-Range')).toBeNull();
+    expect(stored.headers.get('Content-Length')).toBe('10');
+  });
+
+  it('never edge-caches the reels manifest or a 404', async () => {
+    const cache = new FakeCache();
+    await get('/media/reels/manifest.json', undefined, 'GET', cache as unknown as Cache);
+    await get('/media/top/nope.mp4', undefined, 'GET', cache as unknown as Cache);
+    await Promise.all(pending);
+    expect(cache.store.size).toBe(0);
   });
 
   it('refuses writes', async () => {

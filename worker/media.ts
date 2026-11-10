@@ -8,14 +8,24 @@ import type { Env } from './env';
 //
 // Only two prefixes are public: `top/` (the encoded top videos, uploaded by
 // scripts/upload-media.sh) and `reels/` (written by the daily sync).
+//
+// Keys never change content: top videos sit under a content version
+// (top/<slug>/<version>/…) and a reel's files under its Instagram id, so they
+// are served `immutable` for a year and kept in the edge cache (Cache API), so
+// a repeat play is answered at the edge, not by R2. Only reels/manifest.json
+// changes; it gets five minutes and skips the edge cache. The Cache API is a
+// no-op on *.workers.dev; it takes effect on the production domain (ticket G).
 
 export const MEDIA_PREFIX = '/media/';
 
 const PUBLIC_KEY = /^(top|reels)\/[a-z0-9][a-z0-9._-]*(\/[a-z0-9][a-z0-9._-]*)*$/;
 
-/** Cache lifetimes: the manifest changes daily, everything else is replaced rarely. */
-const CACHE_MANIFEST = 'public, max-age=300';
-const CACHE_MEDIA = 'public, max-age=604800';
+export const CACHE_MANIFEST = 'public, max-age=300';
+export const CACHE_IMMUTABLE = 'public, max-age=31536000, immutable';
+const MANIFEST_SUFFIX = 'manifest.json';
+
+/** The Workers edge cache, when the runtime has one (not in unit tests). */
+const edgeCache = (): Cache | undefined => (globalThis as { caches?: { default?: Cache } }).caches?.default;
 
 /** The bucket key for a request path, or undefined when it is not a public media key. */
 export function mediaKey(pathname: string): string | undefined {
@@ -58,12 +68,26 @@ function contentRange(range: R2Range, size: number): { start: number; end: numbe
   return { start, end };
 }
 
-export async function handleMedia(request: Request, env: Env): Promise<Response> {
+export async function handleMedia(
+  request: Request,
+  env: Env,
+  ctx: Pick<ExecutionContext, 'waitUntil'>,
+  cache: Cache | undefined = edgeCache(),
+): Promise<Response> {
   if (request.method !== 'GET' && request.method !== 'HEAD') {
     return new Response('Method not allowed', { status: 405, headers: { Allow: 'GET, HEAD' } });
   }
-  const key = mediaKey(new URL(request.url).pathname);
+  const url = new URL(request.url);
+  const key = mediaKey(url.pathname);
   if (!key) return notFound();
+
+  // The edge cache answers ranges and conditionals from a cached full copy.
+  const edge = request.method === 'GET' && !key.endsWith(MANIFEST_SUFFIX) ? cache : undefined;
+  const cacheKey = new Request(`${url.origin}${url.pathname}`);
+  if (edge) {
+    const hit = await edge.match(request);
+    if (hit) return hit;
+  }
 
   // Parsed here, not passed through as headers: the R2 binding's echo of a
   // header range differs between production and local mode.
@@ -87,9 +111,7 @@ export async function handleMedia(request: Request, env: Env): Promise<Response>
   headers.set('ETag', object.httpEtag);
   headers.set('Accept-Ranges', 'bytes');
   headers.set('X-Content-Type-Options', 'nosniff');
-  if (!headers.has('Cache-Control')) {
-    headers.set('Cache-Control', key.endsWith('manifest.json') ? CACHE_MANIFEST : CACHE_MEDIA);
-  }
+  headers.set('Cache-Control', key.endsWith(MANIFEST_SUFFIX) ? CACHE_MANIFEST : CACHE_IMMUTABLE);
 
   // A failed precondition returns the object without a body.
   if (!('body' in object)) {
@@ -115,5 +137,24 @@ export async function handleMedia(request: Request, env: Env): Promise<Response>
     await object.body.cancel();
     return new Response(null, { status, headers });
   }
-  return new Response(object.body, { status, headers });
+  const response = new Response(object.body, { status, headers });
+  if (edge) {
+    if (status === 200) {
+      ctx.waitUntil(edge.put(cacheKey, response.clone()));
+    } else {
+      // A range miss (the usual first request of a video): cache the full file
+      // in the background, so later ranges come from the edge.
+      ctx.waitUntil(fillCache(edge, cacheKey, env.MEDIA, key, headers));
+    }
+  }
+  return response;
+}
+
+async function fillCache(cache: Cache, cacheKey: Request, bucket: R2Bucket, key: string, partial: Headers) {
+  const full = await bucket.get(key);
+  if (!full || !('body' in full)) return;
+  const headers = new Headers(partial);
+  headers.delete('Content-Range');
+  headers.set('Content-Length', String(full.size));
+  await cache.put(cacheKey, new Response(full.body, { status: 200, headers }));
 }

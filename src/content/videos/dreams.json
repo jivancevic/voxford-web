@@ -9,8 +9,9 @@
   },
   "poster": "../../assets/videos/dreams.jpg",
   "uploadDate": "2025-10-08",
+  "dateKind": "recorded",
   "duration": "PT27S",
-  "media": "top/dreams",
+  "media": "top/dreams/79a3f596",
   "order": 30,
-  "source": "brand/u-medijima.md, brand/mediji-inventar.md; song identified from the original's audio and the TikToks audio mixes on Drive"
+  "source": "uploadDate: creation date of the original file (~/Downloads/voxford-top-videos); song identified from its audio and the TikToks audio mixes on Drive (brand/mediji-inventar.md)"
 }

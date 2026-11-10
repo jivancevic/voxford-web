@@ -19,7 +19,8 @@
     "uploaded": "Published",
     "length": "Length",
     "more": "More videos",
-    "closing": "Want this live at your event?"
+    "closing": "Want this live at your event?",
+    "recorded": "Recorded"
   },
   "reel": {
     "play": "Play reel: {caption}",
@@ -28,6 +29,7 @@
   },
   "references": {
     "heading": "Trusted by",
-    "artists": "On stage with"
+    "artists": "On stage with",
+    "stages": "Stages"
   }
 }

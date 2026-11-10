@@ -29,6 +29,7 @@ Unisport Hrvatska (no Zaklada UniSport Srce), `efzg.svg` got a `viewBox`, PNG me
 | `efzg.svg` | https://www.efzg.unizg.hr/img/efzg-logo.svg | https://www.efzg.unizg.hr/ |
 | `borotalco.png` | https://www.borotalco.com/wp-content/uploads/2026/04/Logo_BT_trasparente-2026.png | https://www.borotalco.com/it/ |
 | `argentum.svg` | https://argentum.hr/media/images/logo.svg | https://argentum.hr/ |
+| `adiva.png` | https://www.adiva.hr/wp-content/themes/olympos/images/adiva-logo-bez-podnaslova.png (trimmed, resized to 1000 px) | https://www.adiva.hr/ |
 | `nuit-des-choeurs.png` | https://static.wixstatic.com/media/4819dd_52029d78ec4040e6bbc8a45c0f39f2fc~mv2.png/v1/crop/x_26,y_0,w_486,h_366/LOGO_NDC.png | https://www.nuitdeschoeurs.be/ |
 | `tz-vis.png` | https://www.vis-tourism.com/wp-content/uploads/2024/05/tz-vis-logotip.png | https://www.vis-tourism.com/hr/ |
 | `tz-crikvenica.png` | https://www.rivieracrikvenica.com/sites/all/themes/rc2016/logo.png | https://www.rivieracrikvenica.com/ |
@@ -39,4 +40,8 @@ Unisport Hrvatska (no Zaklada UniSport Srce), `efzg.svg` got a `viewBox`, PNG me
 Shown as text, not a logo (no clean official file): Arena Zagreb (domain gone, only a small JPEG-like
 PNG on a white box), Lisinski (only a small logo on a white box or the 50th-anniversary mark), Kursalon
 Hübner (site unreachable), Križanke / Ljubljana Festival (logo carries a sponsor strip on an opaque
-background), Tvornica kulture (only the "25 godina" anniversary mark). Artists are always text.
+background), Tvornica kulture (only the "25 godina" anniversary mark), Bruketa&Žinić&Grey (the
+agency's current logo reads "BRUKETA&", not the name it had in 2024). Events without an organisation's
+logo (Hrvatske svjetske igre, Memorijal Boris Hanžeković, Advent Jastrebarsko) are text. Artists and
+stages are always text, on their own lines, so a stage never reads as a client. `disney.svg` is the
+Disney wordmark from Wikimedia Commons: disney.com serves the same mark only as a 122 px PNG.

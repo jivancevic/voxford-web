@@ -6,8 +6,9 @@
 #   scripts/upload-media.sh --remote [MEDIA_DIR]   # the production bucket (needs `wrangler login`)
 #
 # MEDIA_DIR is scripts/encode-top-videos.sh's output, default ~/voxford-media.
-# Every file under MEDIA_DIR/top/ goes to the key top/<slug>/<file>, served by
-# the Worker at /media/top/<slug>/<file>. Re-running overwrites (idempotent).
+# Each top/<slug>/<file> goes to the key top/<slug>/<VERSION>/<file> (VERSION
+# from the encode), served by the Worker at /media/top/<slug>/<VERSION>/<file>
+# and cached as immutable. Re-running overwrites the same keys (idempotent).
 # The reels/ prefix is the daily sync's: this script never touches it.
 set -euo pipefail
 
@@ -29,9 +30,12 @@ type_of() {
 
 count=0
 while IFS= read -r -d '' file; do
-  key="top/${file#"$DIR/top/"}"
-  npx wrangler r2 object put "$BUCKET/$key" "$MODE" --file "$file" \
-    --content-type "$(type_of "$file")" --cache-control 'public, max-age=604800' >/dev/null
+  slug_dir=$(dirname "$file")
+  slug=$(basename "$slug_dir")
+  [[ -s "$slug_dir/VERSION" ]] || { echo "no VERSION in $slug_dir: re-run scripts/encode-top-videos.sh" >&2; exit 1; }
+  key="top/$slug/$(tr -d '[:space:]' < "$slug_dir/VERSION")/$(basename "$file")"
+  npx wrangler r2 object put "$BUCKET/$key" "$MODE" --file "$file" </dev/null \
+    --content-type "$(type_of "$file")" --cache-control 'public, max-age=31536000, immutable' >/dev/null
   echo "  ✓ $key ($(du -h "$file" | cut -f1))"
   count=$((count + 1))
 done < <(find "$DIR/top" -type f \( -name '*.mp4' -o -name '*.jpg' \) ! -name '*.tmp.*' -print0 | sort -z)

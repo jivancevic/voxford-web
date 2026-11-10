@@ -3,16 +3,16 @@
 // performed for. Reads the `references` collection itself (confirmed rows from
 // the KB's posao/klijenti/reference.md, never private clients), so callers
 // pass no data. Logos are shown monochrome (`mono` per entry); an organisation
-// without a clean official logo shows its name as text; artists Voxford shared
-// a stage with are one line of names. Renders nothing while the collection is
-// empty, so it never shows a hole.
+// without a clean official logo shows its name as text; the stages Voxford was
+// invited onto and the artists it shared them with are lines of names.
+// Renders nothing while the collection is empty, so it never shows a hole.
 import { getCollection } from 'astro:content';
 import { Image } from 'astro:assets';
 import { getStrings, type Locale } from '@/i18n';
 
 export interface Props {
   lang: Locale;
-  /** Show at most this many organisations (in `order`; artists not counted). */
+  /** Show at most this many organisations (in `order`; stages and artists not counted). */
   limit?: number;
   /** Override the section heading; `false` renders no heading. */
   heading?: string | false;
@@ -22,8 +22,12 @@ export interface Props {
 const { lang, limit, heading, class: className } = Astro.props;
 const t = getStrings(lang);
 const all = (await getCollection('references')).sort((a, b) => a.data.order - b.data.order);
-const organisations = all.filter((e) => e.data.kind !== 'artist').slice(0, limit);
-const artists = all.filter((e) => e.data.kind === 'artist');
+// Stages and artists are names on their own lines: a stage's logo would read as a client.
+const organisations = all.filter((e) => e.data.kind !== 'artist' && e.data.kind !== 'venue').slice(0, limit);
+const lines = [
+  { label: t.videos.references.stages, names: all.filter((e) => e.data.kind === 'venue').map((e) => e.data.name) },
+  { label: t.videos.references.artists, names: all.filter((e) => e.data.kind === 'artist').map((e) => e.data.name) },
+].filter((l) => l.names.length > 0);
 const title = heading === false ? undefined : (heading ?? t.videos.references.heading);
 ---
 
@@ -53,17 +57,17 @@ const title = heading === false ? undefined : (heading ?? t.videos.references.he
           </li>
         ))}
       </ul>
-      {artists.length > 0 && (
-        <p class="references__artists">
-          <span class="label">{t.videos.references.artists}</span>{' '}
-          {artists.map((a, i) => (
+      {lines.map((line) => (
+        <p class="references__line">
+          <span class="label">{line.label}</span>{' '}
+          {line.names.map((name, i) => (
             <>
               {i > 0 && <span aria-hidden="true"> · </span>}
-              <span class="references__artist">{a.data.name}</span>
+              <span class="references__line-name">{name}</span>
             </>
           ))}
         </p>
-      )}
+      ))}
     </section>
   )
 }
@@ -133,16 +137,20 @@ const title = heading === false ? undefined : (heading ?? t.videos.references.he
     color: var(--color-text-secondary);
   }
 
-  .references__artists {
+  .references__line {
     max-inline-size: none;
     color: var(--color-text-secondary);
   }
 
-  .references__artists .label {
+  .references__line + .references__line {
+    margin-block-start: calc(-1 * var(--space-4));
+  }
+
+  .references__line .label {
     margin-inline-end: var(--space-2);
   }
 
-  .references__artist {
+  .references__line-name {
     white-space: nowrap;
     color: var(--color-text);
   }

@@ -96,7 +96,7 @@ const others = (await getCollection('videos')).filter((v) => v.id !== video.id).
           <dd>{formatDuration(video.data.duration)}</dd>
         </div>
         <div>
-          <dt class="label">{t.videos.watch.uploaded}</dt>
+          <dt class="label">{video.data.dateKind === 'published' ? t.videos.watch.uploaded : t.videos.watch.recorded}</dt>
           <dd><time datetime={video.data.uploadDate}>{uploaded}</time></dd>
         </div>
       </dl>

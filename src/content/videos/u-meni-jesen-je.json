@@ -9,8 +9,9 @@
   },
   "poster": "../../assets/videos/u-meni-jesen-je.jpg",
   "uploadDate": "2025-10-08",
+  "dateKind": "recorded",
   "duration": "PT29S",
-  "media": "top/u-meni-jesen-je",
+  "media": "top/u-meni-jesen-je/88ac7fa1",
   "order": 20,
-  "source": "brand/u-medijima.md, brand/mediji-inventar.md; song identified from the original's audio and the TikToks audio mixes on Drive"
+  "source": "uploadDate: creation date of the original file (~/Downloads/voxford-top-videos); song identified from its audio and the TikToks audio mixes on Drive (brand/mediji-inventar.md); song credit Halid Bešlić per its Apple Music listing"
 }

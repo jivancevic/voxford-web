@@ -36,7 +36,7 @@ describe('watch pages', () => {
       expect(video![key], key).toBeTruthy();
     }
     expect(String(video!.thumbnailUrl)).toMatch(/^https?:\/\//);
-    expect(String(video!.contentUrl)).toMatch(/^https?:\/\/[^/]+\/media\/top\/[a-z0-9-]+\/full\.h264\.mp4$/);
+    expect(String(video!.contentUrl)).toMatch(/^https?:\/\/[^/]+\/media\/top\/[a-z0-9-]+\/[0-9a-f]{8}\/full\.h264\.mp4$/);
     expect(String(video!.duration)).toMatch(/^PT\d+S$/);
   });
 

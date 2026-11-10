@@ -16,7 +16,7 @@ export default {
     if (pathname === '/') return handleRootRedirect(request);
     if (pathname === '/healthz' || pathname === '/healthz/') return handleHealthz(env);
     if (pathname === '/api/inquiry' || pathname === '/api/inquiry/') return handleInquiry(request, env, ctx);
-    if (pathname.startsWith(MEDIA_PREFIX)) return handleMedia(request, env);
+    if (pathname.startsWith(MEDIA_PREFIX)) return handleMedia(request, env, ctx);
     if (pathname.startsWith('/api/')) {
       return Response.json({ ok: false, error: 'not_found' }, { status: 404 });
     }

@@ -158,7 +158,7 @@ describe('syncReels', () => {
     expect(ig.hits(HOOK)).toHaveLength(0);
   });
 
-  it('adds a new reel, downloads only it, and drops the oldest from R2', async () => {
+  it('adds a new reel, downloads only it, and drops the oldest a run after the rebuild', async () => {
     ig.pages = [reels(6, 5, 4, 3, 2, 1)];
     await run();
     ig.requests = [];
@@ -171,9 +171,52 @@ describe('syncReels', () => {
       'https://cdn.example/7.mp4?sig=x',
       'https://cdn.example/7.jpg?sig=x',
     ]);
+    expect(ig.hits(HOOK)).toHaveLength(1);
+    // The live page shows reel 1 until the rebuild lands: its files stay for now.
+    expect(manifest().retain).toEqual(['1']);
+    expect(bucket.objects.has('reels/1/video.mp4')).toBe(true);
+
+    await run();
+    expect(manifest().retain).toEqual([]);
     expect(bucket.objects.has('reels/1/video.mp4')).toBe(false);
     expect(bucket.objects.has('reels/1/thumb.jpg')).toBe(false);
+    expect(bucket.objects.has('reels/2/video.mp4')).toBe(true);
+  });
+
+  it('writes the manifest before it asks for the rebuild', async () => {
+    ig.pages = [reels(1)];
+    let manifestAtHook: string | undefined;
+    const original = ig.fetch.getMockImplementation()!;
+    ig.fetch.mockImplementation(async (input, init) => {
+      if (String(input) === HOOK) manifestAtHook = bucket.text(MANIFEST_KEY);
+      return original(input, init);
+    });
+    await run();
+    expect(manifestAtHook).toContain('"id": "1"');
+  });
+
+  it('retries a failed rebuild on the next run and keeps every file a live page may show', async () => {
+    ig.pages = [reels(2, 1)];
+    await run();
+    ig.hookStatus = 500;
+    ig.pages = [reels(3, 2)];
+    expect((await run()).rebuilt).toBe(false);
+    expect(manifest().rebuilt).toBe(false);
+    ig.pages = [reels(4, 3)];
+    await run();
+    // Neither of the last two feeds got built: reels 1 and 2 may still be on the live page.
+    expect([...manifest().retain].sort()).toEqual(['1', '2']);
+    expect(bucket.objects.has('reels/1/video.mp4')).toBe(true);
+
+    ig.hookStatus = 200;
+    ig.requests = [];
+    const retry = await run();
+    expect(retry).toEqual({ status: 'unchanged', reels: 2, rebuilt: true });
     expect(ig.hits(HOOK)).toHaveLength(1);
+    expect(manifest().rebuilt).toBe(true);
+    await run();
+    expect(bucket.objects.has('reels/1/video.mp4')).toBe(false);
+    expect(bucket.objects.has('reels/2/video.mp4')).toBe(false);
   });
 
   it('rebuilds when only a caption changed', async () => {
@@ -241,6 +284,7 @@ describe('syncReels', () => {
     ig.hookStatus = 500;
     const result = await run();
     expect(result.rebuilt).toBe(false);
+    expect(manifest().rebuilt).toBe(false);
     expect(log.error).toHaveBeenCalledWith('reels: deploy hook answered 500');
   });
 

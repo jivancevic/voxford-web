@@ -9,8 +9,9 @@
   },
   "poster": "../../assets/videos/jingle-bell-rock.jpg",
   "uploadDate": "2023-12-13",
+  "dateKind": "recorded",
   "duration": "PT38S",
-  "media": "top/jingle-bell-rock",
+  "media": "top/jingle-bell-rock/713fbe0f",
   "order": 40,
-  "source": "brand/u-medijima.md, brand/mediji-inventar.md; song identified from the original's audio and the TikToks audio mixes on Drive"
+  "source": "uploadDate: creation date of the original file (~/Downloads/voxford-top-videos); song identified from its audio and the TikToks audio mixes on Drive (brand/mediji-inventar.md)"
 }

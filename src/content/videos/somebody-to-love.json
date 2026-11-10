@@ -9,8 +9,9 @@
   },
   "poster": "../../assets/videos/somebody-to-love.jpg",
   "uploadDate": "2023-11-28",
+  "dateKind": "recorded",
   "duration": "PT19S",
-  "media": "top/somebody-to-love",
+  "media": "top/somebody-to-love/304f742c",
   "order": 50,
-  "source": "brand/u-medijima.md, brand/mediji-inventar.md; song identified from the original's audio and the TikToks audio mixes on Drive"
+  "source": "uploadDate: creation date of the original file (~/Downloads/voxford-top-videos); song identified from its audio and the TikToks audio mixes on Drive (brand/mediji-inventar.md)"
 }

@@ -161,13 +161,13 @@ Videos never go in git. The encoded top videos and the synced reels live in the 
 
 **Top videos.** The originals are on Drive (Ante › Voxford › Video › Najgledaniji videi) and in `~/Downloads/voxford-top-videos/`; `scripts/top-videos.tsv` maps each to its slug.
 
-    scripts/encode-top-videos.sh            # → ~/voxford-media/top/<slug>/ and src/assets/videos/<slug>.jpg (posters, committed)
-    scripts/upload-media.sh --remote        # → voxford-media/top/<slug>/… in production
+    scripts/encode-top-videos.sh            # → ~/voxford-media/top/<slug>/, posters to src/assets/videos/, `media` in the entry
+    scripts/upload-media.sh --remote        # → voxford-media/top/<slug>/<version>/… in production
     scripts/upload-media.sh --local         # the same into wrangler dev's local bucket
 
-A new top video: add a row to `scripts/top-videos.tsv`, encode, upload, add `src/content/videos/<slug>.json`.
+A new top video: add a row to `scripts/top-videos.tsv`, add `src/content/videos/<slug>.json`, encode, upload. Keys carry a content version (`top/<slug>/<version>/`), so the Worker serves them `immutable` for a year and keeps them in the edge cache; a re-encode gets a new version and new URLs. The Cache API only works on a custom domain, not on `*.workers.dev` (ticket G).
 
-**Reels sync.** `worker/reels.ts` runs on the cron (04:17 UTC daily): it copies the newest 6 reels from the Instagram API with Instagram Login into `reels/`, writes `reels/manifest.json` and, when the feed changed, POSTs the Workers Builds deploy hook. The build reads `<SITE_URL>/media/reels/manifest.json` (`src/lib/reels.ts`); build variable `REELS_MANIFEST_URL` overrides it, `off` skips it. If anything fails the last good feed stays, and a build that cannot read the manifest renders the Videos page without the reels.
+**Reels sync.** `worker/reels.ts` runs on the cron (04:17 UTC daily): it copies the newest 6 reels from the Instagram API with Instagram Login into `reels/`, writes `reels/manifest.json` and, when the feed changed, POSTs the Workers Builds deploy hook (retried on the next run if it fails). A replaced reel's files stay in R2 until a run after a successful rebuild, so the live page never points at a deleted file. The build reads `<SITE_URL>/media/reels/manifest.json` (`src/lib/reels.ts`); build variable `REELS_MANIFEST_URL` overrides it, `off` skips it. If anything fails the last good feed stays, and a build that cannot read the manifest renders the Videos page without the reels.
 
 Secrets (Worker › Settings › Variables & Secrets), set by the wizard, never in a file:
 

@@ -12,9 +12,13 @@
 #   loop.av1.mp4, loop.h264.mp4   540×960, muted, a short loop for cards and rails
 #   full.av1.mp4, full.h264.mp4   1080×1920 with sound, for the watch page
 #   poster.jpg                    1080×1920 frame at poster_at seconds
-# and copies poster.jpg to src/assets/videos/<slug>.jpg (the `videos`
-# collection's poster; Astro makes AVIF/WebP from it). HLG HDR originals are
-# converted to SDR BT.709. Upload with scripts/upload-media.sh.
+#   VERSION                       8 hex chars of the files' SHA-256
+# copies poster.jpg to src/assets/videos/<slug>.jpg (the `videos` collection's
+# poster; Astro makes AVIF/WebP from it) and sets `media` in
+# src/content/videos/<slug>.json to top/<slug>/<VERSION>, the R2 prefix the
+# files are uploaded under. New content → new version → new URLs, so the files
+# can be cached as immutable. HLG HDR originals are converted to SDR BT.709.
+# Upload with scripts/upload-media.sh.
 #
 # Needs ffmpeg with libsvtav1 and libx264.
 set -euo pipefail
@@ -75,6 +79,16 @@ grep -vE '^\s*(#|$)' "$LIST" | while read -r original slug poster_at loop_start 
   encode "$dir/full.h264.mp4" -i "$in" -vf "$full_vf" "${H264[@]}" -crf 26 "${audio[@]}"
   encode "$dir/full.av1.mp4" -i "$in" -vf "$full_vf" "${AV1[@]}" -crf 34 "${audio[@]}"
 
+  version=$(cd "$dir" && cat loop.av1.mp4 loop.h264.mp4 full.av1.mp4 full.h264.mp4 poster.jpg | shasum -a 256 | cut -c1-8)
+  printf '%s\n' "$version" > "$dir/VERSION"
+  entry="$REPO/src/content/videos/$slug.json"
+  if [[ -f "$entry" ]]; then
+    node -e 'const f=process.argv[1],fs=require("fs"),d=JSON.parse(fs.readFileSync(f,"utf8"));d.media=process.argv[2];fs.writeFileSync(f,JSON.stringify(d,null,2)+"\n")' \
+      "$entry" "top/$slug/$version"
+    echo "  media top/$slug/$version → $(basename "$entry")"
+  else
+    echo "  media top/$slug/$version (add src/content/videos/$slug.json)"
+  fi
   printf '  duration %ss\n' "$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$dir/full.h264.mp4" </dev/null)"
 done
 
