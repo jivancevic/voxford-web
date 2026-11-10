@@ -9,23 +9,18 @@ import { loadYouTubeUploads } from '@/lib/youtube';
 
 interface Props {
   lang: Locale;
-  /** Show at most this many uploads. */
-  limit?: number;
-  /** Heading level of each card's title. */
-  headingLevel?: 3 | 4;
-  class?: string;
 }
 
-const { lang, limit = 8, headingLevel = 4, class: className } = Astro.props;
-const videos = (await loadYouTubeUploads()).slice(0, limit);
+const { lang } = Astro.props;
+const videos = await loadYouTubeUploads();
 ---
 
 {
   videos.length > 0 && (
-    <ul class:list={['yt-rail', className]} role="list">
+    <ul class="yt-rail" role="list">
       {videos.map((video) => (
         <li class="yt-rail__item">
-          <YouTubeCard lang={lang} video={video} headingLevel={headingLevel} />
+          <YouTubeCard lang={lang} video={video} />
         </li>
       ))}
     </ul>

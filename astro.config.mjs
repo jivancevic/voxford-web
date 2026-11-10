@@ -48,6 +48,10 @@ export default defineConfig({
   trailingSlash: 'always',
   build: { format: 'directory' },
   integrations: [croatian404],
+  // The Videos page's YouTube thumbnails (src/lib/youtube.ts): downloaded and
+  // resized at build, served from our origin, so visitors ask YouTube for
+  // nothing before they press play (#41).
+  image: { domains: ['i.ytimg.com'] },
   i18n: {
     locales: ['en', 'hr'],
     defaultLocale: 'en',

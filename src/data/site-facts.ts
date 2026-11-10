@@ -81,11 +81,11 @@ export const PROFILE_LABELS: Record<ProfileKey, string> = {
 /**
  * The chart hit we sing on: Jasna Zlokić and Jakov Jozinović's "Ljudi poput
  * nas", 11 weeks at number 1 on the Croatian charts (Josip, 2026-11-11; KB
- * brand/u-medijima.md › Suradnje). Copy states the weeks through {chartWeeks}.
+ * brand/u-medijima.md › Suradnje). Copy states the weeks through {chartWeeks};
+ * the About page hangs the concert photo by the song's name.
  */
 export const CHART_HIT = {
   song: 'Ljudi poput nas',
-  artists: 'Jasna Zlokić, Jakov Jozinović',
   weeksAtNumberOne: 11,
 } as const;
 

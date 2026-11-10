@@ -17,7 +17,7 @@ import PageFlow from '@/components/content/PageFlow.astro';
 import PressRail, { type PressItem } from '@/components/content/PressRail.astro';
 import Prose from '@/components/content/Prose.astro';
 import { PORTRAITS } from '@/data/photos';
-import { MEMBERS, NUMBERS, STAGES } from '@/data/site-facts';
+import { CHART_HIT, MEMBERS, NUMBERS, STAGES } from '@/data/site-facts';
 import { format, getStrings, LOCALE_META, type Locale } from '@/i18n';
 import { pathFor, type PageKey } from '@/i18n/routes';
 import BaseLayout from '@/layouts/BaseLayout.astro';
@@ -71,7 +71,7 @@ const stages = STAGES.map((s) => ({ name: s.name, what: `${s.city[lang]}. ${stag
   jsonLd={[breadcrumbsFor(site, page, lang), faqPageJsonLd(faqs)]}
 >
   <PageFlow>
-    <ContentHero lang={lang} heading={copy.data.heading} lead={fillFacts(a.lead, lang)} photo="shootUpperTown" />
+    <ContentHero lang={lang} heading={copy.data.heading} lead={fillFacts(a.lead, lang)} photo="selfieFive" />
     <section class="container members" aria-labelledby="members-heading">
       <div class="members__head">
         <h2 id="members-heading">{a.membersHeading}</h2>
@@ -103,7 +103,7 @@ const stages = STAGES.map((s) => ({ name: s.name, what: `${s.city[lang]}. ${stag
       </ol>
       <p class="members__credit">{format(t.content.photoCredit, { credit: portraitCredit })}</p>
     </section>
-    <Prose lang={lang} html={copy.rendered?.html ?? ''} />
+    <Prose lang={lang} html={copy.rendered?.html ?? ''} figure={{ near: CHART_HIT.song, photo: 'stageZlokicJozinovic' }} />
     <section class="container numbers" aria-labelledby="numbers-heading">
       <h2 id="numbers-heading">{a.numbersHeading}</h2>
       <dl class="numbers__list">

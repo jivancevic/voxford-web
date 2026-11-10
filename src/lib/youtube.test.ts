@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { feedUrl, parseYouTubeFeed, shortTitle } from '@/lib/youtube';
+import { feedUrl, parseYouTubeFeed, shortTitle, withThumbnails, type YouTubeVideo } from '@/lib/youtube';
 
 const entry = (id: string, published: string, title: string, kind: 'shorts' | 'watch' = 'shorts') => `
  <entry>
@@ -38,8 +38,10 @@ describe('parseYouTubeFeed', () => {
         published: '2026-06-04T10:07:23.000Z',
         kind: 'short',
         url: 'https://www.youtube.com/shorts/Qa9IbKOigkc',
-        thumbnail: 'https://i.ytimg.com/vi/Qa9IbKOigkc/oar2.jpg',
-        fallbackThumbnail: 'https://i.ytimg.com/vi/Qa9IbKOigkc/hqdefault.jpg',
+        thumbnails: [
+          { src: 'https://i.ytimg.com/vi/Qa9IbKOigkc/oar2.jpg', width: 1080, height: 1920 },
+          { src: 'https://i.ytimg.com/vi/Qa9IbKOigkc/hqdefault.jpg', width: 480, height: 360 },
+        ],
       },
       {
         id: 'mCcWolBHC1k',
@@ -47,8 +49,10 @@ describe('parseYouTubeFeed', () => {
         published: '2026-05-07T10:19:30.000Z',
         kind: 'short',
         url: 'https://www.youtube.com/shorts/mCcWolBHC1k',
-        thumbnail: 'https://i.ytimg.com/vi/mCcWolBHC1k/oar2.jpg',
-        fallbackThumbnail: 'https://i.ytimg.com/vi/mCcWolBHC1k/hqdefault.jpg',
+        thumbnails: [
+          { src: 'https://i.ytimg.com/vi/mCcWolBHC1k/oar2.jpg', width: 1080, height: 1920 },
+          { src: 'https://i.ytimg.com/vi/mCcWolBHC1k/hqdefault.jpg', width: 480, height: 360 },
+        ],
       },
     ]);
   });
@@ -57,7 +61,7 @@ describe('parseYouTubeFeed', () => {
     const [video] = parseYouTubeFeed(feed(entry('NNNsMF4b2_Y', '2023-07-27T10:00:00+00:00', 'Trag u beskraju', 'watch')));
     expect(video?.kind).toBe('video');
     expect(video?.url).toBe('https://www.youtube.com/watch?v=NNNsMF4b2_Y');
-    expect(video?.thumbnail).toBe('https://i.ytimg.com/vi/NNNsMF4b2_Y/hqdefault.jpg');
+    expect(video?.thumbnails).toEqual([{ src: 'https://i.ytimg.com/vi/NNNsMF4b2_Y/hqdefault.jpg', width: 480, height: 360 }]);
   });
 
   it('decodes XML entities in titles', () => {
@@ -103,5 +107,26 @@ describe('feedUrl', () => {
   it('can be overridden or switched off', () => {
     expect(feedUrl('http://localhost:9999/feed.xml')).toBe('http://localhost:9999/feed.xml');
     expect(feedUrl('off')).toBeUndefined();
+  });
+});
+
+describe('withThumbnails', () => {
+  const video = (id: string, kind: 'short' | 'video' = 'short'): YouTubeVideo =>
+    parseYouTubeFeed(feed(entry(id, '2026-01-01T00:00:00+00:00', id, kind === 'short' ? 'shorts' : 'watch')))[0]!;
+
+  it("takes a Short's vertical frame when it answers", async () => {
+    const [v] = await withThumbnails([video('Qa9IbKOigkc')], 8, async () => true);
+    expect(v?.thumbnail).toEqual({ src: 'https://i.ytimg.com/vi/Qa9IbKOigkc/oar2.jpg', width: 1080, height: 1920 });
+  });
+
+  it('falls back to hqdefault when the vertical frame does not answer', async () => {
+    const [v] = await withThumbnails([video('Qa9IbKOigkc')], 8, async (url) => !url.endsWith('/oar2.jpg'));
+    expect(v?.thumbnail.src).toBe('https://i.ytimg.com/vi/Qa9IbKOigkc/hqdefault.jpg');
+  });
+
+  it('leaves out a video with no thumbnail that answers, and keeps the limit', async () => {
+    const videos = [video('aaaaaaaaaaa'), video('bbbbbbbbbbb'), video('ccccccccccc'), video('ddddddddddd')];
+    const out = await withThumbnails(videos, 2, async (url) => !url.includes('/bbbbbbbbbbb/'));
+    expect(out.map((v) => v.id)).toEqual(['aaaaaaaaaaa', 'ccccccccccc']);
   });
 });

@@ -1,8 +1,8 @@
 // Play in place for YouTube cards (src/components/YouTubeCard.astro). The
 // server renders the thumbnail as a link to YouTube and a hidden button over
 // the frame; this script reveals the button and, on a press, swaps the
-// thumbnail for the youtube-nocookie player, autoplaying (the press is the
-// gesture). Nothing from YouTube but the thumbnail loads before the press.
+// thumbnail (served from our origin) for the youtube-nocookie player,
+// autoplaying (the press is the gesture). Nothing from YouTube loads before it.
 // One voice at a time: starting a player pauses the other players and any
 // <video controls> on the page (top videos, reels), and those starting pauses
 // the players (through the embed's postMessage API, enablejsapi=1).
@@ -36,23 +36,10 @@ function play(frame: HTMLElement, button: HTMLButtonElement) {
   iframe.focus();
 }
 
-/** A Short's vertical thumbnail (oar2) is not documented: fall back to hqdefault, which always exists. */
-function guardThumbnail(frame: HTMLElement) {
-  const img = frame.querySelector('img');
-  const fallback = frame.dataset.fallback;
-  if (!img || !fallback) return;
-  const swap = () => {
-    if (img.src !== fallback) img.src = fallback;
-  };
-  if (img.complete && img.naturalWidth === 0) swap();
-  else img.addEventListener('error', swap, { once: true });
-}
-
 function enhance(frame: HTMLElement) {
   const button = frame.querySelector<HTMLButtonElement>('.yt__play');
   if (!button || frame.dataset.enhanced) return;
   frame.dataset.enhanced = 'true';
-  guardThumbnail(frame);
   button.hidden = false;
   button.addEventListener('click', () => play(frame, button), { once: true });
 }

@@ -2,16 +2,21 @@
 // Long-form copy from a page's Markdown body (src/content/pages/<lang>/<page>.md),
 // filled with site-facts. Each `##` section becomes its own row: the heading on
 // the left, the text on the right, so the page reads like a printed programme.
+// `figure` puts a photo under the text of the section that mentions `near`
+// (e.g. the song a photo is from), so it finds its place in either language.
+import type { PhotoKey } from '@/data/photos';
 import type { Locale } from '@/i18n';
 import { fillFactsHtml } from '@/lib/copy';
+import CreditedPhoto from './CreditedPhoto.astro';
 
 interface Props {
   lang: Locale;
   /** HTML rendered from Markdown (entry.rendered.html). */
   html: string;
+  figure?: { near: string; photo: PhotoKey };
 }
 
-const { lang, html } = Astro.props;
+const { lang, html, figure } = Astro.props;
 const sections = fillFactsHtml(html, lang)
   .split(/(?=<h2[\s>])/)
   .map((part) => part.trim())
@@ -20,15 +25,25 @@ const sections = fillFactsHtml(html, lang)
     const match = /^(<h2[\s\S]*?<\/h2>)([\s\S]*)$/.exec(part);
     return match ? { heading: match[1], body: match[2] ?? '' } : { heading: '', body: part };
   });
+const figureAt = figure ? sections.findIndex((s) => s.body.includes(figure.near)) : -1;
+// A figure that finds no section is a copy change that lost its anchor: fail the build, not the page.
+if (figure && figureAt < 0) throw new Error(`Prose figure: no section mentions "${figure.near}"`);
 ---
 
 {
   sections.length > 0 && (
     <div class="prose container">
-      {sections.map((s) => (
+      {sections.map((s, i) => (
         <section class="prose__section">
           {s.heading && <Fragment set:html={s.heading} />}
-          <div class="prose__body" set:html={s.body} />
+          {figure && i === figureAt ? (
+            <div class="prose__body">
+              <Fragment set:html={s.body} />
+              <CreditedPhoto photo={figure.photo} lang={lang} sizes="(min-width: 60rem) 44rem, calc(100vw - 2rem)" class="prose__figure" />
+            </div>
+          ) : (
+            <div class="prose__body" set:html={s.body} />
+          )}
         </section>
       ))}
     </div>
@@ -57,6 +72,11 @@ const sections = fillFactsHtml(html, lang)
     font-size: var(--text-lead);
     line-height: 1.5;
     color: var(--color-text-secondary);
+  }
+
+  .prose__body :global(.prose__figure) {
+    --photo-ratio: 16 / 9;
+    margin-block-start: var(--space-3);
   }
 
   .prose__body :global(strong) {

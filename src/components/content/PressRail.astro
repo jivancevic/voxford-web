@@ -7,6 +7,7 @@
 // (src/scripts/press-rail.ts). Every headline and link is in the static HTML.
 import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
+import type { Locale } from '@/i18n';
 
 export interface PressItem {
   outlet: string;
@@ -18,7 +19,7 @@ export interface PressItem {
   datetime: string;
   headline: string;
   /** Language the headline was published in (the press is Croatian). */
-  headlineLang: string;
+  headlineLang: Locale;
   what: string;
   url: string;
 }
