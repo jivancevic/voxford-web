@@ -90,6 +90,35 @@ describe('JSON-LD shapes', () => {
       expect(JSON.stringify(services[0]), page.path).not.toMatch(/price/i);
     }
   });
+
+  // The FAQ is a closed-by-default accordion (spec › Acceptance): every answer
+  // the FAQPage carries must still be in the HTML, inside its own <details>.
+  it('every FAQPage question is a closed <details> in one exclusive group, its answer in the HTML', () => {
+    const text = (s: string) =>
+      s
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/&amp;/g, '&')
+        .replace(/&#39;|&#x27;/g, "'")
+        .replace(/&quot;/g, '"')
+        .replace(/\s+/g, ' ')
+        .trim();
+    const withFaq = pages.filter((p) => graphOf(p).some((n) => n['@type'] === 'FAQPage'));
+    expect(withFaq.length).toBeGreaterThanOrEqual(10);
+    for (const page of withFaq) {
+      const faq = graphOf(page).find((n) => n['@type'] === 'FAQPage') as unknown as {
+        mainEntity: { name: string; acceptedAnswer: { text: string } }[];
+      };
+      const items = [...page.html.matchAll(/<details\b([^>]*)>([\s\S]*?)<\/details>/g)].filter((m) => /class="faq__item/.test(m[1]!));
+      expect(items, page.path).toHaveLength(faq.mainEntity.length);
+      expect(new Set(items.map((m) => attr(m[1]!, 'name'))), page.path).toEqual(new Set(['faq']));
+      for (const [, attrs] of items) expect(attrs, page.path).not.toMatch(/\sopen(?=[\s=>]|$)/);
+      for (const q of faq.mainEntity) {
+        const item = items.find((m) => text(/<summary[\s\S]*?<\/summary>/.exec(m[2]!)![0]) === text(q.name));
+        expect(item, `${page.path}: ${q.name}`).toBeDefined();
+        expect(text(item![2]!), `${page.path}: ${q.name}`).toContain(text(q.acceptedAnswer.text));
+      }
+    }
+  });
 });
 
 describe('404 pages', () => {

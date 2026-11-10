@@ -1,7 +1,11 @@
 ---
-// Questions and answers, all open in the HTML (nothing hidden behind a click:
-// spec › Acceptance). The caller passes the same Faq[] it puts into FAQPage
-// JSON-LD. `grouped` splits them under the FAQ page's section headings.
+// Questions and answers as an exclusive accordion: native <details name> +
+// <summary>, closed by default, one open at a time (Josip, 2026-11-10; spec ›
+// Acceptance). The answers stay in the static HTML, so crawlers and the FAQPage
+// JSON-LD see all of them; the caller passes the same Faq[] it puts into that
+// JSON-LD. Click, tap, Enter and Space open an item (no hover: it would jump the
+// layout and does not exist on touch). A `#<faq id>` link opens its item.
+// `grouped` splits them under the FAQ page's section headings.
 import { getStrings, type Locale } from '@/i18n';
 import type { Faq } from '@/lib/faq';
 import { FAQ_GROUPS } from '@/lib/faq-groups';
@@ -38,10 +42,13 @@ const QLevel = showHeading || grouped ? 'h3' : 'h2';
           {g.title && <h2 class="faq__group-title label">{g.title}</h2>}
           <div class="faq__list">
             {g.items.map((f) => (
-              <div class="faq__item" id={f.id}>
-                <QLevel class="faq__q">{f.question}</QLevel>
+              <details class="faq__item" id={f.id} name={id}>
+                <summary class="faq__summary">
+                  <QLevel class="faq__q">{f.question}</QLevel>
+                  <span class="faq__icon" aria-hidden="true" />
+                </summary>
                 <div class="faq__a" set:html={f.answer} />
-              </div>
+              </details>
             ))}
           </div>
         </div>
@@ -54,6 +61,18 @@ const QLevel = showHeading || grouped ? 'h3' : 'h2';
     </section>
   )
 }
+
+<script>
+  // A link to `#<faq id>` (from another page or this one) opens that item;
+  // the browser only auto-opens <details> for targets inside the answer.
+  function openTarget() {
+    const id = decodeURIComponent(location.hash.slice(1));
+    const target = id ? document.getElementById(id) : null;
+    if (target instanceof HTMLDetailsElement && target.classList.contains('faq__item')) target.open = true;
+  }
+  openTarget();
+  window.addEventListener('hashchange', openTarget);
+</script>
 
 <style>
   .faq {
@@ -77,14 +96,26 @@ const QLevel = showHeading || grouped ? 'h3' : 'h2';
   }
 
   .faq__item {
-    display: grid;
-    gap: var(--space-3);
-    padding-block: var(--space-5);
     border-block-start: var(--line-thin) solid var(--color-border);
   }
 
   .faq__item:last-child {
     border-block-end: var(--line-thin) solid var(--color-border);
+  }
+
+  .faq__summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-5);
+    min-block-size: 3rem;
+    padding-block: var(--space-5);
+    list-style: none;
+    cursor: pointer;
+  }
+
+  .faq__summary::-webkit-details-marker {
+    display: none;
   }
 
   .faq__q {
@@ -97,9 +128,54 @@ const QLevel = showHeading || grouped ? 'h3' : 'h2';
     color: var(--color-text);
   }
 
+  .faq__summary:hover .faq__q,
+  .faq__item[open] .faq__q,
+  .faq__item:target .faq__q {
+    color: var(--color-text-accent);
+  }
+
+  /* Plus when closed, minus when open: the vertical bar turns flat. */
+  .faq__icon {
+    position: relative;
+    flex: none;
+    inline-size: 2rem;
+    block-size: 2rem;
+    border: var(--line-thin) solid var(--color-border-strong);
+    border-radius: var(--radius-pill);
+    color: var(--color-text);
+  }
+
+  .faq__icon::before,
+  .faq__icon::after {
+    content: '';
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-start: 50%;
+    inline-size: 0.75rem;
+    block-size: 2px;
+    border-radius: var(--radius-pill);
+    background: currentColor;
+    translate: -50% -50%;
+  }
+
+  .faq__icon::after {
+    rotate: 90deg;
+  }
+
+  .faq__item[open] .faq__icon {
+    border-color: var(--color-text-accent);
+    color: var(--color-text-accent);
+  }
+
+  .faq__item[open] .faq__icon::after {
+    rotate: 0deg;
+  }
+
   .faq__a {
     display: grid;
     gap: var(--space-3);
+    max-inline-size: 68ch;
+    padding-block-end: var(--space-6);
     color: var(--color-text-secondary);
   }
 
@@ -114,14 +190,29 @@ const QLevel = showHeading || grouped ? 'h3' : 'h2';
     color: var(--color-text);
   }
 
-  .faq__item:target .faq__q {
-    color: var(--color-text-accent);
-  }
-
-  @media (min-width: 60rem) {
+  /* Smooth open and close where the browser can animate to `auto`; elsewhere it snaps. */
+  @media (prefers-reduced-motion: no-preference) {
     .faq__item {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
-      gap: var(--space-8);
+      interpolate-size: allow-keywords;
+    }
+
+    .faq__item::details-content {
+      block-size: 0;
+      overflow: clip;
+      opacity: 0;
+      transition:
+        block-size var(--duration-base) var(--ease-out),
+        opacity var(--duration-base) var(--ease-out),
+        content-visibility var(--duration-base) allow-discrete;
+    }
+
+    .faq__item[open]::details-content {
+      block-size: auto;
+      opacity: 1;
+    }
+
+    .faq__icon::after {
+      transition: rotate var(--duration-base) var(--ease-out);
     }
   }
 </style>

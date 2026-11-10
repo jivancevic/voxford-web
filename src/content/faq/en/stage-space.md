@@ -5,4 +5,4 @@ group: sound
 pages: [conferences, advent, weddings]
 source: "posao/rideri/rideri.md › Technical rider"
 ---
-There is nothing to build. We have no stage or lighting requirements: the five singers stand in a slight arc with a microphone each, and CLASSIC uses {classicMonitors} floor monitors in front of them. For GOLD, leave room on the right for the cajón and the stage piano, which share one more monitor ({goldMonitors} in all).
+There is nothing to build. We have no stage or lighting requirements: we stand in a slight arc with a microphone each, and CLASSIC uses {classicMonitors} floor monitors in front of them. For GOLD, leave room on the right for the cajón and the stage piano, which share one more monitor ({goldMonitors} in all).
