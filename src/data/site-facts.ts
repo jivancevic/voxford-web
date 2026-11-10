@@ -135,6 +135,30 @@ export const PRICE_ON_REQUEST: Localized = {
   hr: 'Cijena na upit, ovisi o datumu i mjestu. Putni troškovi su zasebni.',
 };
 
+/**
+ * What an event planner's sound engineer and venue need (KB posao/rideri/rideri.md
+ * › Technical rider: spec; parking from › Hospitality rider: spec). The FAQ
+ * states these through {tokens} (src/lib/copy.ts › factTokens).
+ */
+export const RIDER = {
+  /** The PA is ready at least this many hours before the performance. */
+  paReadyHoursBefore: 2,
+  /** Soundcheck length per package, finished before the audience arrives. */
+  soundcheckMinutes: { 'pop-up': 20, classic: 30, gold: 45 },
+  /** Minimum digital mixer channels when the organiser's engineer mixes. */
+  mixerChannels: { classic: 8, gold: 12 },
+  /** Floor monitors, each on its own line (POP-UP: two preferred, depends on the event). */
+  floorMonitors: { classic: 2, gold: 3 },
+  /** Parking spaces close to the stage. */
+  parkingSpaces: 2,
+} as const satisfies {
+  paReadyHoursBefore: number;
+  soundcheckMinutes: Record<PackageKey, number>;
+  mixerChannels: Partial<Record<PackageKey, number>>;
+  floorMonitors: Partial<Record<PackageKey, number>>;
+  parkingSpaces: number;
+};
+
 /** Notable stages (KB brand/biografija.md; Lisinski per spec › Information architecture). */
 export const STAGES = [
   { name: 'Kursalon Hübner', city: { en: 'Vienna', hr: 'Beč' } },

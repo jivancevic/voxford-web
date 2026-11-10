@@ -9,5 +9,6 @@
     "hr": "Sisak"
   },
   "countryCode": "HR",
+  "organizer": "Turistička zajednica Grada Siska",
   "source": "Sufler list_gigs 2026-11-10 (signed; client TZ Grada Siska); KB posao/klijenti/reference.md. No venue: the earlier value was the event's name, and Sufler has no venue or time"
 }

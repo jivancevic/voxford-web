@@ -10,12 +10,14 @@ import {
   AREA_SERVED,
   GROUP,
   MEMBERS,
+  PACKAGES,
   PROFILES,
   type Package,
 } from '@/data/site-facts';
 import type { Locale } from '@/i18n/locales';
 import { LOCALE_META } from '@/i18n/locales';
 import { pathFor } from '@/i18n/routes';
+import { inquiryUrl } from '@/lib/inquiry-url';
 
 export type JsonLdNode = Record<string, unknown> & { '@type': string | string[] };
 
@@ -101,29 +103,38 @@ export function faqPageJsonLd(qas: readonly QA[]): JsonLdNode {
   };
 }
 
-/** A package as a Service with an Offer that deliberately has no price (spec: prices on request). */
-export function packageServiceJsonLd(
+/**
+ * The one Service a page sells (e.g. live music for conferences), with every
+ * package as an Offer that deliberately has no price (spec: prices on request).
+ *
+ * One Service per page, not one per package: the page describes one service
+ * and the packages are its tiers, which schema.org models as several `offers`
+ * on that Service. Google's guidelines want markup that represents the page's
+ * main content, and three sibling Services per page would also mint three new
+ * "Voxford CLASSIC"-style entities on every event page.
+ */
+export function pageServiceJsonLd(
   site: URL,
   lang: Locale,
-  pkg: Package,
-  opts: { description: string; serviceType: string; path?: string },
+  opts: { serviceType: string; path: string; packages?: readonly Package[] },
 ): JsonLdNode {
-  const url = abs(site, opts.path ?? pathFor('packages', lang));
+  const url = abs(site, opts.path);
   return {
     '@type': 'Service',
-    '@id': `${url}#${pkg.key}`,
-    name: `${GROUP.name} ${pkg.name}`,
+    '@id': `${url}#service`,
+    name: `${GROUP.name}: ${opts.serviceType}`,
     serviceType: opts.serviceType,
-    description: opts.description,
     provider: { '@id': groupId(site) },
     areaServed: areaServed(),
     url,
-    offers: {
+    offers: (opts.packages ?? PACKAGES).map((pkg) => ({
       '@type': 'Offer',
-      url: abs(site, pathFor('inquiry', lang)),
+      name: `${GROUP.name} ${pkg.name}`,
+      description: pkg.summary[lang],
+      url: abs(site, inquiryUrl(lang, { package: pkg.key })),
       availability: 'https://schema.org/InStock',
       seller: { '@id': groupId(site) },
-    },
+    })),
   };
 }
 
@@ -161,17 +172,32 @@ export interface ConcertInput {
   name: string;
   /** ISO 8601 date or date-time (local time with offset when known). */
   startDate: string;
-  venue: string;
+  /** The venue's proper name; when it is not known the Place is named after the city, never a guessed venue. */
+  venue?: string | undefined;
   city: string;
   countryCode: string;
-  description?: string;
-  image?: string;
+  /**
+   * Who runs the concert (a tourist board, a festival), by name, only when it
+   * is known. Left out otherwise: never defaulted to the group. The group's
+   * own name points at its entity.
+   */
+  organizer?: string | undefined;
+  /** True only when entry is known to be free; anything else leaves the property out. */
+  isAccessibleForFree?: boolean | undefined;
+  description?: string | undefined;
+  image?: string | undefined;
   /** Official event or ticket page. */
-  url?: string;
+  url?: string | undefined;
 }
 
 /** A public concert. Never corporate or private gigs (spec › Information architecture). */
 export function concertJsonLd(site: URL, concert: ConcertInput): JsonLdNode {
+  const organizer =
+    concert.organizer === undefined
+      ? undefined
+      : concert.organizer === GROUP.name
+        ? { '@id': groupId(site) }
+        : { '@type': 'Organization', name: concert.organizer };
   return {
     '@type': 'MusicEvent',
     name: concert.name,
@@ -180,11 +206,12 @@ export function concertJsonLd(site: URL, concert: ConcertInput): JsonLdNode {
     eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
     location: {
       '@type': 'Place',
-      name: concert.venue,
+      name: concert.venue ?? concert.city,
       address: { '@type': 'PostalAddress', addressLocality: concert.city, addressCountry: concert.countryCode },
     },
     performer: { '@id': groupId(site) },
-    organizer: { '@id': groupId(site) },
+    ...(organizer ? { organizer } : {}),
+    ...(concert.isAccessibleForFree === true ? { isAccessibleForFree: true } : {}),
     ...(concert.description ? { description: concert.description } : {}),
     ...(concert.image ? { image: concert.image } : {}),
     ...(concert.url ? { url: concert.url } : {}),

@@ -5,4 +5,4 @@ group: day
 pages: [conferences, advent]
 source: "posao/rideri/rideri.md › Technical rider"
 ---
-The PA should be ready at least two hours before the performance. The soundcheck takes 20 minutes for POP-UP, 30 for CLASSIC and 45 for GOLD, and we finish it before the guests arrive.
+The PA should be ready at least {paReadyHours} hours before the performance. The soundcheck takes {popUpSoundcheck} minutes for POP-UP, {classicSoundcheck} for CLASSIC and {goldSoundcheck} for GOLD, and we finish it before the guests arrive.

@@ -51,7 +51,7 @@ Canonical numbers (Josip, 2026-11-10): **800K+ followers** across networks, **30
 
 ### SEO / GEO
 - All text and JSON-LD in **static HTML** (AI crawlers do not run JS). Scroll effects only enhance content already in the DOM; nothing appears only after scroll/click for crawlers.
-- JSON-LD: `MusicGroup` (sameAs: Instagram, TikTok, Facebook, YouTube, Spotify; `member` with roles; `foundingDate` 2021; `areaServed`; `genre`; location Zagreb), `Service`/`Offer` per package (no price), `VideoObject` on watch pages, `Event` for public concerts, `FAQPage`, `BreadcrumbList`. Entity disambiguation in copy: always "Voxford, a cappella group from Zagreb, Croatia" (confusion with vOx Chamber Choir Oxford is real).
+- JSON-LD: `MusicGroup` (sameAs: Instagram, TikTok, Facebook, YouTube, Spotify; `member` with roles; `foundingDate` 2021; `areaServed`; `genre`; location Zagreb), one `Service` per selling page with an `Offer` per package (no price; `src/lib/jsonld.ts` › `pageServiceJsonLd` says why), `VideoObject` on watch pages, `Event` for public concerts, `FAQPage`, `BreadcrumbList`. Entity disambiguation in copy: always "Voxford, a cappella group from Zagreb, Croatia" (confusion with vOx Chamber Choir Oxford is real).
 - `robots.txt` allows search and AI crawlers, including OAI-SearchBot, ChatGPT-User, GPTBot, Claude-SearchBot, Claude-User, ClaudeBot, PerplexityBot, Google-Extended, Applebot-Extended. Cloudflare's default AI-crawler block must be off for the zone (Josip, dashboard).
 - `llms.txt` as a cheap extra, built from the same site-facts as the JSON-LD (no proven effect; not a pillar).
 - Sitemap with `lastmod` and hreflang alternates; IndexNow ping on deploy; Google Search Console + Bing Webmaster Tools verified by Josip.

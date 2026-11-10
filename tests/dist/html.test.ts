@@ -74,6 +74,24 @@ describe('built pages', () => {
   });
 });
 
+describe('JSON-LD shapes', () => {
+  const graphOf = (page: Page) =>
+    (JSON.parse(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/.exec(page.html)![1]!) as {
+      '@graph': (Record<string, unknown> & { '@type': string })[];
+    })['@graph'];
+
+  it('a page that sells has one Service, its packages as price-less Offers', () => {
+    const selling = pages.filter((p) => graphOf(p).some((n) => n['@type'] === 'Service'));
+    expect(selling.length).toBeGreaterThanOrEqual(10);
+    for (const page of selling) {
+      const services = graphOf(page).filter((n) => n['@type'] === 'Service');
+      expect(services, page.path).toHaveLength(1);
+      expect(services[0]!.offers, page.path).toHaveLength(3);
+      expect(JSON.stringify(services[0]), page.path).not.toMatch(/price/i);
+    }
+  });
+});
+
 describe('sitemap.xml', () => {
   const xml = readFileSync(`${dist}sitemap.xml`, 'utf8');
   const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => new URL(m[1]!).pathname);
