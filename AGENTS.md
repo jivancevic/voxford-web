@@ -9,6 +9,7 @@ Voxford's public website: Astro (static) on Cloudflare Workers. Read `CONTEXT.md
 - **Content collections** are declared in `src/content.config.ts` (Astro 5+ location) with the `glob()` loader; Zod comes from `astro/zod` (Zod 4: `z.url()`, not `z.string().url()`).
 - **Fonts** use Astro's Fonts API (`fonts` in `astro.config.mjs`, `<Font>` in the layout) with local woff2 files in `src/assets/fonts/`.
 - **Builds inside `.claude/worktrees/<name>/` fail** with "Tsconfig not found astro/tsconfigs/strict": the worktree sits inside the main checkout, and the native resolver picks up the main checkout's `tsconfig.json` (which has no `node_modules`). Run `npm run build`, `check` and `test:dist` on a copy outside the repo, e.g. `git worktree add --detach <scratch>/copy HEAD`, symlink `node_modules`, `rsync` your `src/` into it. `npm test` and `lint` work in place. CI is not affected.
+- **Scoped styles stop at a child component's root.** A class passed as `<VideoRail class="x" />` lands on the child's root element, which the parent's scoped selector `.x` never matches. Write `:global(.x)` anchored to the parent's own scope (`.proof :global(.x)`), not a bare `:global(.x)`, which would apply site-wide. Ticket F found two silent spacing bugs from this.
 - Dev: `npm run dev` (Astro, port 4321, no Worker) for pages; `npm run preview` (build + `wrangler dev`, port 8787) for the real thing, Worker included.
 
 ## Seams: who edits what
