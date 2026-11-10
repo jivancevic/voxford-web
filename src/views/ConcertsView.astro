@@ -28,21 +28,20 @@ const copy = await loadPage(page, lang);
 const t = getStrings(lang);
 const upcoming = await getUpcomingConcerts();
 const image = await getImage({ src: PHOTOS.crikvenicaPiano.src, width: 1200, format: 'jpg' });
-// With no known venue the Place is named after the city: never a guessed venue.
-// isAccessibleForFree is added here because concertJsonLd (A) has no field for it.
-const events = upcoming.map((c) => ({
-  ...concertJsonLd(site, {
+const events = upcoming.map((c) =>
+  concertJsonLd(site, {
     name: c.data.name[lang],
     startDate: c.data.startDate,
-    venue: c.data.venue ?? c.data.city[lang],
+    venue: c.data.venue,
     city: c.data.city[lang],
     countryCode: c.data.countryCode,
+    organizer: c.data.organizer,
+    isAccessibleForFree: c.data.free,
+    description: c.data.description?.[lang],
     image: new URL(image.src, site).href,
-    ...(c.data.description ? { description: c.data.description[lang] } : {}),
-    ...(c.data.url ? { url: c.data.url } : {}),
+    url: c.data.url,
   }),
-  ...(c.data.free ? { isAccessibleForFree: true } : {}),
-}));
+);
 ---
 
 <BaseLayout

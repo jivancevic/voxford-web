@@ -7,7 +7,7 @@ import {
   groupId,
   jsonLdGraph,
   musicGroupJsonLd,
-  packageServiceJsonLd,
+  pageServiceJsonLd,
   serializeJsonLd,
   videoObjectJsonLd,
 } from './jsonld';
@@ -37,15 +37,100 @@ describe('musicGroupJsonLd', () => {
   });
 });
 
-describe('packageServiceJsonLd', () => {
-  it('offers without any price', () => {
-    for (const pkg of PACKAGES) {
-      const json = JSON.stringify(
-        packageServiceJsonLd(site, 'en', pkg, { description: 'd', serviceType: 'Live a cappella performance' }),
-      );
-      expect(json).not.toMatch(/price/i);
-      expect(json).toContain(groupId(site));
-    }
+describe('pageServiceJsonLd', () => {
+  const node = pageServiceJsonLd(site, 'en', {
+    serviceType: 'Live music for conferences and corporate events',
+    path: '/en/conferences/',
+  });
+
+  it('is one Service for the page, offered by the group, with every package as an Offer', () => {
+    expect(node).toEqual({
+      '@type': 'Service',
+      '@id': 'https://voxford.example/en/conferences/#service',
+      name: 'Voxford: Live music for conferences and corporate events',
+      serviceType: 'Live music for conferences and corporate events',
+      provider: { '@id': groupId(site) },
+      areaServed: [
+        { '@type': 'Country', name: 'Croatia' },
+        { '@type': 'Country', name: 'Slovenia' },
+        { '@type': 'Country', name: 'Austria' },
+      ],
+      url: 'https://voxford.example/en/conferences/',
+      offers: PACKAGES.map((p) => ({
+        '@type': 'Offer',
+        name: `Voxford ${p.name}`,
+        description: p.summary.en,
+        url: `https://voxford.example/en/inquiry/?package=${p.key}`,
+        availability: 'https://schema.org/InStock',
+        seller: { '@id': groupId(site) },
+      })),
+    });
+  });
+
+  it('never carries a price', () => {
+    expect(JSON.stringify(node)).not.toMatch(/price/i);
+  });
+
+  it('localizes the offers', () => {
+    const hr = pageServiceJsonLd(site, 'hr', { serviceType: 'Glazba uživo za vjenčanja', path: '/hr/vjencanja/' });
+    expect(hr['@id']).toBe('https://voxford.example/hr/vjencanja/#service');
+    expect(hr.offers).toContainEqual(expect.objectContaining({ description: PACKAGES[1]!.summary.hr }));
+  });
+});
+
+describe('concertJsonLd', () => {
+  const base = { name: 'Voxford at Advent in Sisak', startDate: '2026-12-17', city: 'Sisak', countryCode: 'HR' };
+
+  it('builds a MusicEvent the group performs, at a named venue', () => {
+    const node = concertJsonLd(site, {
+      name: 'Musiksommer',
+      startDate: '2027-09-11T19:00:00+02:00',
+      venue: 'Atrium Europasaal',
+      city: 'Bad Schallerbach',
+      countryCode: 'AT',
+      url: 'https://example.at/musiksommer',
+    });
+    expect(node).toEqual({
+      '@type': 'MusicEvent',
+      name: 'Musiksommer',
+      startDate: '2027-09-11T19:00:00+02:00',
+      eventStatus: 'https://schema.org/EventScheduled',
+      eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+      location: {
+        '@type': 'Place',
+        name: 'Atrium Europasaal',
+        address: { '@type': 'PostalAddress', addressLocality: 'Bad Schallerbach', addressCountry: 'AT' },
+      },
+      performer: { '@id': groupId(site) },
+      url: 'https://example.at/musiksommer',
+    });
+  });
+
+  it('names the Place after the city when the venue is not known, never a guess', () => {
+    const node = concertJsonLd(site, base);
+    expect(node.location).toEqual({
+      '@type': 'Place',
+      name: 'Sisak',
+      address: { '@type': 'PostalAddress', addressLocality: 'Sisak', addressCountry: 'HR' },
+    });
+  });
+
+  it('has no organizer unless one is known, and never defaults to the group', () => {
+    expect(concertJsonLd(site, base)).not.toHaveProperty('organizer');
+    expect(concertJsonLd(site, { ...base, organizer: 'Turistička zajednica Grada Siska' }).organizer).toEqual({
+      '@type': 'Organization',
+      name: 'Turistička zajednica Grada Siska',
+    });
+  });
+
+  it('points at the group entity when the group organizes the concert itself', () => {
+    expect(concertJsonLd(site, { ...base, organizer: 'Voxford' }).organizer).toEqual({ '@id': groupId(site) });
+  });
+
+  it('states free entry only when it is known to be free', () => {
+    expect(concertJsonLd(site, { ...base, isAccessibleForFree: true }).isAccessibleForFree).toBe(true);
+    expect(concertJsonLd(site, { ...base, isAccessibleForFree: false })).not.toHaveProperty('isAccessibleForFree');
+    expect(concertJsonLd(site, base)).not.toHaveProperty('isAccessibleForFree');
   });
 });
 
@@ -79,18 +164,6 @@ describe('other builders', () => {
     });
     expect(node.url).toBe('https://voxford.example/en/videos/carol-of-the-bells/');
     expect(node.creator).toEqual({ '@id': groupId(site) });
-  });
-
-  it('builds a MusicEvent for a public concert', () => {
-    const node = concertJsonLd(site, {
-      name: 'Musiksommer',
-      startDate: '2027-09-11',
-      venue: 'Bad Schallerbach',
-      city: 'Bad Schallerbach',
-      countryCode: 'AT',
-    });
-    expect(node['@type']).toBe('MusicEvent');
-    expect(node.performer).toEqual({ '@id': groupId(site) });
   });
 });
 

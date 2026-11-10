@@ -4,7 +4,7 @@
 // puts the current value in at build time. An unknown token throws, so a typo
 // fails the build instead of shipping "{folowers}" to visitors.
 
-import { GROUP, NUMBERS, PACKAGES, type Package } from '@/data/site-facts';
+import { GROUP, NUMBERS, PACKAGES, RIDER, type Package } from '@/data/site-facts';
 import { format, getStrings } from '@/i18n';
 import type { Locale } from '@/i18n/locales';
 
@@ -32,6 +32,17 @@ export function factTokens(lang: Locale): Record<string, string> {
     tokens[`${k}Max`] = String(p.minutes.max);
     if (p.minutes.min !== undefined) tokens[`${k}Min`] = String(p.minutes.min);
     tokens[`${k}Lineup`] = p.lineup[lang];
+  }
+  // Rider: {paReadyHours}, {classicSoundcheck}, {goldMixerChannels}, {classicMonitors}, {parkingSpaces} …
+  tokens.paReadyHours = String(RIDER.paReadyHoursBefore);
+  tokens.parkingSpaces = String(RIDER.parkingSpaces);
+  const perPackage = [
+    ['Soundcheck', RIDER.soundcheckMinutes],
+    ['MixerChannels', RIDER.mixerChannels],
+    ['Monitors', RIDER.floorMonitors],
+  ] as const;
+  for (const [suffix, values] of perPackage) {
+    for (const [key, value] of Object.entries(values)) tokens[`${tokenKey(key)}${suffix}`] = String(value);
   }
   return tokens;
 }

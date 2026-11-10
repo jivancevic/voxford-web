@@ -57,6 +57,18 @@ describe('content copy (ticket C)', () => {
     }
   });
 
+  it('FAQ answers from the riders state numbers only through tokens', () => {
+    for (const lang of LOCALES) {
+      for (const file of list(`../content/faq/${lang}/`, '.md')) {
+        const text = read(file);
+        if (!/^source: .*rideri\.md/m.test(text)) continue;
+        // A digit after a letter is a model name (SM58), not a rider number.
+        const body = text.replace(/^---\n[\s\S]*?\n---\n/, '');
+        expect(body.replace(/\{\w+\}/g, ''), file).not.toMatch(/(?<![A-Za-z\d])\d/);
+      }
+    }
+  });
+
   it('FAQ entries only point at pages that exist', () => {
     for (const lang of LOCALES) {
       for (const file of list(`../content/faq/${lang}/`, '.md')) {

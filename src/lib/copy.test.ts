@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { GROUP, NUMBERS, PACKAGES } from '@/data/site-facts';
+import { GROUP, NUMBERS, PACKAGES, RIDER } from '@/data/site-facts';
 import { factTokens, fillFacts, fillFactsHtml, packageDuration } from './copy';
 
 describe('fillFacts', () => {
@@ -29,6 +29,21 @@ describe('fillFacts', () => {
       expect(tokens[`${key}Max`]).toBe(String(p.minutes.max));
       if (p.minutes.min) expect(tokens[`${key}Min`]).toBe(String(p.minutes.min));
     }
+  });
+});
+
+describe('rider tokens', () => {
+  it('fill the technical rider numbers from site-facts', () => {
+    expect(
+      fillFacts(
+        '{paReadyHours} h; {popUpSoundcheck}/{classicSoundcheck}/{goldSoundcheck} min; {classicMixerChannels}/{goldMixerChannels} ch; {classicMonitors}/{goldMonitors} monitors; {parkingSpaces} spaces',
+        'en',
+      ),
+    ).toBe(
+      `${RIDER.paReadyHoursBefore} h; ${RIDER.soundcheckMinutes['pop-up']}/${RIDER.soundcheckMinutes.classic}/${RIDER.soundcheckMinutes.gold} min; ` +
+        `${RIDER.mixerChannels.classic}/${RIDER.mixerChannels.gold} ch; ${RIDER.floorMonitors.classic}/${RIDER.floorMonitors.gold} monitors; ` +
+        `${RIDER.parkingSpaces} spaces`,
+    );
   });
 });
 

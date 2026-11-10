@@ -50,6 +50,8 @@ const concerts = defineCollection({
     startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}/),
     /** The venue's proper name; omit when it is not known (never guess one). */
     venue: z.string().min(1).optional(),
+    /** Who runs the concert (tourist board, festival), as the KB names it; omit when not known. Never Voxford by default. */
+    organizer: z.string().min(1).optional(),
     city: localized,
     countryCode: z.string().length(2),
     /** One line on what the event is, e.g. a free street performance. */
