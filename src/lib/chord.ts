@@ -12,17 +12,22 @@ export const CLIP_SECONDS = 38.07;
 /**
  * When each voice enters, in seconds from the start of the clip (not of the
  * original WAV), keyed by member. Stage order is the render order; entry order
- * is whatever the arrangement does.
+ * is the arrangement's: Dora from the start, then Vita, David, Josip, Ante, and
+ * every voice sings on to the end.
  *
- * PLACEHOLDER (#32): evenly spaced stand-ins in stage order, not the real
- * arrangement. Replace with Josip's entry times before the PR ships.
+ * Josip, 2026-11-10 (#32): "početak Dora, 00:07:25 Vita, 00:11:80 David,
+ * 00:16:10 Josip, 00:20:50 Ante", read as seconds.hundredths in the WAV. The clip
+ * starts 3.0 s into the WAV, so each is 3.0 s earlier here; the clip's own
+ * loudness confirms it (each entry lands on a jump in the 180–500 Hz band, and
+ * Josip's beatbox and Ante's bass on the two big jumps below 120 Hz, at 13.25
+ * and 17.5 s). Read as clip time, none of them would.
  */
 export const VOICE_ENTRIES: Readonly<Record<MemberKey, number>> = {
-  josip: 0.5,
-  dora: 3.5,
-  ante: 6.5,
-  vita: 9.5,
-  david: 12.5,
+  josip: 13.1,
+  dora: 0,
+  ante: 17.5,
+  vita: 4.25,
+  david: 8.8,
 };
 
 /** Entry times for the voices as rendered; a key the table does not know never enters. */

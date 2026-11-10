@@ -89,8 +89,10 @@ it plays *Carol of the Bells* (the 3.0 → 41.07 s span) and **each singer light
 their voice enters**, each with its own colour of light from above, stepping pink → purple →
 blue along the brand gradient; the gradient line under them grows with every voice and, with
 all five lit, completes and the whole stage glows. The entry times are one cue table,
-`VOICE_ENTRIES` in `src/lib/chord.ts` (seconds from the start of the clip, per member; they
-come from Josip). The voices follow the audio clock, not the scroll: the scroll only breathes
+`VOICE_ENTRIES` in `src/lib/chord.ts` (seconds from the start of the clip, per member). Josip
+gave them on 2026-11-10: Dora from the start, Vita 4.25 s, David 8.80 s, Josip 13.10 s, Ante
+17.50 s. He gave them in WAV time, 3.0 s later; the clip's loudness confirms the shift. The
+voices enter in that order, not in stage order, and each stays lit to the end. The voices follow the audio clock, not the scroll: the scroll only breathes
 the stage glow a little (`--sc-p`) and holds the stage pinned while the music plays.
 
 - **Before play:** all five dim, the play button centred on the portraits with its label
@@ -207,10 +209,11 @@ under `html.sc-ready`.
 ## Verification log: the play button (#32, 2026-11-10, local build)
 
 Headless Chrome (Playwright) against the built site, desktop 1440×900 and mobile 390×844, EN
-and HR, with the placeholder cues in `VOICE_ENTRIES`:
+and HR, first with placeholder cues, then with Josip's (Dora 0, Vita 4.25, David 8.80, Josip
+13.10, Ante 17.50 s):
 
-- Press play: every voice lit within 13 ms of its cue (read from the audio clock); full chord
-  after the last cue; label Pause.
+- Press play: every voice lit within ~15 ms of its cue (read from the audio clock), in entry
+  order, each staying lit; full chord after the last cue; label Pause.
 - Pause: the audio stops, the clock and the lights hold; Resume continues from there.
 - Leaving the act pauses the music; coming back stays paused until a press.
 - End: all five lit, label "Listen again"; a replay starts dim from the top.
@@ -218,5 +221,5 @@ and HR, with the placeholder cues in `VOICE_ENTRIES`:
   offers play again. Reduced motion: all five lit before and during play. JavaScript off: all
   five lit, resolve visible, no button.
 - The play disc is ≥ 48 px in every state (51 px at its smallest, on a phone while playing).
-- **Not verified:** a real phone (iOS silent switch, touch while pinned), audible playback by
-  ear, and the real entry times against the music.
+- **Not verified:** a real phone (iOS silent switch, touch while pinned) and audible playback
+  by ear. The entry times were checked against the clip's loudness, not by ear.

@@ -16,6 +16,12 @@ describe('VOICE_ENTRIES', () => {
     }
   });
 
+  it('brings the voices in as the arrangement does: Dora first, then Vita, David, Josip, Ante (Josip, #32)', () => {
+    const order = [...keys].sort((a, b) => VOICE_ENTRIES[a] - VOICE_ENTRIES[b]);
+    expect(order).toEqual(['dora', 'vita', 'david', 'josip', 'ante']);
+    expect(VOICE_ENTRIES.dora).toBe(0);
+  });
+
   it('matches the length of the Carol span (3.0 → 41.07 s of "Carol new mix.wav")', () => {
     expect(CLIP_SECONDS).toBeCloseTo(41.07 - 3.0, 2);
   });
