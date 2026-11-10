@@ -130,8 +130,8 @@ const QLevel = showHeading || grouped ? 'h3' : 'h2';
     color: var(--color-text);
   }
 
-  .faq__item[open] .faq__q,
-  .faq__item:target .faq__q {
+  /* Only an open item is accent: a deep-linked item that was closed again stays :target. */
+  .faq__item[open] .faq__q {
     color: var(--color-text-accent);
   }
 
