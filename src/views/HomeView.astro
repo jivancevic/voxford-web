@@ -36,7 +36,7 @@ const otherRooms = (['weddings', 'advent', 'private'] as const).map((key) => ({
   name: t.common.nav[key],
   line: h.rooms[key],
 }));
-const portraitCredit = PORTRAITS.josip.credit;
+const portraitCredit = [...new Set(Object.values(PORTRAITS).map((p) => p.credit))].join(', ');
 const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
 ---
 
@@ -87,6 +87,8 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
       <div class="hero__copy container">
         <p class="hero__lead" data-sc-copy>{format(h.hero.lead, { group: GROUP.disambiguation[lang] })}</p>
         <div class="hero__actions">
+          {/* Ticket D's AvailabilityCheck (date + city → the inquiry form) goes here once it is on main:
+              <AvailabilityCheck lang={lang} /> */}
           <InquiryCTA lang={lang} />
           <Pill href="#chord" variant="ghost">{h.hero.chordLink}</Pill>
         </div>
@@ -127,7 +129,7 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
                 type="button"
                 class="voice"
                 data-voice={m.key}
-                aria-pressed="true"
+                disabled
                 data-caption={`${m.givenName.toUpperCase()} · ${m.voice[lang].toUpperCase()}`}
               >
                 <span class="voice__beam" aria-hidden="true" />
@@ -530,19 +532,24 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
   .chord__bars {
     display: inline-flex;
     align-items: end;
-    gap: 2px;
-    block-size: 0.875rem;
+    gap: calc(2 * var(--line-thin));
+    block-size: var(--text-small);
   }
 
   .chord__bars i {
-    inline-size: 3px;
+    inline-size: calc(3 * var(--line-thin));
     block-size: 40%;
-    border-radius: 1px;
+    border-radius: var(--line-thin);
     background: currentColor;
   }
 
   .chord__bars i:nth-child(2) {
     block-size: 75%;
+  }
+
+  /* .pill sets display, which would beat the UA's [hidden] rule: Listen stays out until the script shows it. */
+  :global(.chord__listen[hidden]) {
+    display: none;
   }
 
   :global(.chord__listen[aria-pressed='true']) {
@@ -576,14 +583,16 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
   .chord__voices {
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: clamp(0.375rem, 1.4vw, 1.25rem);
+    gap: clamp(var(--space-2), 1.4vw, var(--space-5));
     align-items: end;
     margin-block: 0;
     padding: 0;
     list-style: none;
   }
 
+  /* The li carries the column width; the button stretches as a grid item. */
   .chord__voices li {
+    display: grid;
     max-inline-size: none;
   }
 
@@ -591,7 +600,6 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
     position: relative;
     display: grid;
     gap: var(--space-2);
-    inline-size: 100%;
     padding: 0;
     border: 0;
     background: none;
@@ -602,7 +610,7 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
   }
 
   .voice:focus-visible {
-    outline-offset: 6px;
+    outline-offset: var(--space-2);
   }
 
   .voice__frame {
@@ -663,7 +671,7 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
   }
 
   .voice__name {
-    font-size: clamp(1.25rem, 0.8rem + 1.6vw, 2.25rem);
+    font-size: var(--text-heading);
     transition: color 700ms var(--ease-out);
   }
 
@@ -746,8 +754,14 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
       font-size: var(--text-small);
     }
 
+    /* Too narrow to show; kept for screen readers (the visible caption below repeats it). */
     .voice__part {
-      display: none;
+      position: absolute;
+      inline-size: 1px;
+      block-size: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
     }
 
     .chord__caption {
@@ -776,7 +790,6 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
   .proof__num {
     position: relative;
     inline-size: fit-content;
-    font-size: clamp(5rem, 2rem + 13vw, 13rem);
   }
 
   .proof__figure::after {

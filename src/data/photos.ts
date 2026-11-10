@@ -126,8 +126,9 @@ export const HERO_PLANES = {
     en: 'The five singers of Voxford at microphones on the Unisport Stars gala stage, lit in blue, the audience in silhouette',
     hr: 'Petorka Voxforda za mikrofonima na pozornici gala večeri Unisport Stars, u plavom svjetlu, publika u silueti',
   },
-  label: { en: 'AWARDS GALA · ZAGREB · 2026', hr: 'DODJELA NAGRADA · ZAGREB · 2026' },
-  credit: 'kolektiff',
+  // Same gala and agency as unisportStage.
+  label: PHOTOS.unisportStage.label,
+  credit: PHOTOS.unisportStage.credit,
   source: 'Drive › Photo › 2026 Hrvatski Akademski Sportski Savez (Unisport Stars, Westin)',
 } as const;
 

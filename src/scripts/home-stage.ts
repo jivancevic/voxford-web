@@ -21,6 +21,9 @@ interface Act {
   pinned: boolean;
   top: number;
   height: number;
+  /** Pinned acts: the sticky stage's `top` offset and its height, so p runs exactly over the pinned travel. */
+  stickTop: number;
+  stageHeight: number;
   p: number;
 }
 
@@ -29,6 +32,8 @@ const acts: Act[] = [...document.querySelectorAll<HTMLElement>('[data-sc-act]')]
   pinned: el.dataset.scAct === 'pin',
   top: 0,
   height: 0,
+  stickTop: 0,
+  stageHeight: 0,
   p: Number.NaN,
 }));
 
@@ -46,6 +51,9 @@ function measure(): void {
   for (const act of acts) {
     act.top = act.el.getBoundingClientRect().top + scrollY;
     act.height = act.el.offsetHeight;
+    const stage = act.el.querySelector<HTMLElement>('[data-sc-stage]');
+    act.stickTop = stage ? parseFloat(getComputedStyle(stage).top) || 0 : 0;
+    act.stageHeight = stage?.offsetHeight ?? innerHeight;
   }
 }
 
@@ -54,8 +62,10 @@ function frame(): void {
   const y = scrollY;
   const vh = innerHeight;
   for (const act of acts) {
+    // Pinned: the stage sticks when its top reaches `stickTop` and lets go when
+    // it meets the section's bottom, a travel of (section height - stage height).
     const raw = act.pinned
-      ? (y - act.top) / Math.max(1, act.height - vh)
+      ? (y + act.stickTop - act.top) / Math.max(1, act.height - act.stageHeight)
       : (y + vh - act.top) / Math.max(1, act.height + vh);
     const p = Math.min(1, Math.max(0, raw));
     if (act.pinned) publishVerifyState(act, y, vh, p);
@@ -73,12 +83,11 @@ function frame(): void {
  */
 function publishVerifyState(act: Act, y: number, vh: number, p: number): void {
   const onScreen = act.top < y + vh && act.top + act.height > y;
-  if (!onScreen) {
-    act.el.removeAttribute('data-sc-verify-state');
-    return;
-  }
   const extra = act.el.dataset.scVerifyExtra ?? '';
-  act.el.setAttribute('data-sc-verify-state', `${act.el.id || 'act'}:${Math.round(p * 50) / 50}${extra}`);
+  const next = onScreen ? `${act.el.id || 'act'}:${Math.round(p * 50) / 50}${extra}` : null;
+  if (act.el.getAttribute('data-sc-verify-state') === next) return;
+  if (next === null) act.el.removeAttribute('data-sc-verify-state');
+  else act.el.setAttribute('data-sc-verify-state', next);
 }
 
 let scheduled = false;
@@ -148,7 +157,9 @@ function mountChord(section: HTMLElement): void {
     sound.follow(count);
   }
 
+  // The voices ship disabled (inert without JavaScript); the script makes them toggles.
   voices.forEach((voice, i) => {
+    voice.disabled = false;
     voice.addEventListener('click', () => {
       const lit = litVoices(scrollCount, overrides);
       overrides[i] = !lit[i];
@@ -164,9 +175,9 @@ function mountChord(section: HTMLElement): void {
     render();
   });
 
+  // With motion back on, the next frame republishes progress (remeasure resets it) and relights.
   reducedMotion.addEventListener('change', () => {
-    const p = acts.find((a) => a.el === section)?.p ?? 0;
-    scrollCount = motionAllowed() ? voicesLitAt(p) : VOICE_COUNT;
+    scrollCount = motionAllowed() ? 0 : VOICE_COUNT;
     render();
   });
 
@@ -207,7 +218,12 @@ function createSound(section: HTMLElement, button: HTMLButtonElement | null): So
     } else {
       audio.volume = target;
     }
-    if (target > 0 && audio.paused && !audio.ended) void audio.play().catch(() => setOn(false));
+    if (target > 0 && audio.paused && !audio.ended) {
+      // An AbortError only means a pause overtook this play (scrolled away again); Listen stays on.
+      void audio.play().catch((error: unknown) => {
+        if (!(error instanceof DOMException && error.name === 'AbortError')) setOn(false);
+      });
+    }
     if (target === 0 && !audio.paused) {
       window.setTimeout(() => {
         if (level() === 0) audio?.pause();
@@ -236,17 +252,11 @@ function createSound(section: HTMLElement, button: HTMLButtonElement | null): So
   }
 
   function setOn(next: boolean): void {
-    on = next;
+    on = next && ensureAudio() !== undefined;
     button?.setAttribute('aria-pressed', String(on));
     section.toggleAttribute('data-sound', on);
-    if (on) {
-      const el = ensureAudio();
-      if (!el) {
-        on = false;
-        button?.setAttribute('aria-pressed', 'false');
-        return;
-      }
-      if (el.ended) el.currentTime = 0;
+    if (on && audio) {
+      if (audio.ended) audio.currentTime = 0;
       void ctx?.resume();
     }
     ramp();

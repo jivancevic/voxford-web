@@ -12,7 +12,7 @@
     "hint": "Skrolajte ili dodirnite glas da ga upalite.",
     "listen": "Poslušajte",
     "voicesLabel": "Pet glasova, redom kako stoje na pozornici",
-    "resolve": "Pet glasova i ništa više. Snimka je naš Carol of the Bells: {views} pregleda.",
+    "resolve": "Pet glasova i ništa više. Ovo je naš Carol of the Bells, pjesma našeg najgledanijeg videa ({views} pregleda).",
     "credit": "Portreti: {credit}"
   },
   "proof": {
@@ -22,7 +22,7 @@
   },
   "rooms": {
     "heading": "Glazba za konferencije i poslovne događaje u Zagrebu",
-    "body": "Otvaramo konferencije, nosimo gala večeri dodjele nagrada i pretvaramo pauzu u dio koji svi snimaju. Ne treba graditi pozornicu ni smjestiti bend: pet pjevača za mikrofonima, od nastupa od {shortest} minuta do cijelog koncerta.",
+    "body": "Otvaramo konferencije, pjevamo na gala večerima dodjele nagrada i ispunjavamo pauze između predavanja. Ne treba graditi pozornicu ni smjestiti bend: pet pjevača za mikrofonima, od nastupa od {shortest} minuta do cijelog koncerta.",
     "conferencesLink": "Konferencije i poslovni događaji",
     "listLabel": "Zovu nas i za",
     "weddings": "Obred, prvi ples, zdravica.",

@@ -12,7 +12,7 @@
     "hint": "Scroll, or tap a voice to light it.",
     "listen": "Listen",
     "voicesLabel": "The five voices, in stage order",
-    "resolve": "Five voices and nothing else. The recording is our Carol of the Bells: {views} views.",
+    "resolve": "Five voices and nothing else. This is our Carol of the Bells, the song of our most watched video ({views} views).",
     "credit": "Portraits: {credit}"
   },
   "proof": {
@@ -22,7 +22,7 @@
   },
   "rooms": {
     "heading": "Music for conferences and corporate events in Zagreb",
-    "body": "We open conferences, carry award galas and turn a break into the part people film. There is no stage to build and no band to place: five singers at microphones, from a {shortest}-minute moment to a full concert.",
+    "body": "We open conferences, sing at award galas and fill the breaks between sessions. There is no stage to build and no band to place: five singers at microphones, from a {shortest}-minute moment to a full concert.",
     "conferencesLink": "Conferences and corporate events",
     "listLabel": "Also booked for",
     "weddings": "The ceremony, the first dance, the toast.",
