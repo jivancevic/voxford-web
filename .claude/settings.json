@@ -1,3 +1,10 @@
 {
-  "worktree": { "bgIsolation": "worktree" }
+  "worktree": {
+    "bgIsolation": "worktree"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(gh pr merge --auto --squash)"
+    ]
+  }
 }
