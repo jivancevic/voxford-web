@@ -198,6 +198,12 @@ const Heading = `h${headingLevel}` as const;
     box-shadow: var(--glow-pink), var(--glow-blue);
   }
 
+  /* Inline: no link wraps the card, so the card itself spaces frame and text. */
+  .video-card--inline {
+    display: grid;
+    gap: var(--space-3);
+  }
+
   /* Inline: the poster (a link without JS) and, with JS, a button over the
      whole frame; the play mark sits under the button and lights with it. */
   .video-card__poster {
