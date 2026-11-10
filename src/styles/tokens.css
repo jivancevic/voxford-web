@@ -66,6 +66,13 @@
   --glow-pink: 0 0 2.5rem color-mix(in oklab, var(--brand-pink) 45%, transparent);
   --glow-purple: 0 0 4rem color-mix(in oklab, var(--brand-purple) 55%, transparent);
   --glow-blue: 0 0 4rem color-mix(in oklab, var(--brand-blue) 60%, transparent);
+  /* Stage light falling into a corner (the stub of a concert ticket). */
+  --glow-corner: radial-gradient(
+    120% 90% at 0% 0%,
+    color-mix(in oklab, var(--brand-pink) 22%, transparent),
+    color-mix(in oklab, var(--brand-purple) 10%, transparent) 45%,
+    transparent 75%
+  );
   --line-thin: 1px;
 
   /* ---- Type families ---- */
@@ -85,6 +92,7 @@
   --text-display: clamp(3rem, 1.8rem + 5.6vw, 6.5rem); /* h1: 48 → 104 */
   --text-wordmark: 1.5rem; /* the VOXFORD wordmark in the header */
   --text-numeral: clamp(4rem, 2rem + 8vw, 9rem); /* one big Staubach number per screen */
+  --text-date: clamp(3.25rem, 2.4rem + 2.6vw, 5rem); /* the day on a concert ticket: 52 → 80 */
 
   --leading-display: 1;
   --leading-heading: 1.1;

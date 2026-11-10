@@ -1,5 +1,5 @@
 {
-  "name": "Turistička zajednica Grada Crikvenice",
+  "name": { "en": "Tourist Board of Crikvenica", "hr": "Turistička zajednica Grada Crikvenice" },
   "kind": "tourist-board",
   "logo": "../../assets/references/tz-crikvenica.png",
   "mono": "silhouette",

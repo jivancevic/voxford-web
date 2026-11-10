@@ -1,12 +1,15 @@
 ---
 // Site header: crest home link, primary nav, language switch, the one pill.
 // Works with no JavaScript: on narrow screens the nav is a native <details> menu.
+// A page with a short header label (`common.navShort`) uses it here only; the
+// footer, titles and breadcrumbs keep the full name.
 import Crest from '@/components/Crest.astro';
 import { GROUP } from '@/data/site-facts';
 import InquiryCTA from '@/components/InquiryCTA.astro';
 import LanguageSwitch from '@/components/LanguageSwitch.astro';
 import { getStrings, type Locale } from '@/i18n';
 import { NAV_PAGES, pathFor, type PageKey } from '@/i18n/routes';
+import { withoutEmptyConcerts } from '@/lib/concerts';
 
 interface Props {
   lang: Locale;
@@ -16,6 +19,8 @@ interface Props {
 
 const { lang, page, alternates } = Astro.props;
 const t = getStrings(lang);
+const short: Partial<Record<PageKey, string>> = t.common.navShort;
+const items = (await withoutEmptyConcerts(NAV_PAGES)).map((p) => ({ page: p, label: short[p] ?? t.common.nav[p] }));
 ---
 
 <header class="header">
@@ -28,10 +33,10 @@ const t = getStrings(lang);
     <nav class="header__wide" aria-label={t.common.a11y.mainNav}>
       <ul class="header__nav">
         {
-          NAV_PAGES.map((p) => (
+          items.map((n) => (
             <li>
-              <a href={pathFor(p, lang)} aria-current={p === page ? 'page' : undefined}>
-                {t.common.nav[p]}
+              <a href={pathFor(n.page, lang)} aria-current={n.page === page ? 'page' : undefined}>
+                {n.label}
               </a>
             </li>
           ))
@@ -44,10 +49,10 @@ const t = getStrings(lang);
       <nav aria-label={t.common.a11y.mainNav}>
         <ul class="header__nav">
           {
-            NAV_PAGES.map((p) => (
+            items.map((n) => (
               <li>
-                <a href={pathFor(p, lang)} aria-current={p === page ? 'page' : undefined}>
-                  {t.common.nav[p]}
+                <a href={pathFor(n.page, lang)} aria-current={n.page === page ? 'page' : undefined}>
+                  {n.label}
                 </a>
               </li>
             ))
@@ -155,9 +160,10 @@ const t = getStrings(lang);
     margin-inline: auto;
   }
 
+  /* Eight items fit from 72rem up (#40): the gaps close from 24px at 1500px to 12px at 1152px. */
   .header__wide .header__nav {
     display: flex;
-    gap: var(--space-5);
+    gap: clamp(var(--space-3), 4vw - 2.25rem, var(--space-5));
   }
 
   /* Narrow: a native <details> menu (no JavaScript); the nav drops below the bar. */

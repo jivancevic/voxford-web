@@ -77,4 +77,18 @@ describe('content copy (ticket C)', () => {
       }
     }
   });
+
+  it('recent public concerts on the Advent page are listed newest first (Josip, #40)', () => {
+    for (const lang of LOCALES) {
+      const past: { year: string }[] = JSON.parse(read(`../i18n/${lang}/content.json`)).advent.past;
+      // A range ("2023 to 2025") counts by its last year.
+      const years = past.map((p) => Number(p.year.match(/\d{4}/g)?.at(-1)));
+      expect(years.every((y) => Number.isInteger(y)), lang).toBe(true);
+      expect(years, lang).toEqual([...years].sort((a, b) => b - a));
+    }
+  });
+
+  it('never mentions La Nuit des Chœurs: it did not happen (Josip, #40)', () => {
+    for (const file of files) expect(read(file), file).not.toMatch(/Nuit des|Ch(œ|oe)urs/i);
+  });
 });

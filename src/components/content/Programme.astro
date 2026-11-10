@@ -1,7 +1,8 @@
 ---
 // Where Voxford fits in an event, in running order (the order carries the
-// meaning, so it is an <ol> along a line of light). Each moment names its
-// package and links to it on the packages page.
+// meaning, so it is an <ol> along a line of light). A moment that is a package
+// names it and links to it on the packages page; one that is not (a wedding
+// ceremony lasts as long as the ceremony) carries a short `note` instead.
 import { PACKAGES } from '@/data/site-facts';
 import type { Locale } from '@/i18n';
 import { pathFor } from '@/i18n/routes';
@@ -12,11 +13,12 @@ interface Props {
   id: string;
   heading: string;
   intro?: string;
-  moments: readonly { title: string; package: string; body: string }[];
+  moments: readonly { title: string; package?: string; note?: string; body: string }[];
 }
 
 const { lang, id, heading, intro, moments } = Astro.props;
 const items = moments.map((m) => {
+  if (m.package === undefined) return { ...m, pkg: undefined };
   const pkg = PACKAGES.find((p) => p.key === m.package);
   if (!pkg) throw new Error(`Unknown package "${m.package}" in content copy`);
   return { ...m, pkg };
@@ -33,12 +35,20 @@ const items = moments.map((m) => {
       items.map((m) => (
         <li class="programme__item">
           <h3 class="programme__title">{m.title}</h3>
-          <p class="programme__meta">
-            <a class="display programme__pkg" href={`${pathFor('packages', lang)}#${m.pkg.key}`}>
-              {m.pkg.name}
-            </a>
-            <span class="label">{packageDuration(m.pkg, lang)}</span>
-          </p>
+          {m.pkg ? (
+            <p class="programme__meta">
+              <a class="display programme__pkg" href={`${pathFor('packages', lang)}#${m.pkg.key}`}>
+                {m.pkg.name}
+              </a>
+              <span class="label">{packageDuration(m.pkg, lang)}</span>
+            </p>
+          ) : (
+            m.note && (
+              <p class="programme__meta">
+                <span class="label">{m.note}</span>
+              </p>
+            )
+          )}
           <p class="programme__body">{fillFacts(m.body, lang)}</p>
         </li>
       ))
@@ -112,14 +122,20 @@ const items = moments.map((m) => {
     gap: var(--space-3);
   }
 
+  /* Content, not a default link (#40): no underline at rest, it comes in on hover and focus. */
   .programme__pkg {
     font-size: var(--text-lead);
     color: var(--color-text);
-    text-decoration-color: color-mix(in oklab, var(--brand-pink) 70%, transparent);
+    text-decoration-line: underline;
+    text-decoration-color: transparent;
+    text-decoration-thickness: var(--line-thin);
+    text-underline-offset: 0.2em;
+    transition: text-decoration-color var(--duration-fast) var(--ease-out);
   }
 
-  .programme__pkg:hover {
-    color: var(--color-text-accent);
+  .programme__pkg:hover,
+  .programme__pkg:focus-visible {
+    text-decoration-color: var(--color-text-accent);
   }
 
   .programme__body {

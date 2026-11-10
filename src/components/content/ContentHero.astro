@@ -3,7 +3,6 @@
 // (prefilled per page type) and, when given, a photo with its label and credit.
 // The h1 and lead are plain text in the HTML, so crawlers read the answer first.
 import InquiryCTA from '@/components/InquiryCTA.astro';
-import Pill from '@/components/Pill.astro';
 import type { PhotoKey } from '@/data/photos';
 import type { Locale } from '@/i18n';
 import type { InquiryPrefill } from '@/lib/inquiry-url';
@@ -15,21 +14,32 @@ interface Props {
   lead: string;
   photo?: PhotoKey;
   prefill?: InquiryPrefill;
-  /** A second, quieter link next to the inquiry pill. */
+  /** A second, quieter link next to the inquiry pill: an arrow link, since the pill is the block's one primary action (#40). */
   secondary?: { href: string; label: string };
+  /** The photo's frame, default 4 / 5; a landscape stage photo with all five in it wants 3 / 2. */
+  photoRatio?: string;
 }
 
-const { lang, heading, lead, photo, prefill, secondary } = Astro.props;
+const { lang, heading, lead, photo, prefill, secondary, photoRatio } = Astro.props;
 ---
 
-<header class:list={['content-hero container', photo ? 'content-hero--photo' : 'content-hero--plain']}>
+<header
+  class:list={['content-hero container', photo ? 'content-hero--photo' : 'content-hero--plain', photoRatio && 'content-hero--landscape']}
+  style={photoRatio ? { '--hero-ratio': photoRatio } : undefined}
+>
   <div class="content-hero__text">
     <h1>{heading}</h1>
     <span class="light-line content-hero__line" aria-hidden="true"></span>
     <p class="lead content-hero__lead">{lead}</p>
     <div class="content-hero__actions">
       <InquiryCTA lang={lang} prefill={prefill} />
-      {secondary && <Pill href={secondary.href} variant="ghost">{secondary.label}</Pill>}
+      {
+        secondary && (
+          <a class="arrow-link" href={secondary.href}>
+            {secondary.label}
+          </a>
+        )
+      }
     </div>
   </div>
   {
@@ -75,12 +85,13 @@ const { lang, heading, lead, photo, prefill, secondary } = Astro.props;
   .content-hero__actions {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-3);
+    align-items: center;
+    gap: var(--space-3) var(--space-6);
     padding-block-start: var(--space-2);
   }
 
   .content-hero :global(.content-hero__photo) {
-    --photo-ratio: 4 / 5;
+    --photo-ratio: var(--hero-ratio, 4 / 5);
     position: relative;
   }
 
@@ -104,6 +115,12 @@ const { lang, heading, lead, photo, prefill, secondary } = Astro.props;
       align-items: center;
       gap: var(--space-8);
       padding-block: var(--space-9) var(--space-8);
+    }
+
+    /* A landscape photo takes the wider column, or it shrinks to a stamp. */
+    .content-hero--landscape {
+      grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+      gap: var(--space-7);
     }
 
     .content-hero--plain {

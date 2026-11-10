@@ -1,5 +1,5 @@
 {
-  "name": "Turistička zajednica Podgora",
+  "name": { "en": "Tourist Board of Podgora", "hr": "Turistička zajednica Podgora" },
   "kind": "tourist-board",
   "logo": "../../assets/references/tz-podgora.png",
   "mono": "silhouette",

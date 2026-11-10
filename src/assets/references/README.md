@@ -29,7 +29,6 @@ Unisport Hrvatska (no Zaklada UniSport Srce), `efzg.svg` got a `viewBox`, PNG me
 | `borotalco.png` | https://www.borotalco.com/wp-content/uploads/2026/04/Logo_BT_trasparente-2026.png | https://www.borotalco.com/it/ |
 | `argentum.svg` | https://argentum.hr/media/images/logo.svg | https://argentum.hr/ |
 | `adiva.png` | https://www.adiva.hr/wp-content/themes/olympos/images/adiva-logo-bez-podnaslova.png (trimmed, resized to 1000 px) | https://www.adiva.hr/ |
-| `nuit-des-choeurs.png` | https://static.wixstatic.com/media/4819dd_52029d78ec4040e6bbc8a45c0f39f2fc~mv2.png/v1/crop/x_26,y_0,w_486,h_366/LOGO_NDC.png | https://www.nuitdeschoeurs.be/ |
 | `tz-vis.png` | https://www.vis-tourism.com/wp-content/uploads/2024/05/tz-vis-logotip.png | https://www.vis-tourism.com/hr/ |
 | `tz-crikvenica.png` | https://www.rivieracrikvenica.com/sites/all/themes/rc2016/logo.png | https://www.rivieracrikvenica.com/ |
 | `tz-ivanic-grad.svg` | https://static.wixstatic.com/shapes/bd334d_b45c703518434648a8e5e9930e07b550.svg | https://www.tzig.hr/ |

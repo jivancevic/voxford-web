@@ -25,6 +25,9 @@
     "concerts": "Nadolazeći koncerti",
     "inquiry": "Upit"
   },
+  "navShort": {
+    "concerts": "Koncerti"
+  },
   "cta": {
     "inquiry": "Pošalji upit"
   },

@@ -50,4 +50,9 @@ export function format(template: string, values: Record<string, string | number>
   );
 }
 
+/** A value that is the same in every language, or one per language: the one for `lang`. */
+export function inLang(value: string | Readonly<Record<Locale, string>>, lang: Locale): string {
+  return typeof value === 'string' ? value : value[lang];
+}
+
 export { LOCALES, DEFAULT_LOCALE, isLocale, LOCALE_META, type Locale } from './locales';

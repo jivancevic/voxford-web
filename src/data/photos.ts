@@ -10,6 +10,7 @@
 import type { ImageMetadata } from 'astro';
 import type { Locale } from '@/i18n/locales';
 
+import arenaDalmatino from '@/assets/photos/arena-dalmatino.jpg';
 import crikvenicaPiano from '@/assets/photos/crikvenica-piano.jpg';
 import hakMore from '@/assets/photos/hak-more.jpg';
 import hakStage from '@/assets/photos/hak-stage.jpg';
@@ -80,6 +81,15 @@ export const PHOTOS = {
     },
     label: { en: 'CORPORATE EVENT · ZAGREB · 2026', hr: 'POSLOVNI DOGAĐAJ · ZAGREB · 2026' },
     source: 'Drive › 2026 HAK Esplanade › hak-120-full-373.jpg (1l9QnXjAUcmSZ-f5wSWgn4-c07nIwXbso)',
+  },
+  arenaDalmatino: {
+    src: arenaDalmatino,
+    alt: {
+      en: 'The five singers of Voxford at microphones on a big concert stage in blue light',
+      hr: 'Petorka Voxforda za mikrofonima na velikoj koncertnoj pozornici, u plavom svjetlu',
+    },
+    label: { en: 'ARENA ZAGREB · 2025', hr: 'ARENA ZAGREB · 2025' },
+    source: "Josip, 2026-11-11 (#40): WhatsApp photo from Dalmatino's concert at Arena Zagreb, 2025; his own, no credit",
   },
   crikvenicaPiano: {
     src: crikvenicaPiano,
