@@ -10,7 +10,7 @@ The site is one Worker, `voxford-web`, with the Astro build (`dist/`) as static 
 | Deploy (`main`) | `npm run deploy` or the dashboard default `npx wrangler deploy`; both report the commit | Deploy command |
 | Preview (other branches) | the dashboard default `npx wrangler preview` (needs the `previews` block in `wrangler.jsonc`) or `npx wrangler versions upload` | Non-production branch deploy command |
 
-Build variables (Workers Builds › Settings › Build › Variables): `SITE_URL` = the production origin without a trailing slash (until ticket G the `https://voxford-web.<subdomain>.workers.dev` URL), `SITE_INDEXABLE` unset until the domain is live, `NODE_VERSION` = `26`.
+Build variables (Workers Builds › Settings › Build › Variables): `SITE_URL` = the production origin without a trailing slash (until ticket G `https://voxford-web.josip-ivancevic00.workers.dev`), `SITE_INDEXABLE` unset until the domain is live, `NODE_VERSION` = `26`.
 
 `/healthz` reports the deployed commit, which the `smoke` workflow compares with the merged commit. Workers Builds sets `WORKERS_CI_COMMIT_SHA`; `scripts/build-info.mjs` writes it into `worker/build-info.ts` before the Astro build, so the commit is in the bundle whichever deploy command runs (`COMMIT_SHA` from `npm run deploy` wins when set). Locally the file stays empty and `/healthz` says `"commit": null`.
 
@@ -18,7 +18,7 @@ Build variables (Workers Builds › Settings › Build › Variables): `SITE_URL
 
 1. Log wrangler in to the Cloudflare account that should own the site: `npx wrangler logout && npx wrangler login`, then `npx wrangler whoami` shows that account.
 2. Dashboard › Workers & Pages › Create › Import a repository › `jivancevic/voxford-web`, project name `voxford-web`, production branch `main`, the commands and variables above.
-3. After the first deploy, copy the `workers.dev` URL into the build variable `SITE_URL` and into the GitHub repository variable `PRODUCTION_URL` (`gh variable set PRODUCTION_URL --repo jivancevic/voxford-web --body https://voxford-web.<subdomain>.workers.dev`), then redeploy.
+3. After the first deploy, copy the `workers.dev` URL into the build variable `SITE_URL` and into the GitHub repository variable `PRODUCTION_URL` (`gh variable set PRODUCTION_URL --repo jivancevic/voxford-web --body "https://voxford-web.josip-ivancevic00.workers.dev"`, with the scheme: `smoke` calls `$PRODUCTION_URL/healthz` as is), then redeploy.
 4. Branch protection, auto-merge and the merge permission: see *Ready for auto-merge* below.
 
 ## Ready for auto-merge
@@ -60,7 +60,7 @@ gh api repos/jivancevic/voxford-web --jq .allow_auto_merge
 jq -e '.permissions.allow | index("Bash(gh pr merge --auto --squash)")' .claude/settings.json
 ```
 
-State on 2026-11-10 (ticket A): no branch protection (404), `allow_auto_merge: false`, no allow entry, Workers Builds not connected.
+State on 2026-11-10, read back after ticket A: Workers Builds connected on Josip's Cloudflare account (workers.dev subdomain `josip-ivancevic00`); branch protection requires `ci` and `Workers Builds: voxford-web` (`strict: false`, `enforce_admins: false`); `allow_auto_merge: true`; the allow entry is in `.claude/settings.json` (#16). Ready for `/ship`.
 
 ## Post-merge check
 
@@ -118,7 +118,7 @@ Locally: `cp .dev.vars.example .dev.vars` gives Cloudflare's always-pass test se
    ```bash
    ( set +x
      out=$(npx wrangler turnstile widget create "voxford-web inquiry" \
-       --domain voxford-web.<subdomain>.workers.dev --mode invisible --json)
+       --domain voxford-web.josip-ivancevic00.workers.dev --mode invisible --json)
      printf '%s' "$out" | jq -r .sitekey
      printf '%s' "$out" | jq -r .secret | npx wrangler secret put TURNSTILE_SECRET --name voxford-web
      unset out )
@@ -128,7 +128,7 @@ Locally: `cp .dev.vars.example .dev.vars` gives Cloudflare's always-pass test se
 2. Put the printed site key in the Workers Builds build variable `PUBLIC_TURNSTILE_SITE_KEY` and redeploy (it is baked into the static page).
 3. Check: `npx wrangler secret list --name voxford-web` lists `TURNSTILE_SECRET`.
 
-Preview version URLs (`<version>-voxford-web.<subdomain>.workers.dev`) are not on the widget, so their form always takes the mailto fallback. That is expected.
+Preview version URLs (`<version>-voxford-web.josip-ivancevic00.workers.dev`) are not on the widget, so their form always takes the mailto fallback. That is expected.
 
 ### Email Sending (with ticket G, after the domain is on Cloudflare)
 
@@ -138,7 +138,7 @@ Sending only to a verified address in the account is free on every plan, so the 
 npx wrangler email sending enable <domain>
 npx wrangler email routing addresses create voxford.official@gmail.com   # then click the link in that inbox
 npx wrangler email sending list                                         # <domain> is listed
-npx wrangler turnstile widget update <sitekey> --domain <domain> --domain voxford-web.<subdomain>.workers.dev --mode invisible
+npx wrangler turnstile widget update <sitekey> --domain <domain> --domain voxford-web.josip-ivancevic00.workers.dev --mode invisible
 ```
 
 Then, in a PR, add to `wrangler.jsonc`:
