@@ -64,6 +64,7 @@
     "upcomingHeading": "Nadolazeći koncerti",
     "all": "Svi nadolazeći koncerti",
     "eventPage": "Stranica događaja",
+    "organizer": "Organizator: {name}",
     "empty": "Trenutno nema najavljenih javnih koncerata. Novi datumi pojavit će se ovdje i na {handle}.",
     "publicOnly": "Samo javni koncerti. Poslovne događaje i privatne proslave ovdje ne objavljujemo."
   },
