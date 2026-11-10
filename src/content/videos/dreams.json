@@ -9,9 +9,9 @@
   },
   "poster": "../../assets/videos/dreams.jpg",
   "uploadDate": "2025-10-08",
-  "dateKind": "recorded",
+  "dateKind": "file",
   "duration": "PT27S",
   "media": "top/dreams/79a3f596",
   "order": 30,
-  "source": "uploadDate: creation date of the original file (~/Downloads/voxford-top-videos); song identified from its audio and the TikToks audio mixes on Drive (brand/mediji-inventar.md)"
+  "source": "uploadDate: creation date of the exported video file (~/Downloads/voxford-top-videos), not shown on the page: no second source confirms the recording month (Drive audio mixes 'Dreams .wav' 2024-11 and 'Dreams kratki.wav' 2025-07 do not match it; checked in ticket F, 2026-11-10); song identified from its audio and the TikToks audio mixes on Drive (brand/mediji-inventar.md)"
 }

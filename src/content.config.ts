@@ -74,8 +74,12 @@ const videos = defineCollection({
       poster: image(),
       /** ISO 8601 date: the Instagram post date, or the original file's creation date when that is unknown. */
       uploadDate: z.string().regex(/^\d{4}-\d{2}-\d{2}/),
-      /** Which of the two `uploadDate` is: the page says "Published" or "Recorded" accordingly. */
-      dateKind: z.enum(['published', 'recorded']),
+      /**
+       * What `uploadDate` is: the post date ("Published"), a recording month a
+       * second source confirms ("Recorded"), or only the file's date, which the
+       * page does not show ('file'; JSON-LD still needs an uploadDate).
+       */
+      dateKind: z.enum(['published', 'recorded', 'file']),
       /** ISO 8601 duration, e.g. PT38S. */
       duration: z.string().regex(/^PT\d+S$/),
       /**

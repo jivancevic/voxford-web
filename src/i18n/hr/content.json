@@ -289,7 +289,7 @@
     "serviceType": "Adventski i ljetni koncerti za gradove i turističke zajednice"
   },
   "private": {
-    "lead": "{disambiguation}. Rođendani, obljetnice i obiteljska slavlja: uđemo kao iznenađenje do {popUpMax} minuta ili gostima održimo cijeli koncert.",
+    "lead": "{disambiguation}. Na privatnoj proslavi uđemo kao iznenađenje do {popUpMax} minuta ili gostima održimo cijeli koncert.",
     "facts": [
       {
         "term": "Iznenađenje",

@@ -52,7 +52,20 @@ const title = heading === false ? undefined : (heading ?? t.videos.references.he
                 decoding="async"
               />
             ) : (
-              <span class="references__name">{e.data.name}</span>
+              <span class="references__name">
+                {/* "Bruketa&Žinić&Grey" has no spaces: let it break after each "&" inside its cell. */}
+                {e.data.name.split('&').map((part, i) => (
+                  <>
+                    {i > 0 && (
+                      <>
+                        &amp;
+                        <wbr />
+                      </>
+                    )}
+                    {part}
+                  </>
+                ))}
+              </span>
             )}
           </li>
         ))}
@@ -134,6 +147,7 @@ const title = heading === false ? undefined : (heading ?? t.videos.references.he
     letter-spacing: var(--tracking-label);
     text-transform: uppercase;
     text-align: center;
+    text-wrap: balance;
     color: var(--color-text-secondary);
   }
 

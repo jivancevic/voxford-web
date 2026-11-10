@@ -247,9 +247,9 @@ const mailtoPlain = `mailto:${GROUP.email}`;
           <input id={id('website')} name={FIELD.honeypot} type="text" tabindex="-1" autocomplete="off" />
         </div>
 
-        <div class="inquiry-form__turnstile" data-turnstile data-sitekey={TURNSTILE_SITE_KEY}></div>
-
         <div class="inquiry-form__send">
+          {/* Inside the send block: the invisible widget is 0 px tall, so it must not add a form-level gap. */}
+          <div class="inquiry-form__turnstile" data-turnstile data-sitekey={TURNSTILE_SITE_KEY}></div>
           <Pill type="submit" class="inquiry-form__submit" data-submit data-label-busy={s.sending}>
             <span data-submit-label>{t.common.cta.inquiry}</span>
           </Pill>

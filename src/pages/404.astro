@@ -1,39 +1,6 @@
 ---
-// The one 404 page (Workers assets serve it for any missing path). Path-less,
-// so it is written in EN with the HR line beside it.
-import Pill from '@/components/Pill.astro';
-import { getStrings } from '@/i18n';
-import { pathFor } from '@/i18n/routes';
-import BaseLayout from '@/layouts/BaseLayout.astro';
-
-const en = getStrings('en').common.notFound;
-const hr = getStrings('hr').common.notFound;
+// The 404 for every path outside /hr/ (src/views/NotFoundView.astro).
+import NotFoundView from '@/views/NotFoundView.astro';
 ---
 
-<BaseLayout lang="en" title={en.title} description={getStrings('en').common.meta.defaultDescription} noindex>
-  <section class="nf container">
-    <p class="numeral" aria-hidden="true">404</p>
-    <h1>{en.title}</h1>
-    <p class="lead">{en.body}</p>
-    <p class="lead" lang="hr">{hr.title}. {hr.body}</p>
-    <div class="nf__actions">
-      <Pill href={pathFor('home', 'en')}>{en.back}</Pill>
-      <Pill href={pathFor('home', 'hr')} variant="ghost" lang="hr">{hr.back}</Pill>
-    </div>
-  </section>
-</BaseLayout>
-
-<style>
-  .nf {
-    display: grid;
-    gap: var(--space-5);
-    justify-items: start;
-    padding-block: var(--space-9);
-  }
-
-  .nf__actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-3);
-  }
-</style>
+<NotFoundView lang="en" />

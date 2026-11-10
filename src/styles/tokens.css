@@ -94,7 +94,8 @@
   --tracking-display: 0.01em; /* condensed caps want a hair of air */
   --tracking-label: 0.14em;
 
-  --measure: 65ch;
+  /* ~75 characters of body copy: Instrument Sans has a wide "0", so 65ch ran to ~95. */
+  --measure: 36rem;
 
   /* ---- Space (4px base) ---- */
   --space-1: 0.25rem;
@@ -120,6 +121,9 @@
   --duration-fast: 160ms;
   --duration-base: 320ms;
   --z-header: 50;
+  /* The sticky header's bar, plus its light line (SiteHeader.astro). Pinned stages sit under it. */
+  --header-bar: 4.5rem;
+  --header-h: calc(var(--header-bar) + var(--line-thin));
 }
 
 /* A white section ("the hall with the lights on"): repoints the semantic tokens. */

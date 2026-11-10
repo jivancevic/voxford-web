@@ -59,29 +59,32 @@ const rows: { label: string; cell: (p: Package) => string }[] = [
     <section class="container compare" aria-labelledby="compare-heading">
       <h2 id="compare-heading">{pk.compareHeading}</h2>
       <div class="compare__scroll" tabindex="0" role="region" aria-labelledby="compare-heading">
-        <table class="compare__table">
+        {/* Explicit roles: below 40rem the cells reflow into a grid, and display changes drop native table semantics in WebKit. */}
+        <table class="compare__table" role="table">
           <caption class="visually-hidden">{pk.compareCaption}</caption>
-          <thead>
-            <tr>
-              <td></td>
+          <thead role="rowgroup">
+            <tr role="row">
+              <td role="cell"></td>
               {
                 PACKAGES.map((p) => (
-                  <th scope="col" class="display">
+                  <th scope="col" class="display" role="columnheader">
                     {p.name}
                   </th>
                 ))
               }
             </tr>
           </thead>
-          <tbody>
+          <tbody role="rowgroup">
             {
               rows.map((r) => (
-                <tr>
-                  <th scope="row" class="label">
+                <tr role="row">
+                  <th scope="row" class="label" role="rowheader">
                     {r.label}
                   </th>
                   {PACKAGES.map((p) => (
-                    <td>{r.cell(p)}</td>
+                    <td role="cell" data-package={p.name}>
+                      {r.cell(p)}
+                    </td>
                   ))}
                 </tr>
               ))
@@ -143,5 +146,61 @@ const rows: { label: string; cell: (p: Package) => string }[] = [
 
   .compare__table td {
     color: var(--color-text);
+  }
+
+  /* Phones: no sideways-scrolling table. Each row is its label over three
+     cells side by side, each cell named by its package. */
+  @media (width < 40rem) {
+    .compare__scroll {
+      overflow: visible;
+    }
+
+    .compare__table {
+      display: block;
+      min-inline-size: 0;
+    }
+
+    .compare__table thead {
+      display: none;
+    }
+
+    .compare__table tbody {
+      display: grid;
+    }
+
+    .compare__table tr {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      column-gap: var(--space-3);
+      padding-block: var(--space-4);
+      border-block-end: var(--line-thin) solid var(--color-border);
+    }
+
+    .compare__table th,
+    .compare__table td {
+      display: block;
+      padding: 0;
+      border: 0;
+    }
+
+    .compare__table tbody th {
+      grid-column: 1 / -1;
+      inline-size: auto;
+      padding-block-end: var(--space-3);
+    }
+
+    .compare__table td {
+      font-size: var(--text-small);
+    }
+
+    .compare__table td::before {
+      content: attr(data-package);
+      display: block;
+      margin-block-end: var(--space-1);
+      font-family: var(--font-display);
+      font-size: var(--text-body);
+      line-height: var(--leading-heading);
+      color: var(--color-text-secondary);
+    }
   }
 </style>

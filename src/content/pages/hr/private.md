@@ -1,6 +1,6 @@
 ---
 title: "A cappella za privatne proslave"
-description: "Rođendani, obljetnice i obiteljska slavlja uz Voxford: kratko iznenađenje ili cijeli koncert, u Zagrebu, diljem Hrvatske i u regiji."
+description: "Voxford na Vašoj privatnoj proslavi: kratko a cappella iznenađenje ili cijeli koncert, u Zagrebu, diljem Hrvatske i u regiji."
 heading: "Privatne proslave"
 source: "posao/ponuda/ponuda.md, CONTEXT.md › Privatni naručitelj, Predujam, posao/rideri/rideri.md"
 ---

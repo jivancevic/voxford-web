@@ -23,12 +23,12 @@
   },
   "rooms": {
     "heading": "Glazba za konferencije i poslovne događaje u Zagrebu",
-    "body": "Otvaramo konferencije, pjevamo na gala večerima dodjele nagrada i ispunjavamo pauze između predavanja. Ne treba graditi pozornicu ni smjestiti bend: pet pjevača za mikrofonima, od nastupa do {shortest} minuta do cijelog koncerta.",
+    "body": "Otvaramo konferencije, pjevamo na gala večerima dodjele nagrada i vraćamo se s kratkim nastupima između predavanja. Ne treba graditi pozornicu: pet pjevača za mikrofonima, od nastupa do {shortest} minuta do cijelog koncerta. Za najduži nastup sami donosimo klavir i cajon.",
     "conferencesLink": "Konferencije i poslovni događaji",
     "listLabel": "Zovu nas i za",
     "weddings": "Obred, iznenađenje za mladence ili cijela večer.",
     "advent": "Adventske pozornice i ljetni koncerti za gradove i turističke zajednice.",
-    "private": "Rođendani, godišnjice i proslave kod kuće."
+    "private": "Kratko iznenađenje za Vaše goste ili cijeli koncert."
   },
   "encore": {
     "heading": "Dovedite pet glasova na svoj događaj.",

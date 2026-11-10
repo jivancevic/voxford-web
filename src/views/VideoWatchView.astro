@@ -78,7 +78,9 @@ const others = (await getCollection('videos')).filter((v) => v.id !== video.id).
     </div>
 
     <div class="watch__text">
-      <p class="label"><a href={pathFor('videos', lang)}>{t.videos.watch.back}</a></p>
+      <p class="watch__back">
+        <a href={pathFor('videos', lang)}><span aria-hidden="true">← </span>{t.videos.watch.back}</a>
+      </p>
       <h1 class="watch__title">{title}</h1>
       <span class="light-line watch__line" aria-hidden="true"></span>
       <p class="lead">{description}</p>
@@ -95,10 +97,16 @@ const others = (await getCollection('videos')).filter((v) => v.id !== video.id).
           <dt class="label">{t.videos.watch.length}</dt>
           <dd>{formatDuration(video.data.duration)}</dd>
         </div>
-        <div>
-          <dt class="label">{video.data.dateKind === 'published' ? t.videos.watch.uploaded : t.videos.watch.recorded}</dt>
-          <dd><time datetime={video.data.uploadDate}>{uploaded}</time></dd>
-        </div>
+        {
+          video.data.dateKind !== 'file' && (
+            <div>
+              <dt class="label">{video.data.dateKind === 'published' ? t.videos.watch.uploaded : t.videos.watch.recorded}</dt>
+              <dd>
+                <time datetime={video.data.uploadDate}>{uploaded}</time>
+              </dd>
+            </div>
+          )
+        }
       </dl>
       <p class="watch__note">{t.videos.watch.soundNote}</p>
       {
@@ -194,7 +202,7 @@ const others = (await getCollection('videos')).filter((v) => v.id !== video.id).
 
   .watch__number {
     display: grid;
-    gap: var(--space-1);
+    gap: var(--space-2);
   }
 
   .watch__facts {
@@ -256,5 +264,20 @@ const others = (await getCollection('videos')).filter((v) => v.id !== video.id).
     .watch-more__list {
       grid-template-columns: repeat(4, minmax(0, 1fr));
     }
+  }
+
+  /* A plain way back, not a tracked-caps eyebrow over the title. */
+  .watch__back {
+    font-size: var(--text-small);
+  }
+
+  .watch__back a {
+    color: var(--color-text-secondary);
+    text-decoration: none;
+  }
+
+  .watch__back a:hover {
+    color: var(--color-text);
+    text-decoration: underline;
   }
 </style>

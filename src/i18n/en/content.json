@@ -289,7 +289,7 @@
     "serviceType": "Advent and summer concerts for cities and tourist boards"
   },
   "private": {
-    "lead": "{disambiguation}. Birthdays, anniversaries and family celebrations: we walk in as a surprise of up to {popUpMax} minutes or give the guests a full concert.",
+    "lead": "{disambiguation}. At a private celebration we walk in as a surprise of up to {popUpMax} minutes or give the guests a full concert.",
     "facts": [
       {
         "term": "Surprise",
