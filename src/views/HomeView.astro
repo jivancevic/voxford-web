@@ -708,10 +708,10 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
     display: block;
   }
 
+  /* Plain text on a soft, edgeless pool of shade (no chip: it is part of the round button, not a pill). */
   .chord__play-label {
-    padding: var(--space-1) var(--space-3);
-    border-radius: var(--radius-pill);
-    background: var(--color-scrim);
+    padding: var(--space-2) var(--space-5);
+    background: radial-gradient(closest-side, var(--color-scrim) 55%, transparent);
     color: var(--color-text);
   }
 

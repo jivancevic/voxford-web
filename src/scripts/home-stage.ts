@@ -132,6 +132,8 @@ function watchReveals(): void {
 const FADE_IN = 0.08;
 const FADE_OUT = 0.1;
 const FADE_AWAY = 0.35;
+/** A gain ramp is inaudible after about three time constants; the audio pauses then. */
+const FADE_SPANS = 3;
 
 function mountChord(section: HTMLElement): void {
   const voices = [...section.querySelectorAll<HTMLElement>('[data-voice]')];
@@ -147,9 +149,9 @@ function mountChord(section: HTMLElement): void {
     type: el.dataset.chordType ?? '',
   }));
   const probe = document.createElement('audio');
-  const pick = sources.find((s) => s.src && probe.canPlayType(s.type) !== '');
+  const source = sources.find((s) => s.src && probe.canPlayType(s.type) !== '');
 
-  let state: ChordState = pick && button ? 'idle' : 'blocked';
+  let state: ChordState = source && button ? 'idle' : 'blocked';
   /** The audio clock as the lights last showed it; a pause rewinds the audio here, so resume picks up where they froze. */
   let clock = 0;
   let audio: HTMLAudioElement | undefined;
@@ -157,13 +159,13 @@ function mountChord(section: HTMLElement): void {
   let gain: GainNode | undefined;
   let raf = 0;
   let pauseTimer = 0;
-  let shown = '';
+  let lastRenderKey = '';
 
   function render(): void {
     const view = chordView({ state, time: clock, motion: motionAllowed(), cues });
     const key = `${state}|${view.lit.join()}|${view.last}`;
-    if (key === shown) return;
-    shown = key;
+    if (key === lastRenderKey) return;
+    lastRenderKey = key;
     const count = view.lit.filter(Boolean).length;
     view.lit.forEach((on, i) => voices[i]!.setAttribute('data-lit', String(on)));
     section.dataset.chordState = state;
@@ -174,10 +176,12 @@ function mountChord(section: HTMLElement): void {
     if (view.full) section.setAttribute('data-sc-verify-hold', 'true');
     else section.removeAttribute('data-sc-verify-hold');
     if (caption) caption.textContent = view.last >= 0 ? (voices[view.last]!.dataset.caption ?? '') : '';
-    if (button && label) {
-      const text = button.getAttribute(`data-label-${view.action}`) ?? '';
-      label.textContent = text;
-    }
+    if (button && label) label.textContent = button.getAttribute(`data-label-${view.action}`) ?? '';
+  }
+
+  function stopTicking(): void {
+    cancelAnimationFrame(raf);
+    raf = 0;
   }
 
   function tick(): void {
@@ -199,15 +203,14 @@ function mountChord(section: HTMLElement): void {
   }
 
   function ensureAudio(): HTMLAudioElement | undefined {
-    if (audio || !pick) return audio;
+    if (audio || !source) return audio;
     // iOS mutes Web Audio under the silent switch unless the session is "playback" (Safari 17+).
     const session = (navigator as Navigator & { audioSession?: { type: string } }).audioSession;
     if (session) session.type = 'playback';
-    audio = new Audio(pick.src);
+    audio = new Audio(source.src);
     audio.preload = 'auto';
     audio.addEventListener('ended', () => {
-      cancelAnimationFrame(raf);
-      raf = 0;
+      stopTicking();
       clock = audio?.duration ?? clock;
       state = 'ended';
       render();
@@ -227,8 +230,7 @@ function mountChord(section: HTMLElement): void {
 
   /** The browser refused the audio: show the whole chord, so nothing is left dark. */
   function block(): void {
-    cancelAnimationFrame(raf);
-    raf = 0;
+    stopTicking();
     window.clearTimeout(pauseTimer);
     state = 'blocked';
     render();
@@ -258,8 +260,7 @@ function mountChord(section: HTMLElement): void {
 
   function pause(tau: number): void {
     if (state !== 'playing' || !audio) return;
-    cancelAnimationFrame(raf);
-    raf = 0;
+    stopTicking();
     clock = audio.currentTime;
     state = 'paused';
     render();
@@ -269,10 +270,10 @@ function mountChord(section: HTMLElement): void {
       if (state === 'playing' || !audio) return;
       audio.pause();
       audio.currentTime = held;
-    }, tau * 3000);
+    }, tau * FADE_SPANS * 1000);
   }
 
-  if (button && pick) {
+  if (button && source) {
     button.hidden = false;
     section.classList.add('has-sound');
     button.addEventListener('click', () => (state === 'playing' ? pause(FADE_OUT) : play()));
@@ -284,7 +285,7 @@ function mountChord(section: HTMLElement): void {
 
   // Reduced motion lights all five whatever the music does; with motion back on, the voices follow it again.
   reducedMotion.addEventListener('change', () => {
-    shown = '';
+    lastRenderKey = '';
     render();
   });
 
