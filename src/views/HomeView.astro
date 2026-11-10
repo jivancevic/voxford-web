@@ -6,6 +6,7 @@
 import { Picture } from 'astro:assets';
 import carolM4a from '@/assets/audio/carol-chord.m4a?url';
 import carolWebm from '@/assets/audio/carol-chord.webm?url';
+import AvailabilityCheck from '@/components/AvailabilityCheck.astro';
 import Crest from '@/components/Crest.astro';
 import InquiryCTA from '@/components/InquiryCTA.astro';
 import Photo from '@/components/Photo.astro';
@@ -87,9 +88,7 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
       <div class="hero__copy container">
         <p class="hero__lead" data-sc-copy>{format(h.hero.lead, { group: GROUP.disambiguation[lang] })}</p>
         <div class="hero__actions">
-          {/* Ticket D's AvailabilityCheck (date + city → the inquiry form) goes here once it is on main:
-              <AvailabilityCheck lang={lang} /> */}
-          <InquiryCTA lang={lang} />
+          <AvailabilityCheck lang={lang} class="hero__availability" />
           <Pill href="#chord" variant="ghost">{h.hero.chordLink}</Pill>
         </div>
       </div>
@@ -105,13 +104,19 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
   </section>
 
   <!-- 3 · Awe, the peak: the five voices build a chord (pin + bespoke) -->
-  <section id="chord" class="chord" data-sc-act="pin" style="--span: 3.4" data-chord aria-labelledby="chord-title">
+  <section
+    id="chord"
+    class="chord"
+    data-sc-act="pin"
+    style={`--span: 3.4; --voices: ${MEMBERS.length}`}
+    data-chord aria-labelledby="chord-title">
     <div class="chord__stage" data-sc-stage>
       <div class="chord__glow" aria-hidden="true"></div>
       <header class="chord__head container">
         <div>
           <h2 id="chord-title">{h.chord.heading}</h2>
-          <p class="chord__hint" data-sc-copy>{h.chord.hint}</p>
+          <p class="chord__hint chord__hint--scroll" data-sc-copy>{h.chord.hint}</p>
+          <p class="chord__hint chord__hint--tap">{h.chord.hintStill}</p>
         </div>
         <Pill variant="ghost" class="chord__listen" aria-pressed="false" hidden data-chord-listen>
           <span class="chord__bars" aria-hidden="true"><i></i><i></i><i></i></span>
@@ -130,7 +135,7 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
                 class="voice"
                 data-voice={m.key}
                 disabled
-                data-caption={`${m.givenName.toUpperCase()} · ${m.voice[lang].toUpperCase()}`}
+                data-caption={`${m.givenName} · ${m.voice[lang]}`}
               >
                 <span class="voice__beam" aria-hidden="true" />
                 <span class="voice__frame">
@@ -272,6 +277,7 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
   .hero__stage {
     position: relative;
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto 1fr auto auto;
     block-size: var(--stage-h);
     min-block-size: 34rem;
@@ -384,6 +390,7 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
   .hero__actions {
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
     gap: var(--space-3);
   }
 
@@ -420,20 +427,53 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
     opacity: calc(1 - max(0, var(--sc-p, 0) - 0.5) * 2.5);
   }
 
-  /* Phones: the singers fill the width at the bottom; type sits above them. */
+  /* Phones: no pin. Headline, then the singers across the width (the planes
+     still part as the hero scrolls by), then the lead and the date widget on
+     plain ground. The script reads the stage as a flow act here. */
   @media (width < 48rem) {
-    .hero__scene {
-      --scene-w: 128%;
-      inset-block-end: 9rem;
-      margin-inline-start: -76%;
+    :global(.sc-motion) .hero {
+      block-size: auto;
     }
 
-    .hero__stage {
-      grid-template-rows: auto 1fr auto auto;
+    .hero__stage,
+    :global(.sc-motion) .hero__stage {
+      position: relative;
+      top: auto;
+      block-size: auto;
+      min-block-size: 0;
+    }
+
+    .hero__scene {
+      --scene-w: 128%;
+      position: relative;
+      grid-row: 2;
+      inset: auto;
+      /* Start the frame a fifth of its width early so the five fill the screen. */
+      margin-inline-start: calc(var(--scene-w) * -0.2);
+      margin-block: var(--space-6);
+      /* The planes scale and shift; keep them inside the frame, off the type above and below. */
+      overflow: clip;
+    }
+
+    .hero__scene :global(.hero__far),
+    .hero__scene :global(.hero__subject),
+    .hero__scene :global(.hero__front),
+    .hero__haze {
+      mask-image: linear-gradient(to bottom, transparent, var(--color-bg) 18%, var(--color-bg) 78%, transparent);
     }
 
     .hero__copy {
-      padding-block-end: var(--space-3);
+      padding-block-start: var(--space-4);
+    }
+
+    .hero__scrim {
+      display: none;
+    }
+
+    /* The headline is two lines in its face; reserve them, so the fallback
+       font's wider wrap does not push the photo down when the face loads (CLS). */
+    .hero__title {
+      block-size: calc(2lh + clamp(var(--space-6), 7svh, var(--space-9)));
     }
 
     .hero__lead {
@@ -444,9 +484,11 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
       justify-self: start;
     }
 
-    .hero__scrim {
-      block-size: 55%;
-      background: linear-gradient(to top, var(--color-bg) 60%, transparent);
+    :global(.sc-motion) .hero__title,
+    :global(.sc-motion) .hero__copy,
+    :global(.sc-motion) .hero__caption {
+      transform: none;
+      opacity: 1;
     }
   }
 
@@ -524,9 +566,21 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
     gap: var(--space-4);
   }
 
+  /* Full text colour: the voice beams pass behind this line. */
   .chord__hint {
     margin-block-start: var(--space-2);
-    color: var(--color-text-secondary);
+    color: var(--color-text);
+  }
+
+  /* The hint names the interaction that exists: scroll or tap with motion,
+     tap under reduced motion, none without JavaScript (the voices are inert). */
+  .chord__hint {
+    display: none;
+  }
+
+  :global(.sc-motion) .chord__hint--scroll,
+  :global(.sc-ready:not(.sc-motion)) .chord__hint--tap {
+    display: block;
   }
 
   .chord__bars {
@@ -582,7 +636,7 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
 
   .chord__voices {
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(var(--voices), minmax(0, 1fr));
     gap: clamp(var(--space-2), 1.4vw, var(--space-5));
     align-items: end;
     margin-block: 0;
@@ -627,6 +681,8 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
   }
 
   .voice__frame :global(img) {
+    position: absolute;
+    inset: 0;
     inline-size: 100%;
     block-size: 100%;
     object-fit: cover;
@@ -652,7 +708,7 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
   .voice__beam {
     background: var(--gradient-light);
     background-size: 500% 100%;
-    background-position: calc(var(--i) * 25%) 0;
+    background-position: calc(var(--i) / (var(--voices) - 1) * 100%) 0;
   }
 
   .voice__wash {
@@ -702,7 +758,26 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
   }
 
   :global(.sc-ready) .chord:global(.is-armed) .chord__glow {
-    opacity: calc(var(--chord-count, 0) / 5 * 0.4);
+    opacity: calc(var(--chord-count, 0) / var(--voices) * 0.4);
+  }
+
+  :global(.sc-motion) .chord__voices {
+    min-block-size: 0;
+    align-items: stretch;
+  }
+
+  :global(.sc-motion) .chord__voices li,
+  :global(.sc-motion) .voice {
+    min-block-size: 0;
+  }
+
+  :global(.sc-motion) .voice {
+    grid-template-rows: minmax(0, 1fr) auto auto;
+  }
+
+  :global(.sc-motion) .voice__frame {
+    block-size: auto;
+    max-block-size: 34rem;
   }
 
   .chord__foot {
@@ -716,7 +791,7 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
   }
 
   :global(.sc-ready) .chord:global(.is-armed) .chord__line {
-    transform: scaleX(calc(var(--chord-count, 0) / 5));
+    transform: scaleX(calc(var(--chord-count, 0) / var(--voices)));
   }
 
   .chord__caption {
@@ -731,8 +806,8 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
     transition: opacity 700ms var(--ease-out);
   }
 
-  :global(.sc-ready) .chord:global(.is-armed):not([data-full]) .chord__resolve {
-    opacity: 0;
+  .chord[data-full] .chord__resolve {
+    color: var(--color-text);
   }
 
   .chord__credit {

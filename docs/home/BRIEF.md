@@ -85,11 +85,15 @@ its own colour of light from above, stepping pink → purple → blue along the 
 when all five are lit the gradient line under them completes and the whole stage glows. Each
 portrait is also a button: a tap or Enter lights that voice directly, in any order. "Listen" is
 an opt-in toggle (never autoplay): with sound on, *Carol of the Bells* plays and its volume
-follows the chord, quiet with one voice, full with five. There are no stems, so voices are
+follows the chord: audible but low before the first voice (so Listen always answers), rising
+with each voice, full with five. There are no stems, so voices are
 visual and the recording swells (spec).
 
 - **No JavaScript:** all five portraits lit, names and voice parts visible, no Listen button.
-- **Reduced motion:** no pin; all five start lit; taps still toggle voices; Listen still works.
+- **Reduced motion:** no pin; all five start lit; taps still toggle voices; Listen still works;
+  the hint says "tap" instead of "scroll or tap".
+- **Phones:** the hero does not pin; the planes still part as it scrolls by, and the date widget
+  (ticket D) sits on plain ground under the photo.
 - **Muted:** the light carries the whole move; sound is a bonus.
 
 ## Fingerprint gate
@@ -157,10 +161,12 @@ under `html.sc-ready`.
   any mode. The page publishes `data-sc-verify-state` while a pinned act is on screen and marks
   the full chord as an authored hold (`data-sc-verify-hold`), because the harness does not sample
   CSS-driven planes.
-- **Contrast over media:** mobile clean (≥4.5:1 at the worst frame). Desktop reports 2.25:1 for
-  the hero lead, a harness artefact: its bare shot hides every sticky element, the hero stage
-  included. Measured directly on the composited frame with only the text hidden, the worst cell
-  under the lead is 14.8:1, mean 16.4:1.
+- **Contrast over media:** desktop clean (≥4.5:1 at the worst frame). The harness hides sticky
+  elements for its bare shot and samples text even while it sits under the sticky header, so it
+  flags the hero headline and lead in the frames where they scroll under the header (worst
+  1.9–2.9:1). Measured directly on the composited page with only the text hidden, clear of the
+  header, both are 14.8–16.6:1. The one real finding (the chord hint over the voice beams,
+  4.05:1) is fixed: the hint now uses the full text colour.
 - **Contact sheet:** the chord is the largest visual change and holds the most scroll; the act
   before it is the quietest; the end screen stands still with content on it.
 - **Feel check (cold, one word per act):** gala · hush · glow · scale · practical · calm.
@@ -172,9 +178,9 @@ under `html.sc-ready`.
 - **Interaction:** taps and Enter toggle each voice; Listen toggles and requests the audio only
   on press; under reduced motion all five start lit; with JavaScript off all five are lit, the
   resolve line shows and Listen is hidden.
-- **Lighthouse mobile** (local static server, no compression): EN 98 / 100 / 100, HR
-  96 / 100 / 100 (performance / accessibility / best practices); CLS 0; TBT 0 ms; LCP 2.5 s EN,
-  2.9 s HR (two extra latin-ext font files). SEO 69 only because the pre-domain build is
-  `noindex` (ticket G lifts it).
-- **Not verified:** a real phone (iOS audio and touch scrolling), audible playback by ear,
-  and production compression (Cloudflare serves brotli; the local server does not).
+- **Lighthouse mobile** behind a local brotli server (as Cloudflare serves it): EN 99 / 100 / 100,
+  HR 97 / 100 / 100 (performance / accessibility / best practices); LCP 2.2 s EN, 2.5–2.6 s HR;
+  CLS 0; TBT 0 ms. Uncompressed: EN 96–97, HR 94–95. SEO 69 only because the pre-domain build is
+  `noindex` (ticket G lifts it). HR is slower by two latin-ext font files from the layout.
+- **Not verified:** a real phone (iOS audio and the silent switch, touch scrolling through the
+  pinned chord), audible playback by ear, and the numbers on the deployed build.

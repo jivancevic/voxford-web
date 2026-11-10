@@ -1,7 +1,7 @@
 // Motion for the home page (docs/home/BRIEF.md). It speaks the subset of the
 // scroll-craft contract the page uses, so the scroll-craft harness can read it:
 //   data-sc-act="pin|flow"   an act; its progress (0..1) is published as --sc-p
-//   data-sc-span="1.7"       viewport-heights a pinned act owns (CSS applies it)
+//   style="--span: 1.7"      viewport-heights a pinned act owns (CSS applies it)
 //   data-sc-in               revealed once when it enters the viewport (.is-in)
 //   html.sc-ready            the script ran; html.sc-motion also means motion is allowed
 // Every hidden or dimmed state in the CSS is scoped under those classes, so the
@@ -19,6 +19,8 @@ const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 interface Act {
   el: HTMLElement;
   pinned: boolean;
+  /** A pinned act whose stage is sticky right now (not under reduced motion or on a phone hero). */
+  sticky: boolean;
   top: number;
   height: number;
   /** Pinned acts: the sticky stage's `top` offset and its height, so p runs exactly over the pinned travel. */
@@ -30,6 +32,7 @@ interface Act {
 const acts: Act[] = [...document.querySelectorAll<HTMLElement>('[data-sc-act]')].map((el) => ({
   el,
   pinned: el.dataset.scAct === 'pin',
+  sticky: false,
   top: 0,
   height: 0,
   stickTop: 0,
@@ -52,7 +55,9 @@ function measure(): void {
     act.top = act.el.getBoundingClientRect().top + scrollY;
     act.height = act.el.offsetHeight;
     const stage = act.el.querySelector<HTMLElement>('[data-sc-stage]');
-    act.stickTop = stage ? parseFloat(getComputedStyle(stage).top) || 0 : 0;
+    const style = stage ? getComputedStyle(stage) : undefined;
+    act.sticky = act.pinned && style?.position === 'sticky';
+    act.stickTop = style ? parseFloat(style.top) || 0 : 0;
     act.stageHeight = stage?.offsetHeight ?? innerHeight;
   }
 }
@@ -64,7 +69,7 @@ function frame(): void {
   for (const act of acts) {
     // Pinned: the stage sticks when its top reaches `stickTop` and lets go when
     // it meets the section's bottom, a travel of (section height - stage height).
-    const raw = act.pinned
+    const raw = act.sticky
       ? (y + act.stickTop - act.top) / Math.max(1, act.height - act.stageHeight)
       : (y + vh - act.top) / Math.max(1, act.height + vh);
     const p = Math.min(1, Math.max(0, raw));
@@ -236,6 +241,9 @@ function createSound(section: HTMLElement, button: HTMLButtonElement | null): So
     const probe = document.createElement('audio');
     const pick = sources.find((s) => s.src && probe.canPlayType(s.type) !== '');
     if (!pick) return undefined;
+    // iOS mutes Web Audio under the silent switch unless the session is "playback" (Safari 17+).
+    const session = (navigator as Navigator & { audioSession?: { type: string } }).audioSession;
+    if (session) session.type = 'playback';
     audio = new Audio(pick.src);
     audio.preload = 'auto';
     audio.addEventListener('ended', () => setOn(false));
