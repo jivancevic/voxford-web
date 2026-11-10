@@ -94,7 +94,8 @@ function restorePoster(frame: HTMLElement, video: HTMLVideoElement) {
 
 function enhanceInline(frame: HTMLElement) {
   const button = frame.querySelector<HTMLButtonElement>('.video-card__button');
-  if (!button || frame.dataset.inlineReady) return;
+  // No full video to play: keep the poster link (the button would be dead).
+  if (!button || frame.dataset.inlineReady || !fullSourcesOf(frame).length) return;
   frame.dataset.inlineReady = 'true';
   button.hidden = false;
   button.addEventListener('click', () => playInline(frame, button), { once: true });

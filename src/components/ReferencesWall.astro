@@ -265,7 +265,19 @@ const title = heading === false ? undefined : (heading ?? t.videos.references.he
     background: var(--color-bg-raised);
   }
 
-  /* Beside a column of names the photo may grow taller than 2:1; it crops. */
+  /* Beside a column of names the photo stretches to the row (it crops); an item
+     with an aspect ratio only stretches when both axes are told to. */
+  .tile--photo {
+    align-self: stretch;
+    justify-self: stretch;
+  }
+
+  /* An odd last photo with no names to sit beside it takes the whole row, lower. */
+  .references__group:not(:has(.references__names)) .references__photos > .tile--photo:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+    aspect-ratio: 3 / 1;
+  }
+
   .tile--photo .tile__figure {
     position: absolute;
     inset: 0;
@@ -368,7 +380,8 @@ const title = heading === false ? undefined : (heading ?? t.videos.references.he
       flex-basis: 9rem;
     }
 
-    .tile--photo {
+    .tile--photo,
+    .references__group:not(:has(.references__names)) .references__photos > .tile--photo:last-child:nth-child(odd) {
       aspect-ratio: 3 / 2;
     }
 
