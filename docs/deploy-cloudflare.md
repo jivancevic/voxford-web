@@ -173,11 +173,11 @@ Secrets (Worker › Settings › Variables & Secrets), set by the wizard, never 
 
 | Secret | What | Set by |
 |---|---|---|
-| `INSTAGRAM_TOKEN` | system-user token of the voxford.official business portfolio (`EAA…`, `instagram_basic`, never expires) | `scripts/instagram-wizard.sh` (stages 4–5) |
-| `INSTAGRAM_USER_ID` | optional: the Instagram user id to read; unset, the sync reads the one Instagram account assigned to the system user | the wizard, only when that lookup fails |
+| `INSTAGRAM_TOKEN` | system-user token of the voxford.official business portfolio (`EAA…`, never expires; `instagram_basic`, `pages_show_list`, `pages_read_engagement`), the system user assigned the Voxford Facebook Page | `scripts/instagram-wizard.sh` (stages 4–5) |
+| `INSTAGRAM_USER_ID` | optional: the Instagram user id to read; unset, the sync reads the one Instagram account the system user reaches (linked to its Page, else assigned directly) | the wizard, only when that lookup fails |
 | `DEPLOY_HOOK_URL` | Workers Builds › Settings › Builds › Deploy Hooks, branch `main` | `scripts/instagram-wizard.sh` (stage 6) |
 
-    scripts/instagram-wizard.sh             # first time: Meta app in the portfolio, system user, token, deploy hook
+    scripts/instagram-wizard.sh             # first time: Meta app in the portfolio, system user with the Page, token, deploy hook
     scripts/instagram-wizard.sh token       # a new token only, if it was revoked (the log says "Instagram API 400: 190 …")
     npx wrangler tail voxford-web           # watch a run: "reels: updated, 6 reels, rebuild triggered"
 

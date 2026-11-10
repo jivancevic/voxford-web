@@ -196,7 +196,8 @@ finish() {
 #
 # Meta gives new apps only the Instagram API with Unified login: a system-user
 # token (EAA…, never expires) of the business portfolio that owns
-# voxford.official, used on graph.facebook.com (docs/adr/0004). The old
+# voxford.official, used on graph.facebook.com (docs/adr/0004). The system
+# user reaches the Instagram account through the Voxford Facebook Page. The old
 # "Instagram Tester" role and Instagram Login (IGAA… tokens) do not apply.
 #
 # Secrets never touch a file: the token and the deploy hook URL are held in
@@ -223,16 +224,25 @@ put_worker_secret() {
 }
 
 # graph_get PATH QUERY… calls the Graph API with the token read from stdin
-# (curl -K -), so it never shows in `ps`. Prints the JSON body; fails on an error.
+# (curl -K -), so it never shows in `ps`. Prints the JSON body (Meta's error
+# body too); fails on an error.
 graph_get() {
   local path="$1"; shift
   local args=()
   for q in "$@"; do args+=(--data-urlencode "$q"); done
-  printf 'data-urlencode = "access_token=%s"\n' "$INSTAGRAM_TOKEN" | curl -fsS -G -K - "${args[@]}" "$GRAPH/$path" 2>/dev/null
+  printf 'data-urlencode = "access_token=%s"\n' "$INSTAGRAM_TOKEN" | curl -sS --fail-with-body -G -K - "${args[@]}" "$GRAPH/$path" 2>/dev/null
 }
 
 # json EXPR reads JSON on stdin and prints EXPR evaluated on it as `d` (empty on any error).
 json() { node -e 'let s="";process.stdin.on("data",c=>s+=c).on("end",()=>{try{const d=JSON.parse(s);const v=('"$1"');if(v!==undefined&&v!==null)process.stdout.write(String(v))}catch{}})'; }
+
+# meta_error BODY prints Meta's error from a failed call, or says nothing came back.
+meta_error() {
+  local m; m=$(printf '%s' "$1" | json 'd.error&&`${d.error.code}: ${d.error.message}`' || true)
+  printf '%s' "${m:-no answer from Meta (network?)}"
+}
+
+PERMS_HINT="Generate a new token with instagram_basic, pages_show_list and pages_read_engagement, check the system user's assets, then re-run: scripts/instagram-wizard.sh token"
 
 if [[ "$MODE" == token ]]; then TOTAL_STAGES=2; else TOTAL_STAGES=6; fi
 banner "Voxford reels sync: Meta app and Instagram token"
@@ -259,54 +269,76 @@ if [[ "$MODE" != token ]]; then
   say "The token belongs to a system user of the portfolio, not to a person, so it never expires."
   open_url "https://business.facebook.com/settings/system-users"
   step "Business settings ($IG_ACCOUNT) → Users → System users → Add. Name: voxford-web reels. Role: Employee."
-  step "On that system user: Assign assets → Instagram accounts → $IG_ACCOUNT, with the smallest access offered."
+  step "On that system user: Assign assets → Facebook Pages → Voxford (the Page $IG_ACCOUNT is linked to), smallest access offered."
+  note "Instagram accounts → $IG_ACCOUNT works too, if Meta lets you tick it; its Instagram login there can fail"
+  note "('Something went wrong'). The Page is enough: the sync finds the Instagram account through it."
   step "Assign assets again → Apps → Voxford web, with the smallest access offered."
-  pause "System user has both assets? Press Enter"
+  pause "System user has the Page (or the account) and the app? Press Enter"
 fi
 
 stage "Generate the token"
 open_url "https://business.facebook.com/settings/system-users"
 step "System users → voxford-web reels → 'Generate new token' (or 'Generate token')."
 step "App: Voxford web. Expiration: Never."
-step "Permissions: only instagram_basic. Add business_management only if Meta refuses without it."
+step "Permissions: instagram_basic, pages_show_list, pages_read_engagement (all read-only); nothing else."
+note "Add business_management only if Meta refuses to generate the token without it."
 step "Generate, then copy the token (starts with EAA). Meta shows it once."
 ask_secret INSTAGRAM_TOKEN "Paste the token (hidden):"
 while [[ -z "$INSTAGRAM_TOKEN" ]]; do ask_secret INSTAGRAM_TOKEN "Empty. Paste the token:"; done
 
 say "Checking it against the Graph API…"
 if ! who=$(graph_get me "fields=id,name"); then
-  warn "Meta refused the token. Copy it again (the whole string), then re-run: scripts/instagram-wizard.sh token"
+  warn "Meta refused the token ($(meta_error "$who"))."
+  warn "Copy it again (the whole string), then re-run: scripts/instagram-wizard.sh token"
   exit 1
 fi
 printf '  %s✓ the token works (system user: %s)%s\n' "$GREEN" "$(printf '%s' "$who" | json 'd.name')" "$RESET"
 
-# The account's Instagram user id. The Worker finds it the same way on every run
-# (the one Instagram account assigned to the system user); only when that does
-# not work here is the id stored as INSTAGRAM_USER_ID.
-assigned=$(graph_get me/assigned_instagram_accounts "fields=id,username" || true)
-INSTAGRAM_USER_ID=$(printf '%s' "$assigned" | json "(d.data||[]).length===1&&d.data[0].username==='$IG_ACCOUNT'?d.data[0].id:''" || true)
-PIN_USER_ID=""
+# The account's Instagram user id, found the way the Worker finds it on every
+# run: the Instagram account linked to the assigned Facebook Page, else the one
+# assigned directly. Only when that does not name exactly one account is the id
+# asked for and stored as INSTAGRAM_USER_ID.
+INSTAGRAM_USER_ID=$(graph_get me/accounts "fields=instagram_business_account" "limit=100" \
+  | json '[...new Set((d.data||[]).map(p=>p.instagram_business_account&&p.instagram_business_account.id).filter(Boolean))].join(" ")' || true)
 if [[ -z "$INSTAGRAM_USER_ID" ]]; then
-  PIN_USER_ID=yes
-  note "The system user does not have exactly one Instagram account ($IG_ACCOUNT) assigned,"
-  note "or Meta would not say; the id will be stored as the secret INSTAGRAM_USER_ID."
-  step "Business settings → Accounts → Instagram accounts → $IG_ACCOUNT: copy its ID (a long number, usually 1784…)."
-  ask INSTAGRAM_USER_ID "Instagram account ID:"
+  INSTAGRAM_USER_ID=$(graph_get me/assigned_instagram_accounts "fields=id" \
+    | json '[...new Set((d.data||[]).map(a=>a.id).filter(Boolean))].join(" ")' || true)
 fi
-while ! [[ "$INSTAGRAM_USER_ID" =~ ^[0-9]+$ ]]; do ask INSTAGRAM_USER_ID "Digits only. Instagram account ID:"; done
+PIN_USER_ID=""
+if ! [[ "$INSTAGRAM_USER_ID" =~ ^[0-9]+$ ]]; then
+  PIN_USER_ID=yes
+  note "Meta did not name exactly one Instagram account for this token (found: ${INSTAGRAM_USER_ID:-none});"
+  note "the id will be stored as the secret INSTAGRAM_USER_ID."
+  step "Business settings → Accounts → Instagram accounts → $IG_ACCOUNT: copy its ID (a long number)."
+  INSTAGRAM_USER_ID=""
+  for _ in 1 2 3; do
+    ask INSTAGRAM_USER_ID "Instagram account ID (digits only):"
+    if [[ "$INSTAGRAM_USER_ID" =~ ^[0-9]+$ ]]; then break; fi
+  done
+  if ! [[ "$INSTAGRAM_USER_ID" =~ ^[0-9]+$ ]]; then
+    warn "No valid id. Re-run when you have it: scripts/instagram-wizard.sh token"
+    exit 1
+  fi
+fi
 
-if account=$(graph_get "$INSTAGRAM_USER_ID" "fields=username"); then
-  username=$(printf '%s' "$account" | json 'd.username')
-  printf '  %s✓ the token reads @%s (id %s)%s\n' "$GREEN" "$username" "$INSTAGRAM_USER_ID" "$RESET"
-  [[ "$username" == "$IG_ACCOUNT" ]] || warn "that is not $IG_ACCOUNT: check the ID and the system user's assets"
-  reels=$(graph_get "$INSTAGRAM_USER_ID/media" "fields=media_product_type" "limit=25" \
-    | json "(d.data||[]).filter(m=>m.media_product_type==='REELS').length" || true)
-  note "reels among the 25 newest posts: ${reels:-?} (the site shows the newest 6)"
-else
-  warn "The token cannot read Instagram account $INSTAGRAM_USER_ID."
-  warn "Check that the system user has $IG_ACCOUNT assigned and the token has instagram_basic, then re-run: scripts/instagram-wizard.sh token"
+if ! account=$(graph_get "$INSTAGRAM_USER_ID" "fields=username"); then
+  warn "The token cannot read Instagram account $INSTAGRAM_USER_ID ($(meta_error "$account"))."
+  warn "$PERMS_HINT"
   exit 1
 fi
+username=$(printf '%s' "$account" | json 'd.username' || true)
+if [[ "$username" != "$IG_ACCOUNT" ]]; then
+  warn "Account $INSTAGRAM_USER_ID is @${username:-?}, not $IG_ACCOUNT: fix the system user's assets, then re-run: scripts/instagram-wizard.sh token"
+  exit 1
+fi
+printf '  %s✓ the token reads @%s (id %s)%s\n' "$GREEN" "$username" "$INSTAGRAM_USER_ID" "$RESET"
+if ! media=$(graph_get "$INSTAGRAM_USER_ID/media" "fields=media_product_type" "limit=25"); then
+  warn "The token cannot list @$username's posts ($(meta_error "$media"))."
+  warn "$PERMS_HINT"
+  exit 1
+fi
+reels=$(printf '%s' "$media" | json "(d.data||[]).filter(m=>m.media_product_type==='REELS').length" || true)
+note "reels among the 25 newest posts: ${reels:-?} (the site shows the newest 6)"
 
 stage "Store the token in Cloudflare"
 say "The Worker reads it as the secret INSTAGRAM_TOKEN; it never goes into the repo or a file."

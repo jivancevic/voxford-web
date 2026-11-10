@@ -13,6 +13,7 @@ const TOKEN = 'EAAtest-system-user-token';
 const USER_ID = '17841400000000000';
 const MEDIA_URL = `${IG_GRAPH}/v24.0/${USER_ID}/media`;
 const ASSIGNED_URL = `${IG_GRAPH}/v24.0/me/assigned_instagram_accounts`;
+const PAGES_URL = `${IG_GRAPH}/v24.0/me/accounts`;
 
 interface FakeMedia {
   id: string;
@@ -39,7 +40,11 @@ class FakeInstagram {
   pages: FakeMedia[][] = [];
   apiStatus = 200;
   /** The Instagram accounts assigned to the token's system user. */
-  assigned: { id: string; username: string }[] = [{ id: USER_ID, username: 'voxford.official' }];
+  assigned: { id: string }[] = [{ id: USER_ID }];
+  /** The Facebook Pages assigned to it, with their linked Instagram account. */
+  fbPages: { id: string; ig?: string }[] = [];
+  /** Status of the two account lookups (e.g. 403 when the token lacks that route's permission). */
+  lookupStatus = 200;
   cdnFails = new Set<string>();
   hookStatus = 200;
   requests: { url: string; method: string }[] = [];
@@ -48,7 +53,15 @@ class FakeInstagram {
     const url = String(input);
     this.requests.push({ url, method: init?.method ?? 'GET' });
     if (url === HOOK) return Response.json({ success: true }, { status: this.hookStatus });
-    if (url.startsWith(`${ASSIGNED_URL}?`)) return Response.json({ data: this.assigned });
+    if (url.startsWith(`${ASSIGNED_URL}?`) || url.startsWith(`${PAGES_URL}?`)) {
+      if (this.lookupStatus !== 200) {
+        return Response.json({ error: { message: 'Missing permission', code: 200 } }, { status: this.lookupStatus });
+      }
+      if (url.startsWith(`${ASSIGNED_URL}?`)) return Response.json({ data: this.assigned });
+      return Response.json({
+        data: this.fbPages.map((p) => ({ id: p.id, ...(p.ig ? { instagram_business_account: { id: p.ig } } : {}) })),
+      });
+    }
     if (url.startsWith(`${MEDIA_URL}?`)) {
       if (this.apiStatus !== 200) {
         return Response.json({ error: { message: 'Error validating access token', code: 190 } }, { status: this.apiStatus });
@@ -340,32 +353,45 @@ describe('syncReels', () => {
     expect(log.error).toHaveBeenCalledWith('reels: deploy hook answered 500');
   });
 
-  it("reads the reels of the account assigned to the token's system user, and never refreshes the token", async () => {
+  it("reads the reels of the account the token reaches, and never refreshes the token", async () => {
     ig.pages = [reels(1)];
     await run();
     const api = ig.hits(`${IG_GRAPH}/`).map((r) => new URL(r.url));
-    expect(api.map((u) => u.pathname)).toEqual(['/v24.0/me/assigned_instagram_accounts', `/v24.0/${USER_ID}/media`]);
+    expect(api.map((u) => u.pathname)).toEqual([
+      '/v24.0/me/accounts',
+      '/v24.0/me/assigned_instagram_accounts',
+      `/v24.0/${USER_ID}/media`,
+    ]);
     expect(api.every((u) => u.searchParams.get('access_token') === TOKEN)).toBe(true);
-    expect(api[1]!.searchParams.get('fields')).toContain('media_product_type');
+    expect(api[2]!.searchParams.get('fields')).toContain('media_product_type');
   });
 
-  it('reads the account INSTAGRAM_USER_ID names without asking which is assigned', async () => {
+  it('finds the account through the Voxford Facebook Page first', async () => {
+    ig.pages = [reels(1)];
+    ig.assigned = [];
+    ig.fbPages = [{ id: '1001' }, { id: '1002', ig: USER_ID }];
+    await run();
+    expect(ig.hits(ASSIGNED_URL)).toHaveLength(0);
+    expect(ig.hits(MEDIA_URL)).toHaveLength(1);
+  });
+
+  it('reads the account INSTAGRAM_USER_ID names without looking it up', async () => {
     ig.pages = [reels(1)];
     ig.assigned = [];
     await run({ INSTAGRAM_USER_ID: USER_ID });
     expect(ig.hits(ASSIGNED_URL)).toHaveLength(0);
+    expect(ig.hits(PAGES_URL)).toHaveLength(0);
     expect(manifest().reels.map((r) => r.id)).toEqual(['1']);
   });
 
-  it('stops, writing nothing, unless exactly one Instagram account is assigned', async () => {
+  it('stops, writing nothing, unless the token reaches exactly one Instagram account', async () => {
     ig.pages = [reels(1)];
     ig.assigned = [];
-    await expect(run()).rejects.toThrow('0 Instagram accounts assigned');
-    ig.assigned = [
-      { id: USER_ID, username: 'voxford.official' },
-      { id: '17841499999999999', username: 'someone.else' },
-    ];
-    await expect(run()).rejects.toThrow('2 Instagram accounts assigned; assign exactly one or set INSTAGRAM_USER_ID');
+    await expect(run()).rejects.toThrow('the token reaches no Instagram account');
+    ig.assigned = [{ id: USER_ID }, { id: '17841499999999999' }];
+    await expect(run()).rejects.toThrow('the token reaches 2 Instagram accounts; set INSTAGRAM_USER_ID');
+    ig.lookupStatus = 403;
+    await expect(run()).rejects.toThrow('reaches no Instagram account: assign the Voxford Page (or the Instagram account) to the system user (Instagram API 403: 200 Missing permission)');
     expect(ig.hits(MEDIA_URL)).toHaveLength(0);
     expect(bucket.objects.size).toBe(0);
   });

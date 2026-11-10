@@ -1,6 +1,6 @@
 import type { Env } from './env';
 import { CACHE_IMMUTABLE, CACHE_MANIFEST } from './media';
-import { assignedInstagramAccount, latestReels, type Fetch, type IgMedia } from './instagram';
+import { instagramAccountId, latestReels, type Fetch, type IgMedia } from './instagram';
 
 // Daily reels sync (cron in wrangler.jsonc, called from worker/index.ts).
 //
@@ -18,8 +18,8 @@ import { assignedInstagramAccount, latestReels, type Fetch, type IgMedia } from 
 // live page never loses a file.
 // Without INSTAGRAM_TOKEN the sync does nothing (local dev, before setup). The
 // token is a system-user token that never expires, so there is nothing to
-// refresh; the account is the one assigned to it, unless INSTAGRAM_USER_ID
-// names it (docs/adr/0004).
+// refresh; the account is the one it reaches (through the Voxford Page or
+// directly), unless INSTAGRAM_USER_ID names it (docs/adr/0004).
 
 export const REEL_COUNT = 6;
 export const MANIFEST_KEY = 'reels/manifest.json';
@@ -115,7 +115,7 @@ export async function syncReels(env: Env, _ctx: ExecutionContext, deps: Deps = d
     return { status: 'skipped', reels: 0, rebuilt: false };
   }
   const bucket = env.MEDIA;
-  const userId = env.INSTAGRAM_USER_ID || (await assignedInstagramAccount(deps.fetch, token));
+  const userId = env.INSTAGRAM_USER_ID || (await instagramAccountId(deps.fetch, token));
 
   const media = await latestReels(deps.fetch, token, userId, REEL_COUNT);
   const previous = await readManifest(bucket);

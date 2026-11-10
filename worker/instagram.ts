@@ -3,8 +3,8 @@
 //
 // The token is a system-user access token (starts with EAA, never expires) of
 // the business portfolio that owns voxford.official, from the Worker secret
-// INSTAGRAM_TOKEN; the account is the one Instagram account assigned to that
-// system user (or the secret INSTAGRAM_USER_ID, when set). Meta no longer
+// INSTAGRAM_TOKEN; the account is the one that system user reaches, through
+// the Voxford Facebook Page or directly (or the secret INSTAGRAM_USER_ID). Meta no longer
 // offers new apps the Instagram Login variant (graph.instagram.com, 60-day
 // IGAA tokens): docs/adr/0004.
 // https://developers.facebook.com/docs/instagram-platform/reference/instagram-media
@@ -69,24 +69,50 @@ const isReel = (m: IgMedia) =>
   !!m.media_url &&
   !!m.thumbnail_url;
 
-/**
- * The Instagram user id of the one Instagram account assigned to the token's
- * system user. Fails when there is none or more than one (then set INSTAGRAM_USER_ID).
- * https://developers.facebook.com/documentation/ads-commerce/marketing-api/reference/system-user/assigned_instagram_accounts
- */
-export async function assignedInstagramAccount(fetchFn: Fetch, token: string): Promise<string> {
-  const body = await getJson<{ data?: { id?: string }[] }>(
+const graphUrl = (path: string, token: string) =>
+  `${IG_GRAPH}/${IG_VERSION}/${path}${path.includes('?') ? '&' : '?'}access_token=${encodeURIComponent(token)}`;
+
+/** Instagram accounts linked to the Facebook Pages assigned to the token's system user. */
+async function pageAccounts(fetchFn: Fetch, token: string): Promise<string[]> {
+  const body = await getJson<{ data?: { instagram_business_account?: { id?: string } }[] }>(
     fetchFn,
-    `${IG_GRAPH}/${IG_VERSION}/me/assigned_instagram_accounts?fields=id,username&access_token=${encodeURIComponent(token)}`,
+    graphUrl('me/accounts?fields=instagram_business_account&limit=100', token),
   );
-  const ids = (body.data ?? []).map((a) => a.id).filter((id): id is string => !!id && isInstagramUserId(id));
-  if (ids.length !== 1) {
-    throw new InstagramError(
-      `the token's system user has ${ids.length} Instagram accounts assigned; assign exactly one or set INSTAGRAM_USER_ID`,
-      0,
-    );
+  return (body.data ?? []).map((p) => p.instagram_business_account?.id ?? '');
+}
+
+/** Instagram accounts assigned to the token's system user directly. */
+async function assignedAccounts(fetchFn: Fetch, token: string): Promise<string[]> {
+  const body = await getJson<{ data?: { id?: string }[] }>(fetchFn, graphUrl('me/assigned_instagram_accounts?fields=id', token));
+  return (body.data ?? []).map((a) => a.id ?? '');
+}
+
+/**
+ * The Instagram user id the token reaches: first through the Facebook Pages
+ * assigned to its system user (the documented route; the Page's linked
+ * Instagram account), then through Instagram accounts assigned directly.
+ * Fails when it reaches none, or more than one (then set INSTAGRAM_USER_ID).
+ */
+export async function instagramAccountId(fetchFn: Fetch, token: string): Promise<string> {
+  let firstError: Error | undefined;
+  for (const route of [pageAccounts, assignedAccounts]) {
+    let ids: string[];
+    try {
+      ids = [...new Set((await route(fetchFn, token)).filter(isInstagramUserId))];
+    } catch (err) {
+      firstError ??= err as Error; // e.g. the token lacks this route's permission; try the next
+      continue;
+    }
+    if (ids.length === 1) return ids[0]!;
+    if (ids.length > 1) {
+      throw new InstagramError(`the token reaches ${ids.length} Instagram accounts; set INSTAGRAM_USER_ID to the one to read`, 0);
+    }
   }
-  return ids[0]!;
+  throw new InstagramError(
+    'the token reaches no Instagram account: assign the Voxford Page (or the Instagram account) to the system user' +
+      (firstError ? ` (${firstError.message})` : ''),
+    firstError instanceof InstagramError ? firstError.status : 0,
+  );
 }
 
 /**
@@ -103,7 +129,7 @@ export async function latestReels(
   if (!isInstagramUserId(userId)) throw new InstagramError('INSTAGRAM_USER_ID is not a numeric Instagram user id', 0);
   const reels: IgMedia[] = [];
   let url: string | undefined =
-    `${IG_GRAPH}/${IG_VERSION}/${userId}/media?fields=${MEDIA_FIELDS}&limit=25&access_token=${encodeURIComponent(token)}`;
+    graphUrl(`${userId}/media?fields=${MEDIA_FIELDS}&limit=25`, token);
   for (let page = 0; url && page < maxPages && reels.length < count; page++) {
     const body: IgPage = await getJson<IgPage>(fetchFn, url);
     reels.push(...body.data.filter(isReel));
