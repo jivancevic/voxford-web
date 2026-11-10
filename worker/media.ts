@@ -1,0 +1,100 @@
+import type { Env } from './env';
+
+// GET/HEAD /media/<key>: the videos, posters and reels in the R2 bucket
+// (binding MEDIA), served from the site's own origin. Same URLs in production
+// and in `wrangler dev` (which uses a local R2 bucket), so the static pages
+// can link `/media/…` without knowing where the bucket lives. Supports byte
+// ranges (Safari will not play a video without them) and conditional requests.
+//
+// Only two prefixes are public: `top/` (the encoded top videos, uploaded by
+// scripts/upload-media.sh) and `reels/` (written by the daily sync).
+
+export const MEDIA_PREFIX = '/media/';
+
+const PUBLIC_KEY = /^(top|reels)\/[a-z0-9][a-z0-9._-]*(\/[a-z0-9][a-z0-9._-]*)*$/;
+
+/** Cache lifetimes: the manifest changes daily, everything else is replaced rarely. */
+const CACHE_MANIFEST = 'public, max-age=300';
+const CACHE_MEDIA = 'public, max-age=604800';
+
+/** The bucket key for a request path, or undefined when it is not a public media key. */
+export function mediaKey(pathname: string): string | undefined {
+  if (!pathname.startsWith(MEDIA_PREFIX)) return undefined;
+  let key: string;
+  try {
+    key = decodeURIComponent(pathname.slice(MEDIA_PREFIX.length));
+  } catch {
+    return undefined;
+  }
+  if (key.includes('..') || !PUBLIC_KEY.test(key)) return undefined;
+  return key;
+}
+
+const notFound = () => new Response('Not found', { status: 404, headers: { 'Cache-Control': 'no-store' } });
+
+function contentRange(range: R2Range, size: number): { start: number; end: number } {
+  if ('suffix' in range) {
+    const length = Math.min(range.suffix, size);
+    return { start: size - length, end: size - 1 };
+  }
+  const start = range.offset ?? 0;
+  const end = range.length === undefined ? size - 1 : Math.min(start + range.length, size) - 1;
+  return { start, end };
+}
+
+export async function handleMedia(request: Request, env: Env): Promise<Response> {
+  if (request.method !== 'GET' && request.method !== 'HEAD') {
+    return new Response('Method not allowed', { status: 405, headers: { Allow: 'GET, HEAD' } });
+  }
+  const key = mediaKey(new URL(request.url).pathname);
+  if (!key) return notFound();
+
+  const wantsRange = request.headers.has('Range');
+  let object: R2Object | R2ObjectBody | null;
+  try {
+    object = await env.MEDIA.get(key, {
+      onlyIf: request.headers,
+      ...(wantsRange ? { range: request.headers } : {}),
+    });
+  } catch {
+    // R2 rejects a range it cannot satisfy.
+    const head = await env.MEDIA.head(key);
+    if (!head) return notFound();
+    return new Response('Range not satisfiable', {
+      status: 416,
+      headers: { 'Content-Range': `bytes */${head.size}` },
+    });
+  }
+  if (!object) return notFound();
+
+  const headers = new Headers();
+  object.writeHttpMetadata(headers);
+  headers.set('ETag', object.httpEtag);
+  headers.set('Accept-Ranges', 'bytes');
+  headers.set('X-Content-Type-Options', 'nosniff');
+  if (!headers.has('Cache-Control')) {
+    headers.set('Cache-Control', key.endsWith('manifest.json') ? CACHE_MANIFEST : CACHE_MEDIA);
+  }
+
+  // A failed precondition returns the object without a body.
+  if (!('body' in object)) {
+    const conditionalGet = request.headers.has('If-None-Match') || request.headers.has('If-Modified-Since');
+    return new Response(null, { status: conditionalGet ? 304 : 412, headers });
+  }
+
+  let status = 200;
+  let length = object.size;
+  if (wantsRange && object.range) {
+    const { start, end } = contentRange(object.range, object.size);
+    status = 206;
+    length = end - start + 1;
+    headers.set('Content-Range', `bytes ${start}-${end}/${object.size}`);
+  }
+  headers.set('Content-Length', String(length));
+
+  if (request.method === 'HEAD') {
+    await object.body.cancel();
+    return new Response(null, { status, headers });
+  }
+  return new Response(object.body, { status, headers });
+}
