@@ -1,0 +1,18 @@
+{
+  "name": {
+    "en": "Voxford at Advent pod lanternom",
+    "hr": "Voxford na Adventu pod lanternom"
+  },
+  "startDate": "2026-12-02",
+  "city": {
+    "en": "Zagreb",
+    "hr": "Zagreb"
+  },
+  "countryCode": "HR",
+  "description": {
+    "en": "An outdoor street performance in Zagreb city centre: we walk with the lamplighter and sing as he lights the lanterns. Free and open to everyone.",
+    "hr": "Nastup na ulici u središtu Zagreba: hodamo uz nažigača i pjevamo dok pali lanterne. Besplatno i otvoreno za sve."
+  },
+  "free": true,
+  "source": "Sufler list_gigs 2026-11-10 (agreed); public street performance, street and time not known (Josip, 2026-11-10); KB posao/klijenti/reference.md"
+}
