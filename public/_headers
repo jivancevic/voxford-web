@@ -1,0 +1,16 @@
+# Cloudflare Workers static assets headers.
+# workers.dev and preview hosts are never indexed (spec › SEO/GEO); the
+# production domain (ticket G) does not match these patterns.
+https://:subdomain.workers.dev/*
+  X-Robots-Tag: noindex
+
+https://:version-:worker.:subdomain.workers.dev/*
+  X-Robots-Tag: noindex
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
+
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable

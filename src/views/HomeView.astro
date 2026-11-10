@@ -1,0 +1,26 @@
+---
+// View for the `home` page (owner: ticket B). Both language routes
+// render this file; replace the placeholder with the real page.
+import PagePlaceholder from '@/components/PagePlaceholder.astro';
+import type { Locale } from '@/i18n';
+import type { PageKey } from '@/i18n/routes';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { loadPage } from '@/lib/page';
+
+interface Props {
+  lang: Locale;
+}
+
+const { lang } = Astro.props;
+const page: PageKey = 'home';
+const copy = await loadPage(page, lang);
+---
+
+<BaseLayout
+  lang={lang}
+  page={page}
+  title={copy.data.title}
+  description={copy.data.description}
+>
+  <PagePlaceholder lang={lang} heading={copy.data.heading} />
+</BaseLayout>

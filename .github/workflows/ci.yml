@@ -1,0 +1,76 @@
+name: ci
+# The one required check is the `ci` job at the end. This repo is public, so
+# standard runners cost nothing, but it follows the CI budget rules anyway
+# (~/.agents/STANDARDS.md › CI budget): one run per change, superseded PR runs
+# cancelled, docs-only changes build nothing.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  # Decides whether the change is docs-only. The build skips through its own
+  # `if`, not a workflow path filter (that would leave the required check
+  # pending forever). If this job fails, the build runs anyway.
+  changes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      code: ${{ steps.diff.outputs.code }}
+    steps:
+      - id: diff
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+        run: |
+          if [ -n "$PR" ]; then
+            files=$(gh pr diff "$PR" --repo "$GITHUB_REPOSITORY" --name-only) || files=could-not-list
+          else
+            files=$(gh api "repos/$GITHUB_REPOSITORY/compare/$BEFORE...$AFTER" --jq 'if (.files | length) >= 300 then error("compare lists at most 300 files") else .files[].filename end') || files=could-not-list
+          fi
+          code=false
+          printf '%s\n' "$files" | grep -qvE '^(docs/.*|.*\.md)$' && code=true
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+
+  # One job, one `npm ci`: lint, type checks, tests, then the build the deploy runs.
+  build:
+    needs: changes
+    if: ${{ !cancelled() && needs.changes.outputs.code != 'false' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run check
+      - run: npm test
+      - run: npm run build
+      - name: Built site passes the HTML checks
+        run: npm run test:dist
+      - name: Worker bundles
+        run: npx wrangler deploy --dry-run --outdir .wrangler/dry-run
+
+  ci:
+    needs: [changes, build]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - env:
+          CODE: ${{ needs.changes.outputs.code }}
+          RESULT: ${{ needs.build.result }}
+        run: |
+          test "$RESULT" = success || { test "$CODE" = false && test "$RESULT" = skipped; }

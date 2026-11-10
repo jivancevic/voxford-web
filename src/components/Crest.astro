@@ -1,0 +1,26 @@
+---
+// The crest, worn as a seal: small, precise, with clear space around it
+// (KB brand/brand.md). The only place the logo files are referenced.
+import { Image } from 'astro:assets';
+import crestPurple from '@/assets/brand/crest-purple.png';
+import crestSymbolWhite from '@/assets/brand/crest-symbol-white.png';
+import crestWhite from '@/assets/brand/crest-white.png';
+
+interface Props {
+  /** full = crown, wreath, shield and VOXFORD; symbol = shield and wreath only. */
+  variant?: 'full' | 'symbol';
+  /** white on dark (default) or purple on light. */
+  tone?: 'light' | 'purple';
+  /** Rendered width in CSS pixels. */
+  width?: number;
+  /** Empty when the crest sits next to the word "Voxford" or inside a labelled link. */
+  alt?: string;
+  class?: string;
+  loading?: 'eager' | 'lazy';
+}
+
+const { variant = 'full', tone = 'light', width = 64, alt = '', class: className, loading = 'lazy' } = Astro.props;
+const src = variant === 'symbol' ? crestSymbolWhite : tone === 'purple' ? crestPurple : crestWhite;
+---
+
+<Image src={src} alt={alt} width={width} densities={[1, 2]} class:list={['crest', className]} loading={loading} decoding="async" />

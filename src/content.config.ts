@@ -1,0 +1,89 @@
+// Content collections: the long-form copy and the data lists. Every collection
+// is declared here up front (ticket A) so the parallel tickets only add
+// entries, never edit this file. A ticket that needs a new field adds it to its
+// own collection's schema only (CONTEXT.md › Seams). Localized Markdown lives
+// under <collection>/<lang>/<entry>.md with the same file name in both
+// languages; parity.test.ts enforces that.
+
+import { defineCollection } from 'astro:content';
+import { glob } from 'astro/loaders';
+import { z } from 'astro/zod';
+
+const localized = z.object({ en: z.string().min(1), hr: z.string().min(1) });
+
+/** Page meta and body copy, one entry per page key and language: pages/en/conferences.md. */
+const pages = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/pages' }),
+  schema: z.object({
+    /** <title> and og:title, without the " · Voxford" suffix. */
+    title: z.string().min(1).max(70),
+    /** Meta description: an answer-shaped sentence, 70–160 characters. */
+    description: z.string().min(70).max(160),
+    /** Visible page heading. */
+    heading: z.string().min(1),
+    /** KB file(s) the copy was derived from (spec › Sources of truth). */
+    source: z.string().min(1),
+  }),
+});
+
+/** FAQ entries (ticket C). faq/en/<id>.md: the question in frontmatter, the answer as body. */
+const faq = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/faq' }),
+  schema: z.object({
+    question: z.string().min(1),
+    order: z.number().int(),
+    /** Page keys whose FAQ block shows this entry (the FAQ page shows all). */
+    pages: z.array(z.string()).default([]),
+    source: z.string().min(1),
+  }),
+});
+
+/** Public concerts only, never corporate or private (ticket C). concerts/<id>.json. */
+const concerts = defineCollection({
+  loader: glob({ pattern: '**/*.json', base: './src/content/concerts' }),
+  schema: z.object({
+    name: localized,
+    /** ISO 8601 date or date-time. */
+    startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}/),
+    venue: z.string().min(1),
+    city: localized,
+    countryCode: z.string().length(2),
+    url: z.url().optional(),
+    source: z.string().min(1),
+  }),
+});
+
+/** Top videos with their own watch pages (ticket E). videos/<slug>.json. */
+const videos = defineCollection({
+  loader: glob({ pattern: '**/*.json', base: './src/content/videos' }),
+  schema: ({ image }) =>
+    z.object({
+      title: localized,
+      description: localized,
+      poster: image(),
+      /** ISO 8601 date. */
+      uploadDate: z.string().regex(/^\d{4}-\d{2}-\d{2}/),
+      /** ISO 8601 duration, e.g. PT38S. */
+      duration: z.string().regex(/^PT/),
+      /** Self-hosted sources (R2), best first. */
+      sources: z.array(z.object({ src: z.url(), type: z.string() })).default([]),
+      /** The original post on a social profile. */
+      permalink: z.url().optional(),
+      order: z.number().int(),
+    }),
+});
+
+/** Organisations Voxford performed for, confirmed rows only, never private clients (ticket E). */
+const references = defineCollection({
+  loader: glob({ pattern: '**/*.json', base: './src/content/references' }),
+  schema: ({ image }) =>
+    z.object({
+      name: z.string().min(1),
+      kind: z.enum(['company', 'city', 'tourist-board', 'institution', 'media', 'artist']),
+      logo: image().optional(),
+      url: z.url().optional(),
+      order: z.number().int(),
+    }),
+});
+
+export const collections = { pages, faq, concerts, videos, references };

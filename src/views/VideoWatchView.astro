@@ -1,0 +1,46 @@
+---
+// View for one video's watch page (owner: ticket E): the player, the story,
+// VideoObject JSON-LD. Rendered by src/pages/{en/videos,hr/videi}/[slug].astro
+// for every entry in the `videos` collection.
+import type { CollectionEntry } from 'astro:content';
+import { getImage } from 'astro:assets';
+import PagePlaceholder from '@/components/PagePlaceholder.astro';
+import { LOCALES, type Locale } from '@/i18n';
+import { videoPathFor } from '@/i18n/routes';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { videoObjectJsonLd } from '@/lib/jsonld';
+import { breadcrumbsFor } from '@/lib/page';
+
+interface Props {
+  lang: Locale;
+  video: CollectionEntry<'videos'>;
+}
+
+const { lang, video } = Astro.props;
+const site = Astro.site!;
+const path = videoPathFor(video.id, lang);
+const alternates = Object.fromEntries(LOCALES.map((l) => [l, videoPathFor(video.id, l)])) as Record<Locale, string>;
+const poster = await getImage({ src: video.data.poster, width: 1280, format: 'jpg' });
+const title = video.data.title[lang];
+---
+
+<BaseLayout
+  lang={lang}
+  alternates={alternates}
+  title={title}
+  description={video.data.description[lang]}
+  jsonLd={[
+    breadcrumbsFor(site, 'videos', lang, [{ name: title, path }]),
+    videoObjectJsonLd(site, {
+      name: title,
+      description: video.data.description[lang],
+      thumbnailUrl: new URL(poster.src, site).href,
+      uploadDate: video.data.uploadDate,
+      duration: video.data.duration,
+      contentUrl: video.data.sources[0]?.src,
+      path,
+    }),
+  ]}
+>
+  <PagePlaceholder lang={lang} heading={title} lead={video.data.description[lang]} />
+</BaseLayout>

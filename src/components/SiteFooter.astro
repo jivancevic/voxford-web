@@ -1,0 +1,136 @@
+---
+// Site footer: crest as a seal, contact, management, profiles, all pages.
+// Every fact comes from site-facts.
+import Crest from '@/components/Crest.astro';
+import { GROUP, PROFILES, type ProfileKey } from '@/data/site-facts';
+import { getStrings, type Locale } from '@/i18n';
+import { FOOTER_PAGES, pathFor } from '@/i18n/routes';
+import { getUpcomingConcerts } from '@/lib/concerts';
+
+interface Props {
+  lang: Locale;
+}
+
+const { lang } = Astro.props;
+const t = getStrings(lang);
+const PROFILE_LABELS: Record<ProfileKey, string> = {
+  instagram: 'Instagram',
+  tiktok: 'TikTok',
+  youtube: 'YouTube',
+  facebook: 'Facebook',
+  spotify: 'Spotify',
+};
+const year = new Date().getFullYear();
+const hasConcerts = (await getUpcomingConcerts()).length > 0;
+const footerPages = FOOTER_PAGES.filter((p) => p !== 'concerts' || hasConcerts);
+---
+
+<footer class="footer">
+  <span class="light-line" aria-hidden="true"></span>
+  <div class="footer__grid container">
+    <div class="footer__brand">
+      <Crest width={88} alt="" />
+      <p class="footer__tagline">{t.common.footer.tagline}</p>
+      <p class="footer__travel">{t.common.footer.travel}</p>
+    </div>
+
+    <div class="footer__col">
+      <h2 class="label">{t.common.footer.contactLabel}</h2>
+      <p><a href={`mailto:${GROUP.email}`}>{GROUP.email}</a></p>
+      <h2 class="label">{t.common.footer.managementLabel}</h2>
+      <p>{GROUP.manager.name}, {GROUP.manager.company}</p>
+    </div>
+
+    <div class="footer__col">
+      <h2 class="label">{t.common.footer.followLabel}</h2>
+      <ul class="footer__list">
+        {
+          (Object.keys(PROFILES) as ProfileKey[]).map((k) => (
+            <li>
+              <a href={PROFILES[k]} rel="me noopener" target="_blank">
+                {PROFILE_LABELS[k]}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <nav class="footer__col" aria-label={t.common.a11y.footerNav}>
+      <ul class="footer__list">
+        {
+          footerPages.map((p) => (
+            <li>
+              <a href={pathFor(p, lang)}>{t.common.nav[p]}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </div>
+  <p class="footer__legal container label">© {year} {GROUP.name} · {GROUP.handle}</p>
+</footer>
+
+<style>
+  .footer {
+    margin-block-start: var(--section-gap);
+    padding-block-end: var(--space-7);
+    color: var(--color-text-secondary);
+    font-size: var(--text-small);
+  }
+
+  .footer__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    gap: var(--space-7) var(--space-6);
+    padding-block: var(--space-8) var(--space-7);
+  }
+
+  .footer__brand {
+    display: grid;
+    gap: var(--space-4);
+    align-content: start;
+  }
+
+  .footer__tagline {
+    color: var(--color-text);
+  }
+
+  .footer__col {
+    display: grid;
+    gap: var(--space-2);
+    align-content: start;
+  }
+
+  .footer__col h2:not(:first-child) {
+    margin-block-start: var(--space-4);
+  }
+
+  .footer__list {
+    display: grid;
+    gap: var(--space-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .footer a {
+    color: var(--color-text-secondary);
+    text-decoration: none;
+  }
+
+  .footer a:hover {
+    color: var(--color-text);
+    text-decoration: underline;
+  }
+
+  .footer__list a {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 2.25rem;
+  }
+
+  .footer__legal {
+    color: var(--color-text-muted);
+  }
+</style>

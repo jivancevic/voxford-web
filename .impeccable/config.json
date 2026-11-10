@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "gradient-text",
+        "value": "*",
+        "files": [
+          "src/styles/global.css"
+        ],
+        "createdAt": "2026-11-10T16:32:35.593Z",
+        "reason": "Brand design philosophy (KB brand/dizajn-filozofija.md: 'u gradijentu koji klizi kroz naslov') and docs/spec.md › Design sanction gradient text as the light primitive; restricted to display sizes"
+      }
+    ]
+  }
+}

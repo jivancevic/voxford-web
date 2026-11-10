@@ -1,0 +1,100 @@
+---
+// The layout shell every page renders in: <head> (meta, canonical, hreflang,
+// Open Graph, JSON-LD, fonts), skip link, header, <main>, footer.
+// Pages pass `page` (a key from src/i18n/routes.ts) and get correct
+// alternates and the language switch for free; a dynamic page (a video watch
+// page) passes `alternates` itself.
+import { Font, getImage } from 'astro:assets';
+import { SITE_INDEXABLE } from 'astro:env/server';
+import JsonLd from '@/components/JsonLd.astro';
+import SiteFooter from '@/components/SiteFooter.astro';
+import SiteHeader from '@/components/SiteHeader.astro';
+import { PHOTOS, SHARE_PHOTO, type PhotoKey } from '@/data/photos';
+import { format, getStrings, LOCALE_META, LOCALES, type Locale } from '@/i18n';
+import { alternatesFor, type PageKey } from '@/i18n/routes';
+import { musicGroupJsonLd, webSiteJsonLd, type JsonLdNode } from '@/lib/jsonld';
+import { canonicalUrl, hreflangAlternates, robotsMeta } from '@/lib/seo';
+import '@/styles/global.css';
+
+interface Props {
+  lang: Locale;
+  /** Route-table key of this page. Omit only for pages outside the table (404, watch pages). */
+  page?: PageKey;
+  /** Every language version of this page; defaults to the route table's paths for `page`. */
+  alternates?: Record<Locale, string>;
+  /** <title> without the site suffix. */
+  title: string;
+  description: string;
+  /** Social preview photo; defaults to the share photo. */
+  ogPhoto?: PhotoKey;
+  /** Page-level JSON-LD nodes, added after the site-wide MusicGroup and WebSite. */
+  jsonLd?: readonly JsonLdNode[];
+  /** Force noindex on this page even in production (e.g. an empty concerts page). */
+  noindex?: boolean;
+}
+
+const { lang, page, title, description, ogPhoto = SHARE_PHOTO, jsonLd = [], noindex = false } = Astro.props;
+const site = Astro.site!;
+const t = getStrings(lang);
+
+const alternates = Astro.props.alternates ?? (page ? alternatesFor(page) : undefined);
+const canonical = canonicalUrl(site, alternates?.[lang] ?? Astro.url.pathname);
+const hreflang = alternates ? hreflangAlternates(site, alternates) : [];
+const fullTitle = page === 'home' ? title : format(t.common.meta.titleTemplate, { title });
+
+const og = await getImage({ src: PHOTOS[ogPhoto].src, width: 1200, height: 630, fit: 'cover', format: 'jpg' });
+const ogImage = new URL(og.src, site).href;
+
+const nodes: JsonLdNode[] = [
+  musicGroupJsonLd(site, lang, { description: t.common.meta.defaultDescription, image: ogImage }),
+  webSiteJsonLd(site, lang),
+  ...jsonLd,
+];
+---
+
+<!doctype html>
+<html lang={LOCALE_META[lang].htmlLang} dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <meta name="robots" content={robotsMeta(SITE_INDEXABLE, noindex)} />
+    <link rel="canonical" href={canonical} />
+    {hreflang.map((a) => <link rel="alternate" hreflang={a.hreflang} href={a.href} />)}
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={t.common.meta.siteName} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={PHOTOS[ogPhoto].alt[lang]} />
+    <meta property="og:locale" content={LOCALE_META[lang].ogLocale} />
+    {LOCALES.filter((l) => l !== lang).map((l) => <meta property="og:locale:alternate" content={LOCALE_META[l].ogLocale} />)}
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" href="/favicon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#0a0910" />
+
+    <Font cssVariable="--font-instrument-sans" preload />
+    <Font cssVariable="--font-big-shoulders" />
+    <Font cssVariable="--font-staubach" />
+    <Font cssVariable="--font-jura" />
+
+    <JsonLd nodes={nodes} />
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">{t.common.a11y.skipToContent}</a>
+    <SiteHeader lang={lang} page={page} alternates={alternates} />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <SiteFooter lang={lang} />
+  </body>
+</html>

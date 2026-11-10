@@ -1,0 +1,14 @@
+---
+// Route wrapper (ticket A): fixed. One watch page per `videos` entry; the page is src/views/VideoWatchView.astro.
+import { getCollection } from 'astro:content';
+import VideoWatchView from '@/views/VideoWatchView.astro';
+
+export async function getStaticPaths() {
+  const videos = await getCollection('videos');
+  return videos.map((video) => ({ params: { slug: video.id }, props: { video } }));
+}
+
+const { video } = Astro.props;
+---
+
+<VideoWatchView lang="hr" video={video} />

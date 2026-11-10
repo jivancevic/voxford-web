@@ -1,0 +1,76 @@
+// @ts-check
+import { defineConfig, envField, fontProviders } from 'astro/config';
+
+// Static build only (ADR 0001): every page is prerendered HTML in dist/, served
+// by Cloudflare Workers static assets. Dynamic paths live in worker/.
+
+const LATIN = 'U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD';
+const LATIN_EXT =
+  'U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF';
+
+/**
+ * One file of a variable font, limited to a unicode range. Each family below
+ * uses two: Latin, and Latin Extended (Č Ć Ž Đ Š), so Croatian text loads both.
+ * @param {string} file
+ * @param {'latin' | 'latin-ext'} subset
+ * @param {string} weight
+ */
+const face = (file, subset, weight) => ({
+  src: /** @type {[string]} */ ([`./src/assets/fonts/${file}-${subset}-wght-normal.woff2`]),
+  weight,
+  style: /** @type {const} */ ('normal'),
+  unicodeRange: /** @type {[string]} */ ([subset === 'latin' ? LATIN : LATIN_EXT]),
+});
+
+export default defineConfig({
+  // Canonical origin. Set SITE_URL in Workers Builds; ticket G sets the domain.
+  site: process.env.SITE_URL || 'http://localhost:8787',
+  trailingSlash: 'always',
+  build: { format: 'directory' },
+  i18n: {
+    locales: ['en', 'hr'],
+    defaultLocale: 'en',
+    // `/` is the Worker's Accept-Language redirect, not an Astro page.
+    routing: { prefixDefaultLocale: true, redirectToDefaultLocale: false },
+  },
+  env: {
+    schema: {
+      SITE_INDEXABLE: envField.boolean({ context: 'server', access: 'public', default: false }),
+    },
+  },
+  fonts: [
+    {
+      // Brand display: Latin only, no Č Ć Ž Đ. Wordmark, package names, numbers.
+      provider: fontProviders.local(),
+      name: 'Staubach',
+      cssVariable: '--font-staubach',
+      fallbacks: ['Impact', 'sans-serif'],
+      options: { variants: [{ src: ['./src/assets/fonts/staubach.woff2'], weight: '400', style: 'normal' }] },
+    },
+    {
+      // Headlines that need Croatian letters.
+      provider: fontProviders.local(),
+      name: 'Big Shoulders',
+      cssVariable: '--font-big-shoulders',
+      fallbacks: ['Arial Narrow', 'sans-serif'],
+      options: { variants: [face('big-shoulders', 'latin', '100 900'), face('big-shoulders', 'latin-ext', '100 900')] },
+    },
+    {
+      provider: fontProviders.local(),
+      name: 'Instrument Sans',
+      cssVariable: '--font-instrument-sans',
+      fallbacks: ['sans-serif'],
+      options: { variants: [face('instrument-sans', 'latin', '400 700'), face('instrument-sans', 'latin-ext', '400 700')] },
+    },
+    {
+      provider: fontProviders.local(),
+      name: 'Jura',
+      cssVariable: '--font-jura',
+      fallbacks: ['sans-serif'],
+      options: { variants: [face('jura', 'latin', '300 700'), face('jura', 'latin-ext', '300 700')] },
+    },
+  ],
+  vite: {
+    resolve: { alias: { '@': new URL('./src', import.meta.url).pathname } },
+  },
+});

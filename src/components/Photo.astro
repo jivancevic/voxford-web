@@ -1,0 +1,69 @@
+---
+// A photo from the set in src/data/photos.ts, as a responsive <picture>
+// (AVIF, WebP, JPEG fallback). Optional stage label overlaid at the bottom.
+import { Picture } from 'astro:assets';
+import { PHOTOS, type PhotoKey } from '@/data/photos';
+import type { Locale } from '@/i18n/locales';
+
+interface Props {
+  photo: PhotoKey;
+  lang: Locale;
+  /** CSS `sizes` for the layout slot the photo fills. */
+  sizes: string;
+  widths?: number[];
+  /** Above the fold (LCP): eager + high priority. */
+  priority?: boolean;
+  showLabel?: boolean;
+  class?: string;
+}
+
+const {
+  photo,
+  lang,
+  sizes,
+  widths = [480, 768, 1080, 1440, 1920, 2400],
+  priority = false,
+  showLabel = false,
+  class: className,
+} = Astro.props;
+const p = PHOTOS[photo];
+const label = 'label' in p ? p.label[lang] : undefined;
+const usable = widths.filter((w) => w <= p.src.width);
+---
+
+<figure class:list={['photo', className]}>
+  <Picture
+    src={p.src}
+    alt={p.alt[lang]}
+    formats={['avif', 'webp']}
+    widths={usable.length ? usable : [p.src.width]}
+    sizes={sizes}
+    loading={priority ? 'eager' : 'lazy'}
+    fetchpriority={priority ? 'high' : 'auto'}
+    decoding="async"
+  />
+  {showLabel && label && <figcaption class="label photo__label">{label}</figcaption>}
+</figure>
+
+<style>
+  .photo {
+    position: relative;
+    margin: 0;
+  }
+
+  .photo :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .photo__label {
+    position: absolute;
+    inset-inline-start: var(--space-4);
+    inset-block-end: var(--space-4);
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-pill);
+    background: color-mix(in oklab, var(--ink-950) 72%, transparent);
+    color: var(--ink-100);
+  }
+</style>
