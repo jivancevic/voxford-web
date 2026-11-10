@@ -7,7 +7,7 @@ source: "brand/biografija.md, posao/ponuda/ponuda.md, posao/klijenti/reference.m
 
 ## Pjesme za taj dan
 
-U repertoaru su pjesme koje se na vjenčanjima traže. Za crkveni obred: Dubine, Hvalospjev ljubavi i Srce predajem ti. Za slavlje: dalmatinska klapa poput pjesme Moj lipi anđele, You Raise Me Up, Let It Be, Somewhere Only We Know te domaći pop hitovi koje gosti pjevaju s nama. Recite nam koja Vam je pjesma važna i provjerit ćemo može li u set.
+U repertoaru su pjesme koje se na vjenčanjima traže: crkvene pjesme Dubine, Hvalospjev ljubavi i Srce predajem ti, dalmatinska klapa poput pjesme Moj lipi anđele, You Raise Me Up, Let It Be, Somewhere Only We Know te domaći pop hitovi koje gosti pjevaju s nama. Recite nam koja Vam je pjesma važna i provjerit ćemo može li u set.
 
 ## Izvan Zagreba
 

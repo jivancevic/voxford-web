@@ -48,8 +48,8 @@ const concerts = defineCollection({
   loader: glob({ pattern: '**/*.json', base: './src/content/concerts' }),
   schema: z.object({
     name: localized,
-    /** ISO 8601 date or date-time. */
-    startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}/),
+    /** ISO 8601 date, or date-time with its offset (19:00 in Austria is 19:00+02:00; without one the build's zone would decide). */
+    startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2})?(Z|[+-]\d{2}:\d{2}))?$/),
     /** The venue's proper name; omit when it is not known (never guess one). */
     venue: z.string().min(1).optional(),
     /** Who runs the concert (tourist board, festival), as the KB names it, per language when it differs; omit when not known. Never Voxford by default. */

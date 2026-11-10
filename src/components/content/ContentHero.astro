@@ -17,12 +17,17 @@ interface Props {
   prefill?: InquiryPrefill;
   /** A second, quieter link next to the inquiry pill. */
   secondary?: { href: string; label: string };
+  /** The photo's frame, default 4 / 5; a landscape stage photo with all five in it wants 3 / 2. */
+  photoRatio?: string;
 }
 
-const { lang, heading, lead, photo, prefill, secondary } = Astro.props;
+const { lang, heading, lead, photo, prefill, secondary, photoRatio } = Astro.props;
 ---
 
-<header class:list={['content-hero container', photo ? 'content-hero--photo' : 'content-hero--plain']}>
+<header
+  class:list={['content-hero container', photo ? 'content-hero--photo' : 'content-hero--plain', photoRatio && 'content-hero--landscape']}
+  style={photoRatio ? { '--hero-ratio': photoRatio } : undefined}
+>
   <div class="content-hero__text">
     <h1>{heading}</h1>
     <span class="light-line content-hero__line" aria-hidden="true"></span>
@@ -80,7 +85,7 @@ const { lang, heading, lead, photo, prefill, secondary } = Astro.props;
   }
 
   .content-hero :global(.content-hero__photo) {
-    --photo-ratio: 4 / 5;
+    --photo-ratio: var(--hero-ratio, 4 / 5);
     position: relative;
   }
 
@@ -104,6 +109,12 @@ const { lang, heading, lead, photo, prefill, secondary } = Astro.props;
       align-items: center;
       gap: var(--space-8);
       padding-block: var(--space-9) var(--space-8);
+    }
+
+    /* A landscape photo takes the wider column, or it shrinks to a stamp. */
+    .content-hero--landscape {
+      grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+      gap: var(--space-7);
     }
 
     .content-hero--plain {

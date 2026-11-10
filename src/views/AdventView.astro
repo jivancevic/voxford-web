@@ -44,7 +44,7 @@ const prefill = { type: 'advent' } as const;
   page={page}
   title={copy.data.title}
   description={fillFacts(copy.data.description, lang)}
-  ogPhoto="crikvenicaPiano"
+  ogPhoto="arenaDalmatino"
   jsonLd={[breadcrumbsFor(site, page, lang), ...servicesFor(site, lang, page, c.serviceType), faqPageJsonLd(faqs)]}
 >
   <PageFlow>
@@ -52,7 +52,8 @@ const prefill = { type: 'advent' } as const;
       lang={lang}
       heading={copy.data.heading}
       lead={fillFacts(c.lead, lang)}
-      photo="crikvenicaPiano"
+      photo="arenaDalmatino"
+      photoRatio="3 / 2"
       prefill={prefill}
       secondary={{ href: '#packages-heading', label: t.content.seePackages }}
     />

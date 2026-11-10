@@ -29,7 +29,8 @@ export function icsRoute(lang: Locale) {
       if (!entry || !site) return new Response(null, { status: 404 });
       const ics = concertIcs(
         {
-          uid: `${entry.id}@${site.hostname}`,
+          // A fixed host, not the site's: the UID must survive the move to the real domain (ticket G).
+          uid: `${entry.id}@concerts.voxford`,
           name: entry.data.name[lang],
           startDate: entry.data.startDate,
           place: concertPlace(entry.data, lang),

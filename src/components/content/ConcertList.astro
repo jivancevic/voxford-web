@@ -122,17 +122,11 @@ const rows = concerts.map((entry) => {
     max-inline-size: none;
     border-radius: var(--radius-card);
     background:
-      radial-gradient(
-          120% 90% at 0% 0%,
-          color-mix(in oklab, var(--brand-pink) 22%, transparent),
-          color-mix(in oklab, var(--brand-purple) 10%, transparent) 45%,
-          transparent 75%
-        )
-        0 0 / var(--stub) 100% no-repeat,
+      var(--glow-corner) 0 0 / var(--stub) 100% no-repeat,
       var(--color-bg-surface);
     mask:
-      radial-gradient(circle var(--notch) at var(--stub) 0, #0000 98%, #000) top / 100% 51% no-repeat,
-      radial-gradient(circle var(--notch) at var(--stub) 100%, #0000 98%, #000) bottom / 100% 51% no-repeat;
+      radial-gradient(circle var(--notch) at var(--stub) 0, transparent 98%, black) top / 100% 51% no-repeat,
+      radial-gradient(circle var(--notch) at var(--stub) 100%, transparent 98%, black) bottom / 100% 51% no-repeat;
   }
 
   /* Stage light along the top edge. */
@@ -155,7 +149,7 @@ const rows = concerts.map((entry) => {
   }
 
   .ticket__day {
-    font-size: clamp(3.25rem, 2.4rem + 2.6vw, 5rem);
+    font-size: var(--text-date);
     color: var(--color-text);
   }
 
@@ -163,11 +157,12 @@ const rows = concerts.map((entry) => {
     color: var(--color-text);
   }
 
+  /* A block, not a grid: ::first-letter (Croatian weekdays are lowercase) needs a block container. */
   .ticket__weekday {
-    display: grid;
+    display: block;
     color: var(--color-text-secondary);
     font-size: var(--text-small);
-    line-height: 1.35;
+    line-height: var(--leading-label);
   }
 
   .ticket__weekday::first-letter {
@@ -175,6 +170,7 @@ const rows = concerts.map((entry) => {
   }
 
   .ticket__time {
+    display: block;
     color: var(--color-text);
     font-weight: 600;
     font-variant-numeric: tabular-nums;
@@ -229,7 +225,7 @@ const rows = concerts.map((entry) => {
     inline-size: 0.4rem;
     aspect-ratio: 1;
     border-radius: 50%;
-    background: var(--brand-pink);
+    background: var(--color-text-accent);
   }
 
   .ticket__actions {

@@ -57,7 +57,7 @@ const events = upcoming.map((c) =>
   page={page}
   title={copy.data.title}
   description={fillFacts(copy.data.description, lang)}
-  ogPhoto="crikvenicaPiano"
+  ogPhoto="arenaDalmatino"
   jsonLd={[breadcrumbsFor(site, page, lang), ...events]}
   noindex={upcoming.length === 0}
 >
@@ -66,7 +66,8 @@ const events = upcoming.map((c) =>
       lang={lang}
       heading={copy.data.heading}
       lead={fillFacts(t.content.concertsPage.lead, lang)}
-      photo="crikvenicaPiano"
+      photo="arenaDalmatino"
+      photoRatio="3 / 2"
       prefill={{ type: 'concert' }}
     />
     <div class="container list">

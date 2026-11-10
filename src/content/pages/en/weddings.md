@@ -7,7 +7,7 @@ source: "brand/biografija.md, posao/ponuda/ponuda.md, posao/klijenti/reference.m
 
 ## Songs for the day
 
-The repertoire has the songs people ask for at weddings. For a church ceremony: Dubine, Hvalospjev ljubavi and Srce predajem ti. For the party: Dalmatian klapa such as Moj lipi anđele, You Raise Me Up, Let It Be, Somewhere Only We Know, and the Croatian pop hits guests sing along to. Tell us which song matters to you and we will check whether it can go in the set.
+The repertoire has the songs people ask for at weddings: church wedding songs such as Dubine, Hvalospjev ljubavi and Srce predajem ti, Dalmatian klapa such as Moj lipi anđele, You Raise Me Up, Let It Be, Somewhere Only We Know, and the Croatian pop hits guests sing along to. Tell us which song matters to you and we will check whether it can go in the set.
 
 ## Outside Zagreb
 

@@ -182,7 +182,7 @@
     "serviceType": "Glazba uživo za konferencije i poslovne događaje"
   },
   "weddings": {
-    "lead": "{disambiguation}. Pet glasova za obred ili iznenađenje za mladence, na vjenčanjima diljem Hrvatske i regije.",
+    "lead": "{disambiguation}. Pet glasova za obred ili iznenađenje za mladence, na vjenčanjima diljem Hrvatske, Slovenije i regije.",
     "facts": [
       {
         "term": "Obred",
