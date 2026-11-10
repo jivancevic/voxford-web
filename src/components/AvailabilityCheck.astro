@@ -95,15 +95,14 @@ const uid = `availability-${type ?? 'any'}-${lang}`;
   /* The form is the size container; the line inside lays out by its width, so
      the widget fits wherever it is placed, not only at one breakpoint. */
   .availability {
-    --hairline: color-mix(in oklab, var(--color-text) 16%, transparent);
     position: relative;
     container-type: inline-size;
     inline-size: min(100%, 46rem);
-    border: var(--line-thin) solid var(--hairline);
+    border: var(--line-thin) solid var(--color-border);
     border-radius: var(--radius-card);
-    background: color-mix(in oklab, var(--color-bg) 58%, transparent);
+    /* The scrim tokens.css defines for text set on a photo, frosted. */
+    background: var(--color-scrim);
     backdrop-filter: blur(18px) saturate(140%);
-    box-shadow: 0 var(--space-5) var(--space-8) calc(-1 * var(--space-5)) color-mix(in oklab, var(--color-bg) 80%, transparent);
     overflow: clip;
   }
 
@@ -160,12 +159,14 @@ const uid = `availability-${type ?? 'any'}-${lang}`;
   }
 
   .availability__label {
-    color: var(--color-text-secondary);
+    color: var(--color-text-on-photo);
     transition: color var(--duration-fast) var(--ease-out);
   }
 
+  /* The label takes the focus colour: with the gradient line it marks the
+     field in focus at full contrast (the line's blue end alone would not). */
   .availability__field:focus-within .availability__label {
-    color: var(--color-text);
+    color: var(--color-focus);
   }
 
   .availability__input {
@@ -176,20 +177,22 @@ const uid = `availability-${type ?? 'any'}-${lang}`;
     border-radius: 0;
     background: transparent;
     color: var(--color-text);
-    caret-color: var(--brand-pink);
+    caret-color: var(--color-focus);
     font-family: var(--font-headline);
-    font-size: clamp(1.5rem, 1.25rem + 0.8vw, 1.875rem);
+    font-size: var(--text-heading);
     font-weight: 600;
-    line-height: 1.1;
-    letter-spacing: 0.02em;
+    line-height: var(--leading-heading);
+    letter-spacing: var(--tracking-display);
     font-variant-numeric: tabular-nums;
     appearance: none;
   }
 
-  /* The gradient line is the focus indicator (2px, full field width), and the
-     label brightens with it; the browser ring would double it. */
+  /* The gradient line and the label in the focus colour are the focus
+     indicator; the browser ring would double them. The transparent outline
+     still shows in forced-colors mode, where backgrounds are dropped. */
   .availability__input:focus-visible {
-    outline: none;
+    outline: 2px solid transparent;
+    outline-offset: var(--space-1);
   }
 
   /* WebKit draws the date in its own boxes: keep it on the line, left-aligned,
@@ -220,10 +223,11 @@ const uid = `availability-${type ?? 'any'}-${lang}`;
     justify-self: start;
   }
 
-  /* From about 34rem of width: one line, date | city | pill. */
-  @container (inline-size >= 34rem) {
+  /* From 36rem of width: one line, date | city | pill (the HR pill is the
+     widest, about 10rem, and fits with both fields at their minimum). */
+  @container (inline-size >= 36rem) {
     .availability__line {
-      grid-template-columns: minmax(10.5rem, 1fr) minmax(11rem, 1.25fr) auto;
+      grid-template-columns: minmax(10rem, 1fr) minmax(10rem, 1.25fr) auto;
       align-items: end;
       gap: 0;
       padding: var(--space-4) var(--space-5) var(--space-5);
@@ -240,7 +244,7 @@ const uid = `availability-${type ?? 'any'}-${lang}`;
       inset-block: 0;
       inset-inline-start: calc(-1 * var(--space-5) / 2);
       inline-size: var(--line-thin);
-      background: var(--hairline);
+      background: var(--color-border);
     }
   }
 </style>

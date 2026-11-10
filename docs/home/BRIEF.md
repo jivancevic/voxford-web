@@ -126,9 +126,10 @@ the stage glow a little (`--sc-p`) and holds the stage pinned while the music pl
 The hero headline is "Five voices. One harmony." / "Pet glasova. Jedan sklad." (Josip, #31); the
 H1 also carries the group's disambiguation line, visually hidden, so it still says who Voxford
 is. The three planes are cut from Drive `Photo › 2026 Hrvatski Akademski Sportski Savez ›
-Unisport_stars_R1JC7655_JC.jpg` (© Jozo Cabraja / kolektiff, per the file's metadata) by
-`scripts/hero-planes/build.sh`, which is deterministic (rerunning it reproduces the committed
-files byte for byte):
+Unisport_stars_R1JC7655_JC.jpg` by `scripts/hero-planes/build.sh` (on the machine that made
+them, macOS 26 with the same ImageMagick and cwebp, a rerun reproduces the committed files byte
+for byte; Vision and the encoders may differ elsewhere). The caption credits "Jozo Cabraja /
+kolektiff", the file's mandatory credit, confirmed for #31:
 
 - **Crop:** 1800×1200 at (360, 268) of the 2400×1600 frame, so the five stand between 22% and
   97% of the width (the phone composition starts the frame at 18.5%) and the headline clears

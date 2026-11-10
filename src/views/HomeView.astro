@@ -82,10 +82,11 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
         />
       </div>
 
-      <!-- The display line is the brand line (#31); the hidden lead keeps the H1
-           saying who Voxford is for search and screen readers. -->
+      {/* The display line is the brand line (#31); the hidden lead keeps the H1
+           saying who Voxford is for search and screen readers. */}
       <h1 id="home-title" class="hero__title container" data-sc-copy>
-        <span class="visually-hidden">{GROUP.disambiguation[lang]}: </span>{copy.data.heading}
+        <span class="visually-hidden">{format(h.hero.titleLead, { group: GROUP.disambiguation[lang] })}</span>{' '}
+        {copy.data.heading}
       </h1>
 
       <div class="hero__scrim" aria-hidden="true"></div>

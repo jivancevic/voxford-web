@@ -3,7 +3,6 @@
 import Foundation
 import Vision
 import CoreImage
-import AppKit
 
 let args = CommandLine.arguments
 let url = URL(fileURLWithPath: args[1])

@@ -4,8 +4,18 @@
 # Needs macOS (Vision), ImageMagick, cwebp, Python 3 with Pillow and NumPy.
 # Writes src/assets/photos/home/hero-{far.jpg,subject.webp,front.webp}.
 set -euo pipefail
+if [ $# -ne 2 ]; then
+  echo "usage: $0 <Unisport_stars_R1JC7655_JC.jpg> <work-dir>" >&2
+  exit 2
+fi
 src=$1
 work=$2
+# The crop and tile offsets below are for the 2400x1600 export on Drive.
+size=$(magick identify -format '%wx%h' "$src")
+if [ "$size" != 2400x1600 ]; then
+  echo "expected a 2400x1600 frame, got $size" >&2
+  exit 1
+fi
 here=$(cd "$(dirname "$0")" && pwd)
 out="$here/../../src/assets/photos/home"
 mkdir -p "$work"

@@ -127,9 +127,10 @@ export const HERO_PLANES = {
     en: 'The five singers of Voxford singing at microphones on the Unisport Stars gala stage, the audience in silhouette in front',
     hr: 'Petorka Voxforda pjeva za mikrofonima na pozornici gala večeri Unisport Stars, ispred njih publika u silueti',
   },
-  // Same gala and agency as unisportStage (the file's metadata: Jozo Cabraja / kolektiff).
+  // Same gala as unisportStage. The credit is the file's own mandatory credit
+  // ("© Jozo Cabraja / kolektiff"), confirmed for #31.
   label: PHOTOS.unisportStage.label,
-  credit: PHOTOS.unisportStage.credit,
+  credit: 'Jozo Cabraja / kolektiff',
   source: 'Drive › Photo › 2026 Hrvatski Akademski Sportski Savez › Unisport_stars_R1JC7655_JC.jpg (Unisport Stars, Westin)',
 } as const;
 
