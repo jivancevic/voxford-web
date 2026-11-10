@@ -61,7 +61,11 @@ export class FakeR2 {
     if (!s) return null;
     const onlyIf = options?.onlyIf instanceof Headers ? options.onlyIf : undefined;
     if (onlyIf?.get('If-None-Match') === `"${s.etag}"`) return this.meta(key, s);
-    const range = options?.range instanceof Headers ? parseRange(options.range.get('Range'), s.bytes.length) : undefined;
+    const range =
+      options?.range instanceof Headers
+        ? parseRange(options.range.get('Range'), s.bytes.length)
+        : (options?.range as R2Range | undefined);
+    if (range && 'offset' in range && (range.offset ?? 0) >= s.bytes.length) throw new Error('InvalidRange');
     const bytes = slice(s.bytes, range);
     return {
       ...this.meta(key, s, range),

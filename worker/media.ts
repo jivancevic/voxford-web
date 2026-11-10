@@ -32,6 +32,22 @@ export function mediaKey(pathname: string): string | undefined {
 
 const notFound = () => new Response('Not found', { status: 404, headers: { 'Cache-Control': 'no-store' } });
 
+/**
+ * A single `bytes=` range as R2 takes it; undefined for no header, a
+ * multi-range or anything malformed (those get the whole file, as RFC 9110 allows).
+ */
+export function parseRange(header: string | null): R2Range | undefined {
+  const m = header ? /^bytes=(\d*)-(\d*)$/.exec(header.trim()) : null;
+  if (!m) return undefined;
+  const [, from, to] = m;
+  if (from === '' && to === '') return undefined;
+  if (from === '') return { suffix: Number(to) };
+  const offset = Number(from);
+  if (to === '') return { offset };
+  const end = Number(to);
+  return end < offset ? undefined : { offset, length: end - offset + 1 };
+}
+
 function contentRange(range: R2Range, size: number): { start: number; end: number } {
   if ('suffix' in range) {
     const length = Math.min(range.suffix, size);
@@ -49,13 +65,12 @@ export async function handleMedia(request: Request, env: Env): Promise<Response>
   const key = mediaKey(new URL(request.url).pathname);
   if (!key) return notFound();
 
-  const wantsRange = request.headers.has('Range');
+  // Parsed here, not passed through as headers: the R2 binding's echo of a
+  // header range differs between production and local mode.
+  const range = parseRange(request.headers.get('Range'));
   let object: R2Object | R2ObjectBody | null;
   try {
-    object = await env.MEDIA.get(key, {
-      onlyIf: request.headers,
-      ...(wantsRange ? { range: request.headers } : {}),
-    });
+    object = await env.MEDIA.get(key, { onlyIf: request.headers, ...(range ? { range } : {}) });
   } catch {
     // R2 rejects a range it cannot satisfy.
     const head = await env.MEDIA.head(key);
@@ -84,8 +99,12 @@ export async function handleMedia(request: Request, env: Env): Promise<Response>
 
   let status = 200;
   let length = object.size;
-  if (wantsRange && object.range) {
-    const { start, end } = contentRange(object.range, object.size);
+  if (range) {
+    const { start, end } = contentRange(range, object.size);
+    if (start > end || start >= object.size) {
+      await object.body.cancel();
+      return new Response('Range not satisfiable', { status: 416, headers: { 'Content-Range': `bytes */${object.size}` } });
+    }
     status = 206;
     length = end - start + 1;
     headers.set('Content-Range', `bytes ${start}-${end}/${object.size}`);

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import type { Env } from './env';
-import { handleMedia, mediaKey } from './media';
+import { handleMedia, mediaKey, parseRange } from './media';
 import { FakeR2 } from './test-support/fake-r2';
 
 let bucket: FakeR2;
@@ -102,5 +102,21 @@ describe('the router', () => {
     const res = await worker.fetch!(new Request('https://voxford.example/media/top/carol/loop.h264.mp4') as never, env(), ctx);
     expect(res.status).toBe(200);
     expect(await res.text()).toBe('0123456789');
+  });
+});
+
+describe('parseRange', () => {
+  it('reads single byte ranges', () => {
+    expect(parseRange('bytes=0-99')).toEqual({ offset: 0, length: 100 });
+    expect(parseRange('bytes=100-')).toEqual({ offset: 100 });
+    expect(parseRange('bytes=-500')).toEqual({ suffix: 500 });
+  });
+
+  it('ignores what it cannot serve as one range', () => {
+    expect(parseRange(null)).toBeUndefined();
+    expect(parseRange('bytes=0-1,5-6')).toBeUndefined();
+    expect(parseRange('bytes=9-2')).toBeUndefined();
+    expect(parseRange('bytes=-')).toBeUndefined();
+    expect(parseRange('items=0-1')).toBeUndefined();
   });
 });

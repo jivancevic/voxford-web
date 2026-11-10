@@ -157,7 +157,7 @@ async function extendToken(token: string, deps: Deps): Promise<void> {
     const days = Math.floor(refreshed.expires_in / 86_400);
     if (refreshed.access_token !== token) {
       deps.log.warn(
-        `reels: Instagram issued a new token (valid ${days} days); the stored one still works until it expires. Store the new one with scripts/instagram-wizard.sh refresh.`,
+        `reels: Instagram issued a new token (valid ${days} days); the stored one still works until it expires. If the sync later fails with code 190, run scripts/instagram-wizard.sh token.`,
       );
     } else {
       deps.log.info(`reels: token extended, valid ${days} more days`);
