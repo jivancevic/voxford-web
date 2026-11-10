@@ -343,40 +343,81 @@
       "Tvornica kulture": "Guests of Marko Kutlić, and later of Jasna Zlokić"
     },
     "pressHeading": "In the press",
+    "pressIntro": "Articles and interviews about us, newest first. Headlines are in Croatian, as published.",
+    "pressPrev": "Previous articles",
+    "pressNext": "Next articles",
     "press": [
+      {
+        "outlet": "RTV Herceg-Bosne",
+        "date": "2026-10-20",
+        "headline": "Jasna Zlokić za Radio Herceg-Bosne: Mladi nisu površni, u starim pjesmama prepoznaju istinsku emociju",
+        "what": "Jasna Zlokić on Ljudi poput nas and singing it with us",
+        "url": "https://rtv-hb.com/kultura-vijesti/jasna-zlokic-za-radio-herceg-bosne-mladi-nisu-povrsni-u-starim-pjesmama-prepoznaju"
+      },
       {
         "outlet": "JUGinfo",
         "date": "2026-02-28",
+        "headline": "TIKTOK FENOMEN UŽIVO Voxford pokazao da društvene mreže ne moraju biti “moderno zlo”…",
         "what": "Report from the concert in Orebić",
         "url": "https://juginfo.hr/najnovije/2026/02/28/tiktok-fenomen-uzivo-voxford-pokazao-da-drustvene-mreze-ne-moraju-biti-moderno-zlo-te-da-90-milijuna-pregleda-i-450-tisuca-pratitelja-nije-slucajno/"
       },
       {
+        "outlet": "HRT Magazin",
+        "logo": "hrt",
+        "date": "2025-12-15",
+        "headline": "HRT pripremio atraktivan program za Božić",
+        "what": "We are among the guests of HRT's Christmas show Božićna čarolija",
+        "url": "https://magazin.hrt.hr/zabava/hrt-pripremio-atraktivan-program-za-bozic-0-12476048"
+      },
+      {
+        "outlet": "Volim Ivanić",
+        "date": "2025-11-29",
+        "headline": "Voxford oduševio Ivanić-Grad: Čarolija prosinačkog koncerta u POU-u",
+        "what": "Report from our concert in Ivanić-Grad",
+        "url": "https://www.volimivanic.info/74165-2"
+      },
+      {
         "outlet": "Index.hr",
         "date": "2025-02-16",
+        "headline": "FOTO Grupa Dalmatino nastupila u punoj Areni Zagreb",
         "what": "Dalmatino at a full Arena Zagreb, with Voxford as surprise guests",
         "url": "https://www.index.hr/magazin/clanak/foto-grupa-dalmatino-nastupila-u-punoj-areni-zagreb/2642766.aspx"
       },
       {
         "outlet": "Journal.hr",
+        "logo": "journal",
         "date": "2024-06-05",
+        "headline": "Upoznajte Voxford, a capella grupu mladih ljudi čije nas obrade hitova već godinama oduševljavaju",
         "what": "Interview: our story, the klapa roots and the Mediterraneo concerts",
         "url": "https://www.journal.hr/kultura/glazba/voxford-intervju/"
       },
       {
-        "outlet": "After5",
-        "date": "2023-07-24",
-        "what": "How it started in a student flat",
-        "url": "https://after5.hr/zivot-iza-5/kultura/voxford-a-capella-bend/"
-      },
-      {
         "outlet": "Croatia Records",
         "date": "2023-11-24",
+        "headline": "Marko Kutlić održao vrhunski koncert u punoj Tvornici Kulture - iznenadio imidžem i pjevao među oduševljenom publikom koja je znala svaki stih",
         "what": "Marko Kutlić at Tvornica kulture, singing with Voxford",
         "url": "https://crorec.net/novosti/marko-kutlic-odrzao-vrhunski-koncert-u-punoj-tvornici-kulture-iznenadio-imidzem-i-pjevao-medu-odusevljenom-publikom-koja-je-znala-svaki-stih/"
       },
       {
+        "outlet": "After5",
+        "date": "2023-07-24",
+        "headline": "Voxford: Hrvatski a capella bend čija je priča započela u studentskoj garsonijeri",
+        "what": "How it started in a student flat",
+        "url": "https://after5.hr/zivot-iza-5/kultura/voxford-a-capella-bend/"
+      },
+      {
+        "outlet": "24sata",
+        "logo": "24sata",
+        "date": "2022-12-02",
+        "headline": "TikTok a capella zbor Voxford: 'Prepoznala nas je i Jelena Rozga'",
+        "what": "A video portrait in the Moja priča series",
+        "url": "https://www.youtube.com/watch?v=CuWwIHujpeo"
+      },
+      {
         "outlet": "MAKK",
+        "logo": "makk",
         "date": "2022-11-24",
+        "headline": "”Voxford”, a capella začin MAKK-u",
         "what": "Voxford at the MAKK 2022 conference",
         "url": "https://www.makk.hr/makk-2022/voxford-a-capella-zacin-makk-u/"
       }

@@ -15,4 +15,8 @@ Moderni a cappella susreće klapu, dio hrvatske nematerijalne kulturne baštine.
 
 ## S drugim izvođačima
 
-Snimali smo i pjevali s Markom Kutlićem, Jasnom Zlokić i Jakovom Jozinovićem, Damirom Kedžom, Jacquesom Houdekom, Ružicom Maurus i Igorom Drvenkarom iz Parnog valjka, a Bosque je 2025. objavio Narancha uz Voxford. HRT nas je zvao u svoje božićne emisije 2023. i 2025.
+Pjevamo na pjesmi *Ljudi poput nas* Jasne Zlokić i Jakova Jozinovića, koja je {chartWeeks} tjedana bila broj 1 na hrvatskim top ljestvicama, a s njima smo je otpjevali i na premijeri uživo u Tvornici kulture. Snimali smo i pjevali i s Markom Kutlićem, Damirom Kedžom, Jacquesom Houdekom i Ružicom Maurus, a Bosque je 2025. objavio Narancha uz Voxford. HRT nas je zvao u svoje božićne emisije 2023. i 2025.
+
+## Gdje pjevamo
+
+Osim koncerata, pjevamo na konferencijama, korporativnim događajima, vjenčanjima i adventskim programima. Na konferenciji MAKK 2022. pjevali smo medleye između predavanja. Godine 2025. nastupili smo za Državni zavod za statistiku u Zagrebu, a u lipnju 2026. na atletskom mitingu Memorijal Boris Hanžeković u Zagrebu, gdje smo otpjevali himnu i jednu pjesmu.

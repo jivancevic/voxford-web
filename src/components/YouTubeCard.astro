@@ -1,0 +1,182 @@
+---
+// One upload from the YouTube channel feed (src/lib/youtube.ts): its thumbnail,
+// title, date and a link to YouTube. Without JavaScript the thumbnail links to
+// the video on YouTube; with it, a play button swaps the thumbnail for the
+// youtube-nocookie player in place (src/scripts/youtube-play.ts). The thumbnail
+// is resized by the build and served from our origin, so nothing loads from
+// YouTube before the press. Same pattern as ReelCard.
+import { Image } from 'astro:assets';
+import { format, getStrings, LOCALE_META, type Locale } from '@/i18n';
+import { shortTitle, type LatestYouTubeVideo } from '@/lib/youtube';
+
+interface Props {
+  lang: Locale;
+  video: LatestYouTubeVideo;
+}
+
+const { lang, video } = Astro.props;
+const t = getStrings(lang);
+const title = shortTitle(video.title);
+const date = new Date(video.published);
+const dateText = new Intl.DateTimeFormat(LOCALE_META[lang].htmlLang, { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(date);
+---
+
+<article class:list={['yt', `yt--${video.kind}`]}>
+  <div
+    class="yt__frame"
+    data-youtube={video.id}
+    data-label={format(t.videos.youtube.playerLabel, { title })}
+  >
+    <a class="yt__thumb" href={video.url} rel="noopener" tabindex="-1" aria-hidden="true">
+      <Image
+        src={video.thumbnail.src}
+        width={video.thumbnail.width}
+        height={video.thumbnail.height}
+        widths={[270, 405, 540].filter((w) => w <= video.thumbnail.width)}
+        sizes="(min-width: 64rem) 15rem, 60vw"
+        alt=""
+        loading="lazy"
+        decoding="async"
+      />
+    </a>
+    <span class="yt__mark" aria-hidden="true"></span>
+    <button class="yt__play" type="button" aria-label={format(t.videos.youtube.play, { title })} hidden></button>
+  </div>
+  <h4 class="yt__title">{title}</h4>
+  <p class="label yt__meta">
+    <time datetime={video.published}>{dateText}</time>
+    <a href={video.url} rel="noopener">{t.videos.youtube.onYouTube}</a>
+  </p>
+</article>
+
+<script>
+  import '@/scripts/youtube-play';
+</script>
+
+<style>
+  .yt {
+    display: grid;
+    gap: var(--space-3);
+    align-content: start;
+    min-inline-size: 0;
+  }
+
+  .yt__frame {
+    position: relative;
+    aspect-ratio: 9 / 16;
+    overflow: hidden;
+    border-radius: var(--radius-card);
+    background: var(--color-bg-raised);
+  }
+
+  .yt--video .yt__frame {
+    aspect-ratio: 16 / 9;
+  }
+
+  .yt__thumb {
+    position: absolute;
+    inset: 0;
+  }
+
+  .yt__frame :global(img),
+  .yt__frame :global(iframe) {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    border: 0;
+    object-fit: cover;
+  }
+
+  /* Stage light from the bottom edge, so the play mark always reads. */
+  .yt__frame::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0;
+    block-size: 40%;
+    background: linear-gradient(to top, var(--color-scrim), transparent);
+    pointer-events: none;
+  }
+
+  /* The play mark: decoration in the corner, like the top videos' cards. The
+     button over the whole frame takes the press. */
+  .yt__mark {
+    position: absolute;
+    inset-inline-start: var(--space-4);
+    inset-block-end: var(--space-4);
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    inline-size: var(--pill-height);
+    block-size: var(--pill-height);
+    border: var(--line-thin) solid transparent;
+    border-radius: var(--radius-pill);
+    background:
+      linear-gradient(var(--color-scrim), var(--color-scrim)) padding-box,
+      var(--gradient-light) border-box;
+    pointer-events: none;
+    transition: box-shadow var(--duration-base) var(--ease-out);
+  }
+
+  .yt__mark::before {
+    content: '';
+    margin-inline-start: 0.2rem;
+    border-block: 0.45rem solid transparent;
+    border-inline-start: 0.7rem solid var(--color-text-on-photo);
+  }
+
+  .yt__play {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    padding: 0;
+    border: 0;
+    border-radius: inherit;
+    background: none;
+    cursor: pointer;
+  }
+
+  .yt__play[hidden] {
+    display: none;
+  }
+
+  .yt__play:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: -2px;
+  }
+
+  .yt__frame:hover .yt__mark,
+  .yt__frame:has(.yt__play:focus-visible) .yt__mark,
+  .yt__frame:has(.yt__thumb:hover) .yt__mark {
+    box-shadow: var(--glow-pink), var(--glow-blue);
+  }
+
+  /* Playing: the player takes the frame; the mark and the shade step aside. */
+  .yt__frame:global(.is-playing)::after,
+  .yt__frame:global(.is-playing) .yt__mark {
+    display: none;
+  }
+
+  .yt__frame :global(iframe) {
+    z-index: 3;
+    background: var(--color-bg-raised);
+  }
+
+  .yt__title {
+    font-size: var(--text-body);
+    font-weight: 600;
+    line-height: var(--leading-heading);
+    text-transform: none;
+  }
+
+  .yt__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-3);
+    margin: 0;
+  }
+
+  .yt__meta a {
+    color: var(--color-link);
+  }
+</style>

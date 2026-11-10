@@ -18,6 +18,9 @@ import shootCasaSat from '@/assets/photos/shoot-casa-sat.jpg';
 import shootCrnoFotelja from '@/assets/photos/shoot-crno-fotelja.jpg';
 import shootSetnja from '@/assets/photos/shoot-setnja.jpg';
 import unisportBlizu from '@/assets/photos/unisport-blizu.jpg';
+// About (#41): Josip's own photos, sent 2026-11-11; no photographer to credit.
+import selfieFive from '@/assets/photos/selfie-five.jpg';
+import stageZlokicJozinovic from '@/assets/photos/stage-zlokic-jozinovic.jpg';
 // Home (ticket B): the hero's depth planes and the chord's five portraits.
 import heroFar from '@/assets/photos/home/hero-far.jpg';
 import heroFront from '@/assets/photos/home/hero-front.webp';
@@ -151,6 +154,24 @@ export const PHOTOS = {
     },
     label: { en: 'TVORNICA KULTURE · 2023', hr: 'TVORNICA KULTURE · 2023' },
     source: 'Drive › Photo › 2023 Tvornica Marko Kutlić › PHOTO-2023-11-28-10-21-06 (7).jpg',
+  },
+  selfieFive: {
+    src: selfieFive,
+    alt: {
+      en: 'A selfie of the five members of Voxford, smiling in front of a black curtain, a stage light glowing behind them',
+      hr: 'Selfie petorke Voxforda, nasmijani ispred crnog zastora, iza njih svijetli reflektor',
+    },
+    source: 'Josip, WhatsApp 2026-11-11 (his own photo, no credit), #41',
+  },
+  stageZlokicJozinovic: {
+    // Jasna Zlokić's concert at Tvornica kulture, 10 Oct 2026 (KB posao/klijenti/reference.md › Jakov Jozinović).
+    src: stageZlokicJozinovic,
+    alt: {
+      en: 'Voxford with Jasna Zlokić, Jakov Jozinović and the band on the green-lit stage of Tvornica kulture, the audience in the foreground',
+      hr: 'Voxford s Jasnom Zlokić, Jakovom Jozinovićem i bendom na pozornici Tvornice kulture u zelenom svjetlu, u prvom planu publika',
+    },
+    label: { en: 'TVORNICA KULTURE · ZAGREB · 2026', hr: 'TVORNICA KULTURE · ZAGREB · 2026' },
+    source: 'Josip, WhatsApp 2026-11-11 (his own photo, no credit), #41',
   },
 } as const satisfies Record<string, Photo>;
 

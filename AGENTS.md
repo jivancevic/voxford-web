@@ -9,6 +9,7 @@ Voxford's public website: Astro (static) on Cloudflare Workers. Read `CONTEXT.md
 - **Content collections** are declared in `src/content.config.ts` (Astro 5+ location) with the `glob()` loader; Zod comes from `astro/zod` (Zod 4: `z.url()`, not `z.string().url()`).
 - **Fonts** use Astro's Fonts API (`fonts` in `astro.config.mjs`, `<Font>` in the layout) with local woff2 files in `src/assets/fonts/`.
 - **Builds inside `.claude/worktrees/<name>/` fail** with "Tsconfig not found astro/tsconfigs/strict": the worktree sits inside the main checkout, and the native resolver picks up the main checkout's `tsconfig.json` (which has no `node_modules`). Run `npm run build`, `check` and `test:dist` on a copy outside the repo, e.g. `git worktree add --detach <scratch>/copy HEAD`, symlink `node_modules`, `rsync` your `src/` into it. `npm test` and `lint` work in place. CI is not affected.
+- **Scoped styles stop at a child component's root.** A class passed as `<VideoRail class="x" />` lands on the child's root element, which the parent's scoped selector `.x` never matches. Write `:global(.x)` anchored to the parent's own scope (`.proof :global(.x)`), not a bare `:global(.x)`, which would apply site-wide. Ticket F found two silent spacing bugs from this.
 - Dev: `npm run dev` (Astro, port 4321, no Worker) for pages; `npm run preview` (build + `wrangler dev`, port 8787) for the real thing, Worker included.
 
 ## Seams: who edits what
@@ -46,6 +47,7 @@ Shared rules for B–E:
 
 - **Facts only from the KB** (`~/projects/business/voxford/`), through `site-facts.ts`. No invented numbers, quotes, clients or testimonials. This repo is public: no prices, OIB, IBAN, contracts, phone numbers or private clients' names, ever.
 - **Copy is written natively in both languages**; HR addresses the reader with capitalised "Vi". Every page copy entry names its KB `source`.
+- **Voxford speaks as "we"** (Josip, #35): in FAQ answers, page copy and UI strings (`src/content/`, `src/i18n/`) Voxford refers to itself as "we", "our", "the five of us" / "mi", "nas petero", never as "they" or "it", and no sentence about us has "the group", "skupina" or "petorka" as its subject. Questions from the client's side ("How do we book Voxford?") stay. Noun labels are fine (headings, lineup labels, alt text, the footer tagline). Entity statements keep Voxford as the subject: the `{disambiguation}` lead openers, page titles, meta and default descriptions (the default one is also the `MusicGroup` JSON-LD description), `llms.txt`, `VideoObject` descriptions, the "Who is Voxford?" opening line.
 - **Staubach (`.display`, `.numeral`) only for Latin-only words and numbers**: it has no Č Ć Ž Đ, and Š renders as S. Headlines that may carry Croatian letters use the headline face (h1–h3 default).
 - **No stretched buttons**: use `Pill` or `InquiryCTA` (content-width, ≥48px tall, ~28px side padding, aspect ≤ 3:1); never `width: 100%` on a button.
 - **All text in static HTML**; motion only enhances what is already in the DOM.

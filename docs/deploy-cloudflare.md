@@ -169,6 +169,8 @@ A new top video: add a row to `scripts/top-videos.tsv`, add `src/content/videos/
 
 **Reels sync.** `worker/reels.ts` runs on the cron (04:17 UTC daily): it copies the newest 6 reels of voxford.official from the Instagram API (Unified login, `graph.facebook.com`, docs/adr/0004) into `reels/`, writes `reels/manifest.json` and, when the feed changed, POSTs the Workers Builds deploy hook (retried on the next run if it fails). A replaced reel's files stay in R2 for 7 days after it left the feed, and longer while the rebuild is still pending (no hook, or the hook failing), so the live page never points at a deleted file. The build reads `<SITE_URL>/media/reels/manifest.json` (`src/lib/reels.ts`); build variable `REELS_MANIFEST_URL` overrides it, `off` skips it. If anything fails the last good feed stays, and a build that cannot read the manifest renders the Videos page without the reels.
 
+**YouTube uploads.** The Videos page's "Latest on YouTube" row is read at build time from the channel's public RSS feed (`src/lib/youtube.ts`, channel id in `src/data/site-facts.ts`), so a new upload shows after the next build: any merge to `main`, or the rebuild the reels sync triggers. Build variable `YOUTUBE_FEED_URL` overrides the feed, `off` skips it; a build that cannot read the feed renders the page without the row. The players load from `youtube-nocookie.com` only when a visitor presses play.
+
 Secrets (Worker › Settings › Variables & Secrets), set by the wizard, never in a file:
 
 | Secret | What | Set by |
