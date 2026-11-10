@@ -3,7 +3,8 @@
 // spec › Acceptance). The caller passes the same Faq[] it puts into FAQPage
 // JSON-LD. `grouped` splits them under the FAQ page's section headings.
 import { getStrings, type Locale } from '@/i18n';
-import type { Faq, FaqGroup } from '@/lib/faq';
+import type { Faq } from '@/lib/faq';
+import { FAQ_GROUPS } from '@/lib/faq-groups';
 
 interface Props {
   lang: Locale;
@@ -19,9 +20,8 @@ interface Props {
 
 const { lang, faqs, id, heading, showHeading = true, grouped = false, more } = Astro.props;
 const t = getStrings(lang);
-const GROUP_ORDER: FaqGroup[] = ['booking', 'music', 'sound', 'day'];
 const groups = grouped
-  ? GROUP_ORDER.map((g) => ({ key: g, title: t.content.faq.groups[g], items: faqs.filter((f) => f.group === g) })).filter(
+  ? FAQ_GROUPS.map((g) => ({ key: g, title: t.content.faq.groups[g], items: faqs.filter((f) => f.group === g) })).filter(
       (g) => g.items.length > 0,
     )
   : [{ key: 'all', title: undefined, items: faqs }];

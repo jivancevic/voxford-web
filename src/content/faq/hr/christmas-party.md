@@ -5,4 +5,4 @@ group: music
 pages: [conferences, advent]
 source: "posao/klijenti/reference.md, brand/biografija.md"
 ---
-Možemo. Za božićne evente zvali su nas HEP, Hrvatski Telekom, Infobip i JGL. Carol of the Bells, naš najgledaniji video s {carolViews} pregleda, dio je božićnog repertoara.
+Možemo. Za božićne evente zvali su nas HEP, Hrvatski Telekom i JGL. Carol of the Bells, naš najgledaniji video s {carolViews} pregleda, dio je božićnog repertoara.

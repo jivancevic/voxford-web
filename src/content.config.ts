@@ -8,6 +8,7 @@
 import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
+import { FAQ_GROUPS } from './lib/faq-groups';
 
 const localized = z.object({ en: z.string().min(1), hr: z.string().min(1) });
 
@@ -35,7 +36,7 @@ const faq = defineCollection({
     /** Page keys whose FAQ block shows this entry (the FAQ page shows all). */
     pages: z.array(z.string()).default([]),
     /** Section on the FAQ page (labels in the `content` namespace: content.faq.groups). */
-    group: z.enum(['booking', 'music', 'sound', 'day']),
+    group: z.enum(FAQ_GROUPS),
     source: z.string().min(1),
   }),
 });

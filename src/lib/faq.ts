@@ -7,7 +7,9 @@ import type { PageKey } from '@/i18n/routes';
 import { fillFacts, fillFactsHtml } from './copy';
 import type { QA } from './jsonld';
 
-export type FaqGroup = 'booking' | 'music' | 'sound' | 'day';
+import type { FaqGroup } from './faq-groups';
+
+export type { FaqGroup };
 
 export interface Faq extends QA {
   id: string;

@@ -7,7 +7,7 @@ source: "brand/biografija.md, brand/u-medijima.md, ljudi-i-procesi/ekipa.md, pos
 
 ## Kako je počelo
 
-Svih pet nas dolazi iz zborskog pjevanja, glazbenog obrazovanja i dalmatinske klapske tradicije. Prvi kratki a cappella video objavili smo {foundingYear}., snimljen u studentskoj garsonijeri u Zagrebu. Obrade domaćih i stranih hitova koje su uslijedile postale su viralne, a s njima su stigli i pozivi drugih izvođača: Tonči Huljić poveo nas je u Ljubljanu i Beč s projektom Mediterraneo, Marko Kutlić pozvao nas je na pozornicu Tvornice kulture, a Dalmatino kao goste iznenađenja u Arenu Zagreb.
+Svih pet nas dolazi iz zborskog pjevanja, glazbenog obrazovanja i dalmatinske klapske tradicije. Priča je počela u studentskoj garsonijeri u Zagrebu, a prvi kratki a cappella video objavili smo {foundingYear}. Obrade domaćih i stranih hitova koje su uslijedile postale su viralne, a s njima su stigli i pozivi drugih izvođača: Tonči Huljić poveo nas je u Ljubljanu i Beč s projektom Mediterraneo, Marko Kutlić pozvao nas je na pozornicu Tvornice kulture, a Dalmatino kao goste iznenađenja u Arenu Zagreb.
 
 ## Zvuk
 

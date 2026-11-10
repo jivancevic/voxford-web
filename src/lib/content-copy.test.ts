@@ -44,8 +44,8 @@ describe('content copy (ticket C)', () => {
     it(`${file}: every {token} exists in site-facts`, () => {
       const known = Object.keys(factTokens('en'));
       const used = [...text.matchAll(/\{(\w+)\}/g)].map((m) => m[1]);
-      // {credit} and {name} are format() slots, filled where the string is used.
-      const formatSlots = ['credit', 'name'];
+      // {credit}, {name}, {min} and {max} are format() slots, filled where the string is used.
+      const formatSlots = ['credit', 'name', 'min', 'max'];
       expect(used.filter((u) => u && !known.includes(u) && !formatSlots.includes(u))).toEqual([]);
     });
   }

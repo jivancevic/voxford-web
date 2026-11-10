@@ -25,7 +25,7 @@ describe('fillFacts', () => {
   it('has a min and max token for every package with a range', () => {
     const tokens = factTokens('en');
     for (const p of PACKAGES) {
-      const key = p.key === 'pop-up' ? 'popUp' : p.key;
+      const key = p.key.replace(/-(\w)/g, (_m, c: string) => c.toUpperCase());
       expect(tokens[`${key}Max`]).toBe(String(p.minutes.max));
       if (p.minutes.min) expect(tokens[`${key}Min`]).toBe(String(p.minutes.min));
     }

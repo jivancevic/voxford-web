@@ -4,10 +4,12 @@
 // puts the current value in at build time. An unknown token throws, so a typo
 // fails the build instead of shipping "{folowers}" to visitors.
 
-import { GROUP, NUMBERS, PACKAGES, type Package, type PackageKey } from '@/data/site-facts';
+import { GROUP, NUMBERS, PACKAGES, type Package } from '@/data/site-facts';
+import { format, getStrings } from '@/i18n';
 import type { Locale } from '@/i18n/locales';
 
-const tokenKey: Record<PackageKey, string> = { 'pop-up': 'popUp', classic: 'classic', gold: 'gold' };
+/** Package key to token prefix: 'pop-up' → 'popUp', so copy writes {popUpMax}. */
+const tokenKey = (key: string) => key.replace(/-(\w)/g, (_m, c: string) => c.toUpperCase());
 
 /** Every token copy may use, with its value in one language. */
 export function factTokens(lang: Locale): Record<string, string> {
@@ -25,7 +27,7 @@ export function factTokens(lang: Locale): Record<string, string> {
     carolViews: NUMBERS.carolViews.display,
   };
   for (const p of PACKAGES) {
-    const k = tokenKey[p.key];
+    const k = tokenKey(p.key);
     tokens[`${k}Name`] = p.name;
     tokens[`${k}Max`] = String(p.minutes.max);
     if (p.minutes.min !== undefined) tokens[`${k}Min`] = String(p.minutes.min);
@@ -46,11 +48,11 @@ export function fillFacts(text: string, lang: Locale): string {
   });
 }
 
-/** "up to 15 min" / "45 to 60 min" (no dashes: the copy style avoids them). */
+/** A package's length in words, e.g. "up to 15 min" / "45 to 60 min" (strings: content.packages.duration). */
 export function packageDuration(pkg: Package, lang: Locale): string {
   const { min, max } = pkg.minutes;
-  if (min === undefined) return lang === 'hr' ? `do ${max} min` : `up to ${max} min`;
-  return lang === 'hr' ? `${min} do ${max} min` : `${min} to ${max} min`;
+  const d = getStrings(lang).content.packages.duration;
+  return min === undefined ? format(d.upTo, { max }) : format(d.range, { min, max });
 }
 
 /**

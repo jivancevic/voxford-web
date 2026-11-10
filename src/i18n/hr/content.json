@@ -32,36 +32,32 @@
     "rows": {
       "type": "Vrsta nastupa",
       "length": "Trajanje",
-      "performers": "Izvođači",
       "instruments": "Instrumenti",
-      "soundcheck": "Tonska proba",
       "engineer": "Tonac"
     },
     "items": {
       "pop-up": {
         "type": "Ceremonijalni nastup",
         "fits": "Vjenčanja, otvorenja, dodjele i posebni trenuci događanja. Potpuno a cappella.",
-        "performers": "5 pjevača",
         "instruments": "Bez, a cappella",
-        "soundcheck": "20 min",
         "engineer": "Vaš"
       },
       "classic": {
         "type": "A cappella koncert",
         "fits": "Samostalni koncert: domaći i strani hitovi u pet glasova, bez instrumenata.",
-        "performers": "5 pjevača",
         "instruments": "Bez, a cappella",
-        "soundcheck": "30 min",
         "engineer": "Vaš ili naš"
       },
       "gold": {
         "type": "Cjelovečernji koncert",
         "fits": "Sedam izvođača: pet glasova uz klavir i cajon, kao središnji glazbeni događaj večeri.",
-        "performers": "7 izvođača",
         "instruments": "Klavir i cajon",
-        "soundcheck": "45 min",
         "engineer": "Vaš ili naš"
       }
+    },
+    "duration": {
+      "upTo": "do {max} min",
+      "range": "{min} do {max} min"
     }
   },
   "concerts": {
@@ -155,7 +151,7 @@
       },
       {
         "name": "Infobip",
-        "what": "Event tvrtke, Zagreb",
+        "what": "Event tvrtke",
         "year": "2023."
       },
       {
@@ -388,13 +384,13 @@
     "management": "{managerName}, {managerCompany}. Rezervacije i mediji: {email}."
   },
   "packagesPage": {
-    "lead": "Tri načina da nas rezervirate, svaki s točnim trajanjem i postavom. Cijena ovisi o datumu i mjestu, pa je šaljemo na upit.",
+    "lead": "{disambiguation}. Tri načina da nas rezervirate, svaki s točnim trajanjem i postavom. Cijena ovisi o datumu i mjestu, pa je šaljemo na upit.",
     "serviceType": "A cappella nastup uživo"
   },
   "faqPage": {
-    "lead": "Kratki odgovori o rezervaciji, glazbi, ozvučenju i danu nastupa. Za sve ostalo pišite na {email}."
+    "lead": "Kratki odgovori o rezervaciji: {disambiguation}, glazba, ozvučenje i dan nastupa. Za sve ostalo pišite na {email}."
   },
   "concertsPage": {
-    "lead": "Adventske pozornice, ljetni koncerti i festivali na koje može doći svatko."
+    "lead": "{disambiguation}, uživo: adventske pozornice, ljetni koncerti i festivali na koje može doći svatko."
   }
 }

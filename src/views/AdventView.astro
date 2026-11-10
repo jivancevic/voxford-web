@@ -3,6 +3,7 @@
 // public concerts (the full list and their Event JSON-LD live on the concerts
 // page) and recent public ones by name. JSON-LD: BreadcrumbList, one Service
 // per package (no prices), FAQPage.
+import ReferencesWall from '@/components/ReferencesWall.astro';
 import VideoRail from '@/components/VideoRail.astro';
 import ConcertList from '@/components/content/ConcertList.astro';
 import ContentHero from '@/components/content/ContentHero.astro';
@@ -69,6 +70,7 @@ const prefill = { type: 'advent' } as const;
       )
     }
     <NamedList id="past" heading={c.pastHeading} items={c.past} />
+    <ReferencesWall lang={lang} class="container" />
     <PackageSection lang={lang} type="advent" />
     <FaqList lang={lang} id="faq" heading={t.content.faq.heading} faqs={faqs} more={{ href: pathFor('faq', lang), label: t.content.faq.all }} />
     <VideoRail lang={lang} limit={4} class="container" />

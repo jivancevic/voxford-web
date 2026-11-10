@@ -32,36 +32,32 @@
     "rows": {
       "type": "Type",
       "length": "Length",
-      "performers": "Performers",
       "instruments": "Instruments",
-      "soundcheck": "Soundcheck",
       "engineer": "Sound engineer"
     },
     "items": {
       "pop-up": {
         "type": "Ceremonial set",
         "fits": "Weddings, openings, award ceremonies and the special moments of an event. Fully a cappella.",
-        "performers": "5 singers",
         "instruments": "None, a cappella",
-        "soundcheck": "20 min",
         "engineer": "Yours"
       },
       "classic": {
         "type": "A cappella concert",
         "fits": "A standalone concert: Croatian and international hits in five voices, with no instruments.",
-        "performers": "5 singers",
         "instruments": "None, a cappella",
-        "soundcheck": "30 min",
         "engineer": "Yours or ours"
       },
       "gold": {
         "type": "Full evening concert",
         "fits": "Seven performers: five voices with piano and cajón, as the main music of the evening.",
-        "performers": "7 performers",
         "instruments": "Piano and cajón",
-        "soundcheck": "45 min",
         "engineer": "Yours or ours"
       }
+    },
+    "duration": {
+      "upTo": "up to {max} min",
+      "range": "{min} to {max} min"
     }
   },
   "concerts": {
@@ -155,7 +151,7 @@
       },
       {
         "name": "Infobip",
-        "what": "Company event, Zagreb",
+        "what": "Company event",
         "year": "2023"
       },
       {
@@ -388,13 +384,13 @@
     "management": "{managerName}, {managerCompany}. Bookings and press: {email}."
   },
   "packagesPage": {
-    "lead": "Three ways to book us, each with a fixed length and line-up. The price depends on the date and the place, so we send it on request.",
+    "lead": "{disambiguation}. Three ways to book us, each with a fixed length and line-up. The price depends on the date and the place, so we send it on request.",
     "serviceType": "Live a cappella performance"
   },
   "faqPage": {
-    "lead": "Short answers about booking, music, sound and the day of the event. For anything else, write to {email}."
+    "lead": "Short answers about booking {disambiguation}: music, sound and the day of the event. For anything else, write to {email}."
   },
   "concertsPage": {
-    "lead": "Advent stages, summer concerts and festivals where anyone can come and listen."
+    "lead": "{disambiguation}, live: Advent stages, summer concerts and festivals where anyone can come and listen."
   }
 }

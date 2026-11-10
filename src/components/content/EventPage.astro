@@ -1,0 +1,79 @@
+---
+// The shared body of the event pages (Weddings, Private celebrations): hero
+// with the inquiry prefilled for the event type, facts, programme, a photo
+// band, prose, packages, FAQ, videos and the end screen, plus their JSON-LD
+// (BreadcrumbList, one Service per package without a price, FAQPage).
+// Conferences and Advent add their own sections, so they compose the parts.
+import VideoRail from '@/components/VideoRail.astro';
+import type { PhotoKey } from '@/data/photos';
+import type { EventType } from '@/data/site-facts';
+import { getStrings, type Locale } from '@/i18n';
+import { pathFor } from '@/i18n/routes';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { fillFacts } from '@/lib/copy';
+import { getFaqs } from '@/lib/faq';
+import { faqPageJsonLd } from '@/lib/jsonld';
+import { breadcrumbsFor, loadPage } from '@/lib/page';
+import { servicesFor } from '@/lib/services';
+import ContentHero from './ContentHero.astro';
+import CreditedPhoto from './CreditedPhoto.astro';
+import EndCta from './EndCta.astro';
+import FactList from './FactList.astro';
+import FaqList from './FaqList.astro';
+import PackageSection from './PackageSection.astro';
+import PageFlow from './PageFlow.astro';
+import Programme from './Programme.astro';
+import Prose from './Prose.astro';
+
+interface Props {
+  lang: Locale;
+  page: 'weddings' | 'private';
+  type: EventType;
+  heroPhoto: PhotoKey;
+  bandPhoto: PhotoKey;
+}
+
+const { lang, page, type, heroPhoto, bandPhoto } = Astro.props;
+const site = Astro.site!;
+const copy = await loadPage(page, lang);
+const t = getStrings(lang);
+const c = t.content[page];
+const faqs = await getFaqs(lang, page);
+const prefill = { type };
+---
+
+<BaseLayout
+  lang={lang}
+  page={page}
+  title={copy.data.title}
+  description={fillFacts(copy.data.description, lang)}
+  ogPhoto={heroPhoto}
+  jsonLd={[breadcrumbsFor(site, page, lang), ...servicesFor(site, lang, page, c.serviceType), faqPageJsonLd(faqs)]}
+>
+  <PageFlow>
+    <ContentHero
+      lang={lang}
+      heading={copy.data.heading}
+      lead={fillFacts(c.lead, lang)}
+      photo={heroPhoto}
+      prefill={prefill}
+      secondary={{ href: '#packages-heading', label: t.content.seePackages }}
+    />
+    <FactList lang={lang} label={t.content.factsLabel} facts={c.facts} />
+    <Programme lang={lang} id="programme" heading={c.programmeHeading} intro={c.programmeIntro} moments={c.moments} />
+    <div class="container band">
+      <CreditedPhoto photo={bandPhoto} lang={lang} sizes="(min-width: 76rem) 76rem, 100vw" />
+    </div>
+    <Prose lang={lang} html={copy.rendered?.html ?? ''} />
+    <PackageSection lang={lang} type={type} />
+    <FaqList lang={lang} id="faq" heading={t.content.faq.heading} faqs={faqs} more={{ href: pathFor('faq', lang), label: t.content.faq.all }} />
+    <VideoRail lang={lang} limit={4} class="container" />
+    <EndCta lang={lang} prefill={prefill} />
+  </PageFlow>
+</BaseLayout>
+
+<style>
+  .band :global(.credited-photo) {
+    --photo-ratio: 16 / 9;
+  }
+</style>
