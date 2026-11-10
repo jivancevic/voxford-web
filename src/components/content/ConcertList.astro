@@ -32,6 +32,8 @@ const rows = concerts.map((c) => {
     when: time ? `${full.format(day)}, ${time}` : full.format(day),
     name: c.data.name[lang],
     place: [c.data.venue, c.data.city[lang], country.of(c.data.countryCode)].filter(Boolean).join(' · '),
+    description: c.data.description?.[lang],
+    free: c.data.free === true,
     url: c.data.url,
   };
 });
@@ -51,6 +53,8 @@ const rows = concerts.map((c) => {
           <Name class="concerts__name">{r.name}</Name>
           <p class="concerts__when">{r.when}</p>
           <p class="concerts__place">{r.place}</p>
+          {r.description && <p class="concerts__description">{r.description}</p>}
+          {r.free && <p class="label concerts__free">{t.content.concerts.free}</p>}
           {r.url && (
             <p>
               <a href={r.url} rel="noopener">
@@ -118,7 +122,12 @@ const rows = concerts.map((c) => {
     text-transform: uppercase;
   }
 
-  .concerts__place {
+  .concerts__place,
+  .concerts__description {
     color: var(--color-text-secondary);
+  }
+
+  .concerts__free {
+    color: var(--color-text-accent);
   }
 </style>

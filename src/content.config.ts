@@ -48,9 +48,14 @@ const concerts = defineCollection({
     name: localized,
     /** ISO 8601 date or date-time. */
     startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}/),
-    venue: z.string().min(1),
+    /** The venue's proper name; omit when it is not known (never guess one). */
+    venue: z.string().min(1).optional(),
     city: localized,
     countryCode: z.string().length(2),
+    /** One line on what the event is, e.g. a free street performance. */
+    description: localized.optional(),
+    /** Free entry, open to everyone (schema.org isAccessibleForFree). */
+    free: z.boolean().optional(),
     url: z.url().optional(),
     source: z.string().min(1),
   }),

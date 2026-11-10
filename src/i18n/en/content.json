@@ -65,7 +65,8 @@
     "all": "All upcoming concerts",
     "eventPage": "Event page",
     "empty": "No public concerts are announced right now. New dates appear here and on {handle}.",
-    "publicOnly": "Public concerts only. Corporate events and private celebrations are never listed."
+    "publicOnly": "Public concerts only. Corporate events and private celebrations are never listed.",
+    "free": "Free entry"
   },
   "conferences": {
     "lead": "{disambiguation}. Five singers and five microphones, with no band to set up: we sing at conference openings, between sessions, at gala dinners and award nights, in Zagreb and across Croatia and the region.",
@@ -142,6 +143,11 @@
       {
         "name": "Faculty of Economics, University of Zagreb",
         "what": "Christmas reception",
+        "year": "2025"
+      },
+      {
+        "name": "Adiva",
+        "what": "Adiva conference, Poreč",
         "year": "2025"
       },
       {

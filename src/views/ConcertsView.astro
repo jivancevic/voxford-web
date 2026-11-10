@@ -28,17 +28,20 @@ const copy = await loadPage(page, lang);
 const t = getStrings(lang);
 const upcoming = await getUpcomingConcerts();
 const image = await getImage({ src: PHOTOS.crikvenicaPiano.src, width: 1200, format: 'jpg' });
-const events = upcoming.map((c) =>
-  concertJsonLd(site, {
+// With no known venue the Place is named after the city: never a guessed venue.
+const events = upcoming.map((c) => ({
+  ...concertJsonLd(site, {
     name: c.data.name[lang],
     startDate: c.data.startDate,
-    venue: c.data.venue,
+    venue: c.data.venue ?? c.data.city[lang],
     city: c.data.city[lang],
     countryCode: c.data.countryCode,
     image: new URL(image.src, site).href,
+    ...(c.data.description ? { description: c.data.description[lang] } : {}),
     ...(c.data.url ? { url: c.data.url } : {}),
   }),
-);
+  ...(c.data.free ? { isAccessibleForFree: true } : {}),
+}));
 ---
 
 <BaseLayout
