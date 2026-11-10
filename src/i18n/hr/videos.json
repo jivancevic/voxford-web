@@ -8,7 +8,10 @@
     "reelsHeading": "Najnovije s Instagrama",
     "reelsLead": "Novi reelsi s Instagrama, ovdje svako jutro.",
     "follow": "Pratite {handle} na Instagramu",
-    "closing": "Svidjelo Vam se? Poslušajte nas uživo na svom događaju."
+    "closing": "Svidjelo Vam se? Poslušajte nas uživo na svom događaju.",
+    "latestHeading": "Najnoviji videi",
+    "latestLead": "Ono najnovije s naših kanala, čim izađe.",
+    "youtubeHeading": "Najnovije na YouTubeu"
   },
   "watch": {
     "back": "Svi videi",
@@ -31,5 +34,14 @@
     "heading": "Vjerovali su nam",
     "artists": "Na pozornici s",
     "stages": "Pozornice"
+  },
+  "youtube": {
+    "play": "Pokrenite {title} ovdje",
+    "playerLabel": "{title} u izvedbi Voxforda, na YouTubeu",
+    "onYouTube": "Otvorite na YouTubeu"
+  },
+  "social": {
+    "heading": "Pratite nas na društvenim mrežama",
+    "lead": "Naši videi su na Instagramu, TikToku, Facebooku i YouTubeu, a pjesme na kojima pjevamo na Spotifyju, Apple Musicu i Deezeru."
   }
 }

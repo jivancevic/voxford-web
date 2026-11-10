@@ -47,14 +47,24 @@ export const NUMBERS = {
   },
 } as const satisfies Record<string, { value: number; display: string; label: Localized }>;
 
-/** Official profiles, all @voxford.official (KB brand/u-medijima.md). JSON-LD sameAs. */
+/**
+ * Official profiles (KB ljudi-i-procesi/drustvene-mreze.md › Kanonski profil,
+ * brand/u-medijima.md › Profili i brojke). JSON-LD sameAs, the footer, llms.txt
+ * and the Videos page's social links. Apple Music: the artist page the KB
+ * found through the iTunes API on 2026-11-10 (featured tracks only).
+ */
 export const PROFILES = {
   instagram: 'https://www.instagram.com/voxford.official/',
   tiktok: 'https://www.tiktok.com/@voxford.official',
   facebook: 'https://www.facebook.com/voxford.official/',
   youtube: 'https://www.youtube.com/@voxford.official',
   spotify: 'https://open.spotify.com/artist/0Dt77VATBKwGUPu15Ee858',
+  appleMusic: 'https://music.apple.com/us/artist/voxford/1811236594',
+  deezer: 'https://www.deezer.com/artist/320441671',
 } as const;
+
+/** The @voxford.official YouTube channel's id (KB brand/u-medijima.md): its public uploads feed. */
+export const YOUTUBE_CHANNEL_ID = 'UC6q6MkvWEJBrDIi7jgHeWww';
 
 export type ProfileKey = keyof typeof PROFILES;
 
@@ -64,7 +74,20 @@ export const PROFILE_LABELS: Record<ProfileKey, string> = {
   facebook: 'Facebook',
   youtube: 'YouTube',
   spotify: 'Spotify',
+  appleMusic: 'Apple Music',
+  deezer: 'Deezer',
 };
+
+/**
+ * The chart hit we sing on: Jasna Zlokić and Jakov Jozinović's "Ljudi poput
+ * nas", 11 weeks at number 1 on the Croatian charts (Josip, 2026-11-11; KB
+ * brand/u-medijima.md › Suradnje). Copy states the weeks through {chartWeeks}.
+ */
+export const CHART_HIT = {
+  song: 'Ljudi poput nas',
+  artists: 'Jasna Zlokić, Jakov Jozinović',
+  weeksAtNumberOne: 11,
+} as const;
 
 /** The most-watched video (KB brand/biografija.md). */
 export const SIGNATURE_VIDEO = {

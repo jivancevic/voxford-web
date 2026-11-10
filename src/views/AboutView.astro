@@ -1,8 +1,11 @@
 ---
-// About (ticket C): the five with their voice parts in stage order, the story,
-// the numbers (paired with the videos, never alone), the stages, the press and
-// the management. Names, numbers and stages come from site-facts.
+// About (ticket C): the five with their portraits and voice parts in stage
+// order, the story, the numbers (paired with the videos, never alone), the
+// stages, the press as a rail of article cards (#41) and the management.
+// Names, numbers and stages come from site-facts; portraits from photos.ts.
 // JSON-LD: BreadcrumbList and FAQPage (the MusicGroup is site-wide).
+import { getEntry } from 'astro:content';
+import { Picture } from 'astro:assets';
 import ReferencesWall from '@/components/ReferencesWall.astro';
 import VideoRail from '@/components/VideoRail.astro';
 import ContentHero from '@/components/content/ContentHero.astro';
@@ -11,9 +14,11 @@ import EndCta from '@/components/content/EndCta.astro';
 import FaqList from '@/components/content/FaqList.astro';
 import NamedList from '@/components/content/NamedList.astro';
 import PageFlow from '@/components/content/PageFlow.astro';
+import PressRail, { type PressItem } from '@/components/content/PressRail.astro';
 import Prose from '@/components/content/Prose.astro';
+import { PORTRAITS } from '@/data/photos';
 import { MEMBERS, NUMBERS, STAGES } from '@/data/site-facts';
-import { getStrings, LOCALE_META, type Locale } from '@/i18n';
+import { format, getStrings, LOCALE_META, type Locale } from '@/i18n';
 import { pathFor, type PageKey } from '@/i18n/routes';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { fillFacts } from '@/lib/copy';
@@ -33,13 +38,27 @@ const t = getStrings(lang);
 const a = t.content.about;
 const faqs = await getFaqs(lang, page);
 const stageContext: Record<string, string> = a.stages;
-const dateFmt = new Intl.DateTimeFormat(LOCALE_META[lang].htmlLang, { month: 'long', year: 'numeric', timeZone: 'UTC' });
-const press = a.press.map((p) => ({
-  name: p.outlet,
-  what: p.what,
-  year: dateFmt.format(new Date(`${p.date}T12:00:00Z`)),
-  url: p.url,
-}));
+const dateFmt = new Intl.DateTimeFormat(LOCALE_META[lang].htmlLang, { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+// A press item may name a `logo`: the id of its outlet in the references set
+// (src/content/references/), whose logo file it reuses. Otherwise the outlet's name shows in type.
+const press: PressItem[] = await Promise.all(
+  a.press.map(async (p) => {
+    const key = 'logo' in p ? p.logo : undefined;
+    const ref = key ? await getEntry('references', key) : undefined;
+    if (key && !ref?.data.logo) throw new Error(`Press item ${p.outlet}: no logo in references/${key}.json`);
+    return {
+      outlet: p.outlet,
+      logo: ref?.data.logo ? { src: ref.data.logo, mono: ref.data.mono } : undefined,
+      date: dateFmt.format(new Date(`${p.date}T12:00:00Z`)),
+      datetime: p.date,
+      headline: p.headline,
+      headlineLang: 'hr',
+      what: p.what,
+      url: p.url,
+    };
+  }),
+);
+const portraitCredit = [...new Set(MEMBERS.map((m) => PORTRAITS[m.key].credit))].join(', ');
 const stages = STAGES.map((s) => ({ name: s.name, what: `${s.city[lang]}. ${stageContext[s.name] ?? ''}`.trim() }));
 ---
 
@@ -62,6 +81,17 @@ const stages = STAGES.map((s) => ({ name: s.name, what: `${s.city[lang]}. ${stag
         {
           MEMBERS.map((m) => (
             <li class="members__item">
+              <div class="members__photo">
+                <Picture
+                  src={PORTRAITS[m.key].src}
+                  alt=""
+                  formats={['avif', 'webp']}
+                  widths={[240, 360, 480, 720]}
+                  sizes="(min-width: 76rem) 14rem, (min-width: 48rem) 18vw, 45vw"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
               <span class="members__given" aria-hidden="true">
                 {m.givenName}
               </span>
@@ -71,6 +101,7 @@ const stages = STAGES.map((s) => ({ name: s.name, what: `${s.city[lang]}. ${stag
           ))
         }
       </ol>
+      <p class="members__credit">{format(t.content.photoCredit, { credit: portraitCredit })}</p>
     </section>
     <Prose lang={lang} html={copy.rendered?.html ?? ''} />
     <section class="container numbers" aria-labelledby="numbers-heading">
@@ -91,7 +122,7 @@ const stages = STAGES.map((s) => ({ name: s.name, what: `${s.city[lang]}. ${stag
       <CreditedPhoto photo="shootArmchair" lang={lang} sizes="(min-width: 76rem) 76rem, 100vw" />
     </div>
     <NamedList id="stages" heading={a.stagesHeading} items={stages} />
-    <NamedList id="press" heading={a.pressHeading} items={press} />
+    <PressRail id="press" heading={a.pressHeading} intro={a.pressIntro} items={press} prevLabel={a.pressPrev} nextLabel={a.pressNext} />
     <ReferencesWall lang={lang} class="container" />
     <section class="container management" aria-labelledby="management-heading">
       <h2 id="management-heading">{a.managementHeading}</h2>
@@ -119,32 +150,72 @@ const stages = STAGES.map((s) => ({ name: s.name, what: `${s.city[lang]}. ${stag
     color: var(--color-text-secondary);
   }
 
+  /* Two to a row on phones, the five in one row from tablets up, in stage order. */
   .members__list {
     list-style: none;
     margin: 0;
     padding: 0;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
-    gap: var(--space-5);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-6) var(--space-4);
+  }
+
+  @media (min-width: 48rem) {
+    .members__list {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: var(--space-5);
+    }
   }
 
   .members__item {
     display: grid;
+    align-content: start;
     gap: var(--space-1);
-    padding-block-start: var(--space-4);
-    border-block-start: var(--line-thin) solid var(--color-border);
+    max-inline-size: none;
   }
 
-  .members__item:nth-child(1) {
-    border-color: var(--brand-pink);
+  .members__photo {
+    position: relative;
+    margin-block-end: var(--space-3);
+    aspect-ratio: 3 / 4;
+    overflow: hidden;
+    border-radius: var(--radius-card);
+    background: var(--color-bg-surface);
   }
 
-  .members__item:nth-child(3) {
-    border-color: var(--brand-purple);
+  .members__photo :global(img) {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+    object-position: 50% 20%;
   }
 
-  .members__item:nth-child(5) {
-    border-color: var(--brand-blue);
+  /* A thin line of stage light under each portrait, pink to blue across the five. */
+  .members__photo::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0;
+    block-size: 3px;
+    background: var(--color-border);
+  }
+
+  .members__item:nth-child(1) .members__photo::after {
+    background: var(--brand-pink);
+  }
+
+  .members__item:nth-child(3) .members__photo::after {
+    background: var(--brand-purple);
+  }
+
+  .members__item:nth-child(5) .members__photo::after {
+    background: var(--brand-blue);
+  }
+
+  .members__credit {
+    max-inline-size: none;
+    font-size: var(--text-caption);
+    color: var(--color-text-muted);
+    text-align: end;
   }
 
   .members__given {

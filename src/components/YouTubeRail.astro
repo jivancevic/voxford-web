@@ -1,0 +1,57 @@
+---
+// The channel's newest YouTube uploads as a sideways rail, newest first, read
+// at build time from the public feed (src/lib/youtube.ts). Reads its own data
+// like VideoRail; renders nothing when the feed is down or empty, so the page
+// builds without the row.
+import YouTubeCard from '@/components/YouTubeCard.astro';
+import type { Locale } from '@/i18n';
+import { loadYouTubeUploads } from '@/lib/youtube';
+
+interface Props {
+  lang: Locale;
+  /** Show at most this many uploads. */
+  limit?: number;
+  /** Heading level of each card's title. */
+  headingLevel?: 3 | 4;
+  class?: string;
+}
+
+const { lang, limit = 8, headingLevel = 4, class: className } = Astro.props;
+const videos = (await loadYouTubeUploads()).slice(0, limit);
+---
+
+{
+  videos.length > 0 && (
+    <ul class:list={['yt-rail', className]} role="list">
+      {videos.map((video) => (
+        <li class="yt-rail__item">
+          <YouTubeCard lang={lang} video={video} headingLevel={headingLevel} />
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+<style>
+  /* The same sideways row as VideoRail: scrolls on small screens, swipe and
+     keyboard (Tab moves card to card), snapping to each card's edge. */
+  .yt-rail {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(11rem, 15rem);
+    gap: var(--space-5);
+    margin: 0;
+    padding: 0 0 var(--space-3);
+    list-style: none;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border) transparent;
+  }
+
+  .yt-rail__item {
+    scroll-snap-align: start;
+    max-inline-size: none;
+  }
+</style>
