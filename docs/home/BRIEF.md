@@ -31,7 +31,8 @@ for whoever changes the home page next: change the curve here first, then the pa
 7. **One world or distinct scenes.** (authored) Distinct scenes, cut like lighting cues. There
    is no continuous camera: the hall is one photograph, the chord is five portraits.
 8. **Assets.** (spec) Real photography only, nothing generated: the Unisport Stars gala 2026
-   set (Westin, blue LED; frame `R1JC7247`) for the hero, the 2024 Journal.hr portraits by
+   set (Westin, blue LED; frame `R1JC7655`, all five singing, since #31; it was `R1JC7247`)
+   for the hero, the 2024 Journal.hr portraits by
    Marko Lopac (each member alone) for the chord, the HAK Esplanade frame for the conference
    room, *Carol of the Bells* ("Carol new mix.wav", 3.0 → 41.07 s) for sound.
 
@@ -40,7 +41,8 @@ for whoever changes the home page next: change the curve here first, then the pa
 - **Who:** event planners and corporate clients choosing music for a conference or gala in
   Zagreb and the region; second, a fan from anywhere who found a reel.
 - **Believe by the end:** *five people with microphones are a whole show.*
-- **Next action:** send an inquiry. One label everywhere: "Send an inquiry" / "Pošalji upit" (spec).
+- **Next action:** send an inquiry. One label everywhere: "Send an inquiry" / "Pošalji upit" (spec);
+  the hero's date widget says "Enquire" / "Pošalji upit" (Josip, #31).
 
 ## Journey
 
@@ -118,6 +120,27 @@ the stage glow a little (`--sc-p`) and holds the stage pinned while the music pl
   (ticket D) sits on plain ground under the photo.
 - **Muted or silent switch:** iOS plays through the "playback" audio session where Safari has
   one; audio only ever starts on a press.
+
+## Hero planes
+
+The hero headline is "Five voices. One harmony." / "Pet glasova. Jedan sklad." (Josip, #31); the
+H1 also carries the group's disambiguation line, visually hidden, so it still says who Voxford
+is. The three planes are cut from Drive `Photo › 2026 Hrvatski Akademski Sportski Savez ›
+Unisport_stars_R1JC7655_JC.jpg` (© Jozo Cabraja / kolektiff, per the file's metadata) by
+`scripts/hero-planes/build.sh`, which is deterministic (rerunning it reproduces the committed
+files byte for byte):
+
+- **Crop:** 1800×1200 at (360, 268) of the 2400×1600 frame, so the five stand between 22% and
+  97% of the width (the phone composition starts the frame at 18.5%) and the headline clears
+  the first singer's cap at 1440×900. The sponsor banners stay behind the singers; they only
+  show, defocused, in `far`.
+- **subject:** an Apple Vision person matte (`VNGeneratePersonSegmentationRequest`, accurate)
+  run on one tile per singer, kept to that singer's column and faded out where the audience
+  covers them; on the whole frame Vision misses the singer in the dark on the left. The fourth
+  singer's white drape is added by luminance (Vision leaves it out).
+- **front:** the audience: Vision's matte where it finds the lit heads, plus a band below the
+  stage line, minus the singers.
+- **far:** the whole crop at 1600 px, blurred, dimmed to 78% and desaturated by a quarter.
 
 ## Fingerprint gate
 

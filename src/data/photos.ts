@@ -113,23 +113,24 @@ export const SHARE_PHOTO: PhotoKey = 'unisportStage';
 /**
  * The home hero as depth planes, all cut from one Unisport Stars 2026 frame
  * (Westin, Zagreb; Drive `2026 Hrvatski Akademski Sportski Savez` ›
- * `Unisport_stars_R1JC7247_JC.jpg`) and sharing its 2400×1600 frame, so they
- * line up by stacking. `far` is the whole frame defocused and dimmed, `subject`
- * the five singers on alpha (Apple Vision person matte), `front` the audience
- * heads below the stage line. Recipe: docs/home/BRIEF.md.
+ * `Unisport_stars_R1JC7655_JC.jpg`, all five singing) and sharing its
+ * 1800×1200 crop, so they line up by stacking. `far` is the whole crop
+ * defocused and dimmed, `subject` the five singers on alpha (Apple Vision
+ * person matte, one tile per singer), `front` the audience below the stage
+ * line. Recipe: docs/home/BRIEF.md › Hero planes.
  */
 export const HERO_PLANES = {
   far: heroFar,
   subject: heroSubject,
   front: heroFront,
   alt: {
-    en: 'The five singers of Voxford at microphones on the Unisport Stars gala stage, lit in blue, the audience in silhouette',
-    hr: 'Petorka Voxforda za mikrofonima na pozornici gala večeri Unisport Stars, u plavom svjetlu, publika u silueti',
+    en: 'The five singers of Voxford singing at microphones on the Unisport Stars gala stage, the audience in silhouette in front',
+    hr: 'Petorka Voxforda pjeva za mikrofonima na pozornici gala večeri Unisport Stars, ispred njih publika u silueti',
   },
-  // Same gala and agency as unisportStage.
+  // Same gala and agency as unisportStage (the file's metadata: Jozo Cabraja / kolektiff).
   label: PHOTOS.unisportStage.label,
   credit: PHOTOS.unisportStage.credit,
-  source: 'Drive › Photo › 2026 Hrvatski Akademski Sportski Savez (Unisport Stars, Westin)',
+  source: 'Drive › Photo › 2026 Hrvatski Akademski Sportski Savez › Unisport_stars_R1JC7655_JC.jpg (Unisport Stars, Westin)',
 } as const;
 
 /**
