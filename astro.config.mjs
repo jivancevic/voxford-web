@@ -28,6 +28,8 @@ const face = (file, subset, weight) => ({
  * (wrangler.jsonc › not_found_handling), so /hr/… needs dist/hr/404.html.
  * Only the root 404.astro escapes build.format 'directory'; this moves the
  * Croatian one from hr/404/index.html to hr/404.html.
+ * If build.format or the i18n prefix changes, the rename fails the build
+ * with ENOENT on purpose: fix the paths here rather than ship an English 404.
  * @type {import('astro').AstroIntegration}
  */
 const croatian404 = {

@@ -166,7 +166,7 @@ const hasReels = (await loadReels(Astro.site)).length > 0;
   }
 
   /* :global: the class sits on ReferencesWall's root, outside this view's scope. */
-  :global(.videos-references) {
+  .videos-intro ~ :global(.videos-references) {
     padding-block-start: var(--section-gap);
   }
 
