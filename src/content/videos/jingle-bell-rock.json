@@ -1,0 +1,16 @@
+{
+  "title": {
+    "en": "Jingle Bell Rock",
+    "hr": "Jingle Bell Rock"
+  },
+  "description": {
+    "en": "Jingle Bell Rock, the Christmas classic, sung a cappella in five voices by Voxford, a cappella group from Zagreb, Croatia.",
+    "hr": "Božićni klasik Jingle Bell Rock u a cappella izvedbi Voxforda, skupine iz Zagreba: pet glasova, bez instrumenata."
+  },
+  "poster": "../../assets/videos/jingle-bell-rock.jpg",
+  "uploadDate": "2023-12-13",
+  "duration": "PT38S",
+  "media": "top/jingle-bell-rock",
+  "order": 40,
+  "source": "brand/u-medijima.md, brand/mediji-inventar.md; song identified from the original's audio and the TikToks audio mixes on Drive"
+}

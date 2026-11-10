@@ -1,0 +1,16 @@
+{
+  "title": {
+    "en": "U meni jesen je",
+    "hr": "U meni jesen je"
+  },
+  "description": {
+    "en": "Halid Bešlić’s U meni jesen je, arranged for five voices and sung a cappella by Voxford, a cappella group from Zagreb, Croatia.",
+    "hr": "Pjesma Halida Bešlića U meni jesen je u aranžmanu za pet glasova, a cappella izvedba Voxforda, skupine iz Zagreba."
+  },
+  "poster": "../../assets/videos/u-meni-jesen-je.jpg",
+  "uploadDate": "2025-10-08",
+  "duration": "PT29S",
+  "media": "top/u-meni-jesen-je",
+  "order": 20,
+  "source": "brand/u-medijima.md, brand/mediji-inventar.md; song identified from the original's audio and the TikToks audio mixes on Drive"
+}

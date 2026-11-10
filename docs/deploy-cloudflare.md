@@ -150,6 +150,42 @@ Then, in a PR, add to `wrangler.jsonc`:
 
 After that deploy, send one inquiry from the live page and check that it arrives, with Reply-To set to the address typed in the form.
 
+## Media and the reels sync (ticket E)
+
+Videos never go in git. The encoded top videos and the synced reels live in the R2 bucket `voxford-media` (binding `MEDIA`), and the Worker serves them from the site's own origin at `/media/top/…` and `/media/reels/…` (`worker/media.ts`, byte ranges included). `wrangler dev` uses a local bucket under `.wrangler/state`, so the same URLs work locally.
+
+**Once, before the first deploy that carries the binding** (a deploy fails while the bucket is missing):
+
+    npx wrangler r2 bucket create voxford-media
+
+**Top videos.** The originals are on Drive (Ante › Voxford › Video › Najgledaniji videi) and in `~/Downloads/voxford-top-videos/`; `scripts/top-videos.tsv` maps each to its slug.
+
+    scripts/encode-top-videos.sh            # → ~/voxford-media/top/<slug>/ and src/assets/videos/<slug>.jpg (posters, committed)
+    scripts/upload-media.sh --remote        # → voxford-media/top/<slug>/… in production
+    scripts/upload-media.sh --local         # the same into wrangler dev's local bucket
+
+A new top video: add a row to `scripts/top-videos.tsv`, encode, upload, add `src/content/videos/<slug>.json`.
+
+**Reels sync.** `worker/reels.ts` runs on the cron (04:17 UTC daily): it copies the newest 6 reels from the Instagram API with Instagram Login into `reels/`, writes `reels/manifest.json` and, when the feed changed, POSTs the Workers Builds deploy hook. The build reads `<SITE_URL>/media/reels/manifest.json` (`src/lib/reels.ts`); build variable `REELS_MANIFEST_URL` overrides it, `off` skips it. If anything fails the last good feed stays, and a build that cannot read the manifest renders the Videos page without the reels.
+
+Secrets (Worker › Settings › Variables & Secrets), set by the wizard, never in a file:
+
+| Secret | What | Set by |
+|---|---|---|
+| `INSTAGRAM_TOKEN` | long-lived token, 60 days, extended by every sync run | `scripts/instagram-wizard.sh` (stages 5–6) |
+| `DEPLOY_HOOK_URL` | Workers Builds › Settings › Builds › Deploy Hooks, branch `main` | `scripts/instagram-wizard.sh` (stage 7) |
+
+    scripts/instagram-wizard.sh             # first time: Meta app, tester role, token, deploy hook
+    scripts/instagram-wizard.sh token       # a new token only (the log says "Instagram API 400: 190 …")
+    npx wrangler tail voxford-web           # watch a run: "reels: updated, 6 reels, rebuild triggered"
+
+**Test the sync locally** against the real API and the local bucket (the token stays in this shell):
+
+    read -rs INSTAGRAM_TOKEN && export INSTAGRAM_TOKEN
+    npm run build && CLOUDFLARE_INCLUDE_PROCESS_ENV=true npx wrangler dev --test-scheduled
+    curl "http://localhost:8787/__scheduled?cron=17+4+*+*+*"     # then: curl localhost:8787/media/reels/manifest.json
+    REELS_MANIFEST_URL=http://localhost:8787/media/reels/manifest.json npm run build   # the page with the reels
+
 ## Domain (ticket G)
 
 Not chosen yet. When it is: add the domain to the Cloudflare account, add `routes` with `custom_domain: true` to `wrangler.jsonc`, `www` → apex redirect, set `SITE_URL` and `SITE_INDEXABLE=true`, update `PRODUCTION_URL`, turn the zone's AI-crawler block off (Security › Bots), and submit the sitemap in Search Console and Bing Webmaster Tools.

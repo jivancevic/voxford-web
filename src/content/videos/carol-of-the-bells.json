@@ -1,0 +1,17 @@
+{
+  "title": {
+    "en": "Carol of the Bells",
+    "hr": "Carol of the Bells"
+  },
+  "description": {
+    "en": "Carol of the Bells sung a cappella by Voxford, a cappella group from Zagreb, Croatia: five voices, no instruments. Our most-watched video.",
+    "hr": "Carol of the Bells u a cappella izvedbi Voxforda, a cappella skupine iz Zagreba: pet glasova, bez instrumenata. Naš najgledaniji video."
+  },
+  "poster": "../../assets/videos/carol-of-the-bells.jpg",
+  "uploadDate": "2023-12-08",
+  "duration": "PT38S",
+  "media": "top/carol-of-the-bells",
+  "permalink": "https://www.instagram.com/p/C0lvoOFM_F2/",
+  "order": 10,
+  "source": "brand/u-medijima.md (published 2023-12-08), brand/biografija.md"
+}

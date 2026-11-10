@@ -61,23 +61,29 @@ const concerts = defineCollection({
   }),
 });
 
-/** Top videos with their own watch pages (ticket E). videos/<slug>.json. */
+/** Top videos with their own watch pages (ticket E). videos/<slug>.json; the slug is the watch page's URL. */
 const videos = defineCollection({
   loader: glob({ pattern: '**/*.json', base: './src/content/videos' }),
   schema: ({ image }) =>
     z.object({
       title: localized,
       description: localized,
+      /** A frame of the video, 1080×1920 (scripts/encode-top-videos.sh writes it to src/assets/videos/). */
       poster: image(),
-      /** ISO 8601 date. */
+      /** ISO 8601 date: first published on Instagram, or the date the original was exported when unknown. */
       uploadDate: z.string().regex(/^\d{4}-\d{2}-\d{2}/),
       /** ISO 8601 duration, e.g. PT38S. */
-      duration: z.string().regex(/^PT/),
-      /** Self-hosted sources (R2), best first. */
-      sources: z.array(z.object({ src: z.url(), type: z.string() })).default([]),
-      /** The original post on a social profile. */
+      duration: z.string().regex(/^PT\d+S$/),
+      /**
+       * R2 key prefix of the encoded files, top/<slug>, served at /media/top/<slug>/:
+       * loop.{av1,h264}.mp4 (muted loop) and full.{av1,h264}.mp4 (with sound).
+       */
+      media: z.string().regex(/^top\/[a-z0-9-]+$/),
+      /** The original post on a social profile, when known. */
       permalink: z.url().optional(),
       order: z.number().int(),
+      /** KB file(s) the facts came from. */
+      source: z.string().min(1),
     }),
 });
 
@@ -87,8 +93,11 @@ const references = defineCollection({
   schema: ({ image }) =>
     z.object({
       name: z.string().min(1),
-      kind: z.enum(['company', 'city', 'tourist-board', 'institution', 'media', 'artist']),
+      kind: z.enum(['company', 'city', 'tourist-board', 'institution', 'media', 'artist', 'venue', 'festival']),
+      /** Official logo (src/assets/references/README.md lists each source). Without one the name shows as text. */
       logo: image().optional(),
+      /** Monochrome treatment: `silhouette` (one light colour) or `grayscale` (keeps a filled box readable). */
+      mono: z.enum(['silhouette', 'grayscale']).default('silhouette'),
       url: z.url().optional(),
       order: z.number().int(),
     }),
