@@ -49,7 +49,7 @@
         "engineer": "Vaš ili naš"
       },
       "gold": {
-        "type": "Cijeli koncert",
+        "type": "Cjeloviti koncert",
         "fits": "Sedam izvođača: pet glasova uz klavir i cajon, kao središnji glazbeni dio događaja.",
         "instruments": "Klavir i cajon",
         "engineer": "Vaš ili naš"
@@ -217,15 +217,15 @@
         "body": "Od {classicMin} do {classicMax} minuta između sljedova: klapske pjesme te domaći i strani hitovi koje Vaši gosti znaju."
       },
       {
-        "title": "Cijeli koncert",
+        "title": "Cjeloviti koncert",
         "package": "gold",
-        "body": "Od {goldMin} do {goldMax} minuta uz klavir i cajon: pravi koncert usred slavlja."
+        "body": "Od {goldMin} do {goldMax} minuta uz klavir i cajon: cjeloviti koncert na slavlju."
       }
     ],
     "serviceType": "Glazba uživo za vjenčanja"
   },
   "advent": {
-    "lead": "{disambiguation}. Gradovi i turističke zajednice zovu nas na adventske pozornice, ljetne koncerte i festivale: za cijeli koncert uz klavir i cajon ili za kratki a cappella nastup na otvorenju programa.",
+    "lead": "{disambiguation}. Gradovi i turističke zajednice zovu nas na adventske pozornice, ljetne koncerte i festivale: za cjeloviti koncert uz klavir i cajon ili za kratki a cappella nastup na otvorenju programa.",
     "facts": [
       {
         "term": "Format",
@@ -323,9 +323,9 @@
         "body": "Od {classicMin} do {classicMax} minuta a cappelle, sa setlistom složenom za ljude u prostoriji."
       },
       {
-        "title": "Cijeli koncert",
+        "title": "Cjeloviti koncert",
         "package": "gold",
-        "body": "Od {goldMin} do {goldMax} minuta uz klavir i cajon: koncert o kojem će Vaši gosti pričati."
+        "body": "Od {goldMin} do {goldMax} minuta uz klavir i cajon: cjeloviti koncert za Vaše goste."
       }
     ],
     "serviceType": "Glazba uživo za privatne proslave"

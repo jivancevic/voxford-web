@@ -219,7 +219,7 @@
       {
         "title": "The full concert",
         "package": "gold",
-        "body": "{goldMin} to {goldMax} minutes with piano and cajón: a real concert in the middle of the celebration."
+        "body": "{goldMin} to {goldMax} minutes with piano and cajón: a full concert at the celebration."
       }
     ],
     "serviceType": "Live music for weddings"
@@ -325,7 +325,7 @@
       {
         "title": "The full concert",
         "package": "gold",
-        "body": "{goldMin} to {goldMax} minutes with piano and cajón: the concert your guests will talk about."
+        "body": "{goldMin} to {goldMax} minutes with piano and cajón: a full concert for your guests."
       }
     ],
     "serviceType": "Live music for private celebrations"
