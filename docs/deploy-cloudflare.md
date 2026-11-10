@@ -179,7 +179,7 @@ Secrets (Worker › Settings › Variables & Secrets), set by the wizard, never 
 
     scripts/instagram-wizard.sh             # first time: Meta app in the portfolio, system user with the Page, token, deploy hook
     scripts/instagram-wizard.sh token       # a new token only, if it was revoked (the log says "Instagram API 400: 190 …")
-    npx wrangler tail voxford-web           # watch a run: "reels: updated, 6 reels, rebuild triggered"
+    npx wrangler tail voxford-web           # watch a run live: "reels: updated, 6 reels, rebuild triggered" (a tail expires after a few hours; past runs: dashboard → voxford-web → Logs)
 
 **Test the sync locally** against the real API and the local bucket (the token stays in this shell):
 

@@ -269,10 +269,11 @@ if [[ "$MODE" != token ]]; then
   say "The token belongs to a system user of the portfolio, not to a person, so it never expires."
   open_url "https://business.facebook.com/settings/system-users"
   step "Business settings ($IG_ACCOUNT) → Users → System users → Add. Name: voxford-web reels. Role: Employee."
-  step "On that system user: Assign assets → Facebook Pages → Voxford (the Page $IG_ACCOUNT is linked to), smallest access offered."
+  step "Business assets → Pages → Voxford (the Page $IG_ACCOUNT is linked to) → Assign people → tick voxford-web reels → turn on only 'Content' → Assign."
   note "Instagram accounts → $IG_ACCOUNT works too, if Meta lets you tick it; its Instagram login there can fail"
   note "('Something went wrong'). The Page is enough: the sync finds the Instagram account through it."
-  step "Assign assets again → Apps → Voxford web, with the smallest access offered."
+  step "Business assets → Apps → Voxford web → Assign people → tick voxford-web reels → turn on only 'View insights' → Assign."
+  note "This is what worked on 2026-11-10. The token's scopes are read-only either way; 'Insights' alone on the Page was not tried."
   pause "System user has the Page (or the account) and the app? Press Enter"
 fi
 
@@ -369,6 +370,6 @@ if [[ "$MODE" != token ]]; then
 fi
 
 finish
-say "The sync runs daily at 04:17 UTC. Watch the next run with: npx wrangler tail voxford-web"
+say "The sync runs daily at 04:17 UTC. Its log: dashboard → voxford-web → Logs (a \`wrangler tail\` session expires after a few hours)."
 say "It logs 'reels: updated, 6 reels, rebuild triggered' the first time, 'reels: unchanged' after."
 printf '\n'
