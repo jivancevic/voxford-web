@@ -4,7 +4,7 @@
 // puts the current value in at build time. An unknown token throws, so a typo
 // fails the build instead of shipping "{folowers}" to visitors.
 
-import { GROUP, NUMBERS, PACKAGES, RIDER, type Package } from '@/data/site-facts';
+import { CHART_HIT, GROUP, NUMBERS, PACKAGES, RIDER, type Package } from '@/data/site-facts';
 import { format, getStrings } from '@/i18n';
 import type { Locale } from '@/i18n/locales';
 
@@ -25,6 +25,7 @@ export function factTokens(lang: Locale): Record<string, string> {
     followers: NUMBERS.followers.display,
     views: NUMBERS.views.display,
     carolViews: NUMBERS.carolViews.display,
+    chartWeeks: String(CHART_HIT.weeksAtNumberOne),
   };
   for (const p of PACKAGES) {
     const k = tokenKey(p.key);

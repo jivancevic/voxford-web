@@ -8,7 +8,10 @@
     "reelsHeading": "Latest from Instagram",
     "reelsLead": "New reels on Instagram, brought here every morning.",
     "follow": "Follow {handle} on Instagram",
-    "closing": "Heard enough? Have it live at your event."
+    "closing": "Heard enough? Have it live at your event.",
+    "latestHeading": "Latest videos",
+    "latestLead": "The newest from our channels, as they come out.",
+    "youtubeHeading": "Latest on YouTube"
   },
   "watch": {
     "back": "All videos",
@@ -31,5 +34,14 @@
     "heading": "Trusted by",
     "artists": "On stage with",
     "stages": "Stages"
+  },
+  "youtube": {
+    "play": "Play {title} here",
+    "playerLabel": "{title}, sung by Voxford, on YouTube",
+    "onYouTube": "Open on YouTube"
+  },
+  "social": {
+    "heading": "Check out our social media",
+    "lead": "Everywhere you can follow us and listen to us."
   }
 }

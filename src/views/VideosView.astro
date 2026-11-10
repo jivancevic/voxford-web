@@ -1,19 +1,23 @@
 ---
 // View for the `videos` page (owner: ticket E): the top videos as a numbered
-// programme, each linking to its watch page, then the latest reels from the
-// daily sync (absent when the feed is), the reference wall, then the inquiry. All text is static
-// HTML; the loops and the reel player only enhance it.
+// programme, each linking to its watch page; the latest videos (the reels from
+// the daily sync and the newest YouTube uploads, each row absent when its feed
+// is); every network we are on (#41); the reference wall, then the inquiry.
+// All text is static HTML; the loops and the players only enhance it.
 import { getCollection, render } from 'astro:content';
 import InquiryCTA from '@/components/InquiryCTA.astro';
 import ReferencesWall from '@/components/ReferencesWall.astro';
+import SocialLinks from '@/components/SocialLinks.astro';
 import VideoCard from '@/components/VideoCard.astro';
 import VideoRail from '@/components/VideoRail.astro';
+import YouTubeRail from '@/components/YouTubeRail.astro';
 import { GROUP, PROFILES } from '@/data/site-facts';
 import { format, getStrings, type Locale } from '@/i18n';
 import type { PageKey } from '@/i18n/routes';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { breadcrumbsFor, loadPage } from '@/lib/page';
 import { loadReels } from '@/lib/reels';
+import { loadYouTubeUploads } from '@/lib/youtube';
 
 interface Props {
   lang: Locale;
@@ -26,6 +30,7 @@ const copy = await loadPage(page, lang);
 const { Content } = await render(copy);
 const videos = (await getCollection('videos')).sort((a, b) => a.data.order - b.data.order);
 const hasReels = (await loadReels(Astro.site)).length > 0;
+const hasYouTube = (await loadYouTubeUploads()).length > 0;
 ---
 
 <BaseLayout
@@ -62,23 +67,49 @@ const hasReels = (await loadReels(Astro.site)).length > 0;
   </section>
 
   {
-    hasReels && (
-      <section class="videos-reels container" aria-labelledby="videos-reels-heading">
-        <div class="videos-reels__head">
-          <h2 class="label videos-section-label" id="videos-reels-heading">
-            {t.videos.page.reelsHeading}
+    (hasReels || hasYouTube) && (
+      <section class="videos-latest container" aria-labelledby="videos-latest-heading">
+        <div class="videos-latest__head">
+          <h2 class="label videos-section-label" id="videos-latest-heading">
+            {t.videos.page.latestHeading}
           </h2>
-          <p class="videos-reels__lead">{t.videos.page.reelsLead}</p>
+          <p class="videos-latest__lead">{t.videos.page.latestLead}</p>
         </div>
-        <VideoRail lang={lang} source="reels" heading={false} />
-        <p>
-          <a href={PROFILES.instagram} rel="noopener">
-            {format(t.videos.page.follow, { handle: GROUP.handle })}
-          </a>
-        </p>
+        {hasReels && (
+          <div class="videos-latest__row" aria-labelledby="videos-reels-heading" role="group">
+            <div class="videos-latest__row-head">
+              <h3 class="videos-latest__row-heading" id="videos-reels-heading">
+                {t.videos.page.reelsHeading}
+              </h3>
+              <p class="videos-latest__row-lead">{t.videos.page.reelsLead}</p>
+            </div>
+            <VideoRail lang={lang} source="reels" heading={false} />
+            <p>
+              <a href={PROFILES.instagram} rel="noopener">
+                {format(t.videos.page.follow, { handle: GROUP.handle })}
+              </a>
+            </p>
+          </div>
+        )}
+        {hasYouTube && (
+          <div class="videos-latest__row" aria-labelledby="videos-youtube-heading" role="group">
+            <h3 class="videos-latest__row-heading" id="videos-youtube-heading">
+              {t.videos.page.youtubeHeading}
+            </h3>
+            <YouTubeRail lang={lang} />
+          </div>
+        )}
       </section>
     )
   }
+
+  <section class="videos-social container" aria-labelledby="videos-social-heading">
+    <div class="videos-social__head">
+      <h2 class="videos-social__heading" id="videos-social-heading">{t.videos.social.heading}</h2>
+      <p class="videos-social__lead">{t.videos.social.lead}</p>
+    </div>
+    <SocialLinks />
+  </section>
 
   <ReferencesWall lang={lang} class="videos-references container" />
 
@@ -146,22 +177,53 @@ const hasReels = (await loadReels(Astro.site)).length > 0;
     }
   }
 
-  .videos-reels {
+  .videos-latest {
     display: grid;
-    gap: var(--space-5);
+    gap: var(--space-7);
     padding-block-start: var(--section-gap);
   }
 
-  .videos-reels__head {
+  .videos-latest__head,
+  .videos-latest__row-head {
     display: grid;
     gap: var(--space-2);
   }
 
-  .videos-reels__head .videos-section-label {
+  .videos-latest__head .videos-section-label {
     margin: 0;
   }
 
-  .videos-reels__lead {
+  .videos-latest__lead,
+  .videos-latest__row-lead {
+    color: var(--color-text-secondary);
+  }
+
+  .videos-latest__row {
+    display: grid;
+    gap: var(--space-5);
+  }
+
+  .videos-latest__row-heading {
+    font-size: var(--text-lead);
+  }
+
+  .videos-social {
+    display: grid;
+    gap: var(--space-6);
+    padding-block-start: var(--section-gap);
+  }
+
+  .videos-social__head {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .videos-social__heading {
+    font-size: var(--text-heading);
+  }
+
+  .videos-social__lead {
+    max-inline-size: 52ch;
     color: var(--color-text-secondary);
   }
 

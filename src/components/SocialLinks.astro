@@ -1,0 +1,82 @@
+---
+// Every network Voxford is on, as recognisable mark + name links: small tiles,
+// the mark over the name, so even "Apple Music" stays a near-square target
+// (Josip's rule: nothing that reads as a button wider than 3:1). Profiles and their order come from
+// site-facts PROFILES, the marks from src/data/profile-icons.ts; nothing here
+// hard-codes a URL. Plain links, so they work without JavaScript.
+import { PROFILE_ICONS } from '@/data/profile-icons';
+import { PROFILE_LABELS, PROFILES, type ProfileKey } from '@/data/site-facts';
+
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+const profiles = (Object.keys(PROFILES) as ProfileKey[]).map((key) => ({ key, href: PROFILES[key], label: PROFILE_LABELS[key], icon: PROFILE_ICONS[key] }));
+---
+
+<ul class:list={['social', className]} role="list">
+  {
+    profiles.map((p) => (
+      <li>
+        <a class="social__link" href={p.href} rel="me noopener" data-profile={p.key}>
+          <svg class="social__icon" viewBox="0 0 24 24" width="28" height="28" aria-hidden="true" focusable="false">
+            <path d={p.icon} fill="currentColor" />
+          </svg>
+          <span>{p.label}</span>
+        </a>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .social {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(6.5rem, 1fr));
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .social > li {
+    display: grid;
+    max-inline-size: none;
+  }
+
+  .social__link {
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    gap: var(--space-3);
+    min-block-size: 6.5rem;
+    padding: var(--space-4) var(--space-3);
+    border: var(--line-thin) solid transparent;
+    border-radius: var(--radius-card);
+    background:
+      linear-gradient(var(--color-bg), var(--color-bg)) padding-box,
+      var(--gradient-light) border-box;
+    color: var(--color-text);
+    font-size: var(--text-small);
+    font-weight: 600;
+    line-height: 1.2;
+    text-align: center;
+    text-decoration: none;
+    transition: box-shadow var(--duration-base) var(--ease-out);
+  }
+
+  .social__link:hover {
+    box-shadow: var(--glow-purple);
+  }
+
+  .social__icon {
+    inline-size: 1.75rem;
+    block-size: 1.75rem;
+  }
+
+  .social__link:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 3px;
+  }
+</style>

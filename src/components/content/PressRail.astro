@@ -1,0 +1,302 @@
+---
+// "In the press" as a sideways rail of article cards (#41): the publication's
+// logo (or its name in type), the date, the headline as published, a line on
+// what it is about, and the link to the article. Without JavaScript it is a
+// plain scrollable row (swipe, trackpad, Tab from card to card, each snapping
+// into place); with it, previous/next buttons appear on pointer screens
+// (src/scripts/press-rail.ts). Every headline and link is in the static HTML.
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import type { Locale } from '@/i18n';
+
+export interface PressItem {
+  outlet: string;
+  /** The outlet's logo from the references set, if it has one. */
+  logo?: { src: ImageMetadata; mono: 'silhouette' | 'grayscale' };
+  /** Shown as is, e.g. "5 June 2024". */
+  date: string;
+  /** ISO date for <time>. */
+  datetime: string;
+  headline: string;
+  /** Language the headline was published in (the press is Croatian). */
+  headlineLang: Locale;
+  what: string;
+  url: string;
+}
+
+interface Props {
+  id: string;
+  heading: string;
+  intro?: string;
+  items: readonly PressItem[];
+  prevLabel: string;
+  nextLabel: string;
+}
+
+const { id, heading, intro, items, prevLabel, nextLabel } = Astro.props;
+---
+
+<section class="press container" aria-labelledby={id} data-press-rail>
+  <div class="press__head">
+    <div class="press__titles">
+      <h2 id={id}>{heading}</h2>
+      {intro && <p class="press__intro">{intro}</p>}
+    </div>
+    <div class="press__arrows" data-press-arrows hidden>
+      <button class="press__arrow press__arrow--prev" type="button" aria-label={prevLabel} data-press-prev></button>
+      <button class="press__arrow press__arrow--next" type="button" aria-label={nextLabel} data-press-next></button>
+    </div>
+  </div>
+  <ul class="press__track" role="list" data-press-track>
+    {
+      items.map((item) => (
+        <li class="press__item">
+          <article class="press-card">
+            <div class="press-card__outlet">
+              {item.logo ? (
+                <Image
+                  src={item.logo.src}
+                  alt={item.outlet}
+                  height={64}
+                  class:list={['press-card__logo', `press-card__logo--${item.logo.mono}`]}
+                  loading="lazy"
+                  decoding="async"
+                />
+              ) : (
+                <span class="press-card__name">{item.outlet}</span>
+              )}
+            </div>
+            <time class="label press-card__date" datetime={item.datetime}>
+              {item.date}
+            </time>
+            <h3 class="press-card__headline" lang={item.headlineLang}>
+              <a href={item.url} rel="noopener">
+                {item.headline}
+              </a>
+            </h3>
+            <p class="press-card__what">{item.what}</p>
+          </article>
+        </li>
+      ))
+    }
+  </ul>
+</section>
+
+<script>
+  import '@/scripts/press-rail';
+</script>
+
+<style>
+  .press {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  .press__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    justify-content: space-between;
+    gap: var(--space-4) var(--space-6);
+  }
+
+  .press__titles {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .press__intro {
+    color: var(--color-text-secondary);
+  }
+
+  .press__arrows {
+    display: none;
+    gap: var(--space-3);
+  }
+
+  /* Buttons only where they help: pointer screens wide enough for a row of
+     cards. Touch swipes; keyboards Tab through the cards. */
+  @media (hover: hover) and (pointer: fine) and (min-width: 48rem) {
+    .press__arrows:not([hidden]) {
+      display: flex;
+    }
+  }
+
+  .press__arrow {
+    display: grid;
+    place-items: center;
+    inline-size: var(--pill-height);
+    block-size: var(--pill-height);
+    padding: 0;
+    border: var(--line-thin) solid transparent;
+    border-radius: var(--radius-pill);
+    color: var(--color-text);
+    background:
+      linear-gradient(var(--color-bg), var(--color-bg)) padding-box,
+      var(--gradient-light) border-box;
+    cursor: pointer;
+    transition:
+      box-shadow var(--duration-base) var(--ease-out),
+      opacity var(--duration-fast) var(--ease-out);
+  }
+
+  /* A chevron drawn with borders, so no icon request. */
+  .press__arrow::before {
+    content: '';
+    inline-size: 0.6rem;
+    block-size: 0.6rem;
+    border-block-start: 2px solid currentColor;
+    border-inline-end: 2px solid currentColor;
+    transform: translateX(-0.12rem) rotate(45deg);
+  }
+
+  .press__arrow--prev::before {
+    transform: translateX(0.12rem) rotate(-135deg);
+  }
+
+  .press__arrow:hover:not(:disabled) {
+    box-shadow: var(--glow-purple);
+  }
+
+  .press__arrow:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 3px;
+  }
+
+  .press__arrow:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  .press__track {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(15rem, 19rem);
+    gap: var(--space-5);
+    margin: 0;
+    padding: var(--space-1) var(--space-1) var(--space-4);
+    list-style: none;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--space-1);
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border) transparent;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .press__track {
+      scroll-behavior: smooth;
+    }
+  }
+
+  .press__item {
+    display: grid;
+    max-inline-size: none;
+    scroll-snap-align: start;
+  }
+
+  .press-card {
+    position: relative;
+    display: grid;
+    grid-template-rows: auto auto 1fr auto;
+    gap: var(--space-3);
+    padding: var(--space-5);
+    border-radius: var(--radius-card);
+    border-block-start: var(--line-thin) solid var(--color-border);
+    background: var(--color-bg-surface);
+    transition: box-shadow var(--duration-base) var(--ease-out);
+  }
+
+  .press__item:nth-child(3n + 1) .press-card {
+    border-block-start-color: var(--brand-pink);
+  }
+
+  .press__item:nth-child(3n + 2) .press-card {
+    border-block-start-color: var(--brand-purple);
+  }
+
+  .press__item:nth-child(3n) .press-card {
+    border-block-start-color: var(--brand-blue);
+  }
+
+  .press-card:hover {
+    box-shadow: var(--glow-purple);
+  }
+
+  .press-card:focus-within {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 3px;
+  }
+
+  .press-card__outlet {
+    display: flex;
+    align-items: center;
+    min-block-size: 2.5rem;
+  }
+
+  .press-card__logo {
+    inline-size: auto;
+    max-inline-size: 8rem;
+    block-size: auto;
+    max-block-size: 2rem;
+    object-fit: contain;
+    opacity: 0.85;
+  }
+
+  /* Monochrome, like the references wall. */
+  .press-card__logo--silhouette {
+    filter: brightness(0) invert(1);
+  }
+
+  .press-card__logo--grayscale {
+    filter: grayscale(1) contrast(1.1);
+  }
+
+  .press-card__name {
+    font-family: var(--font-headline);
+    font-weight: 700;
+    font-size: var(--text-lead);
+    line-height: 1;
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
+  }
+
+  .press-card__headline {
+    font-family: var(--font-body);
+    font-size: var(--text-body);
+    font-weight: 600;
+    line-height: 1.4;
+    letter-spacing: normal;
+    text-transform: none;
+  }
+
+  .press-card__headline a {
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  /* The whole card is the link's target; the headline stays the link text. */
+  .press-card__headline a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+  }
+
+  .press-card__headline a:focus-visible {
+    outline: none;
+  }
+
+  .press-card:hover .press-card__headline a {
+    text-decoration: underline;
+    text-decoration-thickness: from-font;
+    text-underline-offset: 0.18em;
+  }
+
+  .press-card__what {
+    color: var(--color-text-secondary);
+    font-size: var(--text-small);
+  }
+</style>
