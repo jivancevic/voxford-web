@@ -31,6 +31,7 @@ Tickets B–E run in parallel worktrees on top of ticket A. Each owns its files 
 | JSON-LD | `src/lib/jsonld.ts` builders, rendered through `BaseLayout`'s `jsonLd` prop | A | call the builders; a missing builder is a PR note |
 | Inquiry contract | `src/lib/inquiry-url.ts` (`inquiryUrl`, `parseInquiryPrefill`) | A | D reads it in the form; nobody changes the contract |
 | `InquiryCTA` | `src/components/InquiryCTA.astro`, props `{ lang, prefill?, label?, variant?: 'primary' \| 'ghost', class? }` | D fills the look | B, C place it; props are fixed |
+| `AvailabilityCheck` | `src/components/AvailabilityCheck.astro`, props `{ lang, type?: EventType, class? }`: the date + city widget, a GET form to `/{lang}/inquiry/` in the prefill contract | D | B places it in the hero; others may place it; props are fixed |
 | `ReferencesWall` | `src/components/ReferencesWall.astro`, props `{ lang, limit?, heading?: string \| false, class? }`, reads `references` itself | E fills it | B, C place it; props are fixed |
 | `VideoRail` | `src/components/VideoRail.astro`, props `{ lang, source?: 'top' \| 'reels', limit?, heading?: string \| false, class? }`, reads its data itself | E fills it | B, C place it; props are fixed |
 | Worker | `worker/index.ts` (router) and `worker/healthz.ts`, `worker/lang-redirect.ts` | A | — |
