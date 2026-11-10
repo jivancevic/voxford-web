@@ -1,5 +1,5 @@
 {
-  "name": "Turistička zajednica Grada Paga",
+  "name": { "en": "Tourist Board of Pag", "hr": "Turistička zajednica Grada Paga" },
   "kind": "tourist-board",
   "order": 220
 }

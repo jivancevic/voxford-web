@@ -11,6 +11,8 @@ import { z } from 'astro/zod';
 import { FAQ_GROUPS } from './lib/faq-groups';
 
 const localized = z.object({ en: z.string().min(1), hr: z.string().min(1) });
+/** A proper name that is the same in both languages, or one per language (a Croatian tourist board is "Tourist Board of Pag" in EN). */
+const name = z.union([z.string().min(1), localized]);
 
 /** Page meta and body copy, one entry per page key and language: pages/en/conferences.md. */
 const pages = defineCollection({
@@ -46,12 +48,12 @@ const concerts = defineCollection({
   loader: glob({ pattern: '**/*.json', base: './src/content/concerts' }),
   schema: z.object({
     name: localized,
-    /** ISO 8601 date or date-time. */
-    startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}/),
+    /** ISO 8601 date, or date-time with its offset (19:00 in Austria is 19:00+02:00; without one the build's zone would decide). */
+    startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2})?(Z|[+-]\d{2}:\d{2}))?$/),
     /** The venue's proper name; omit when it is not known (never guess one). */
     venue: z.string().min(1).optional(),
-    /** Who runs the concert (tourist board, festival), as the KB names it; omit when not known. Never Voxford by default. */
-    organizer: z.string().min(1).optional(),
+    /** Who runs the concert (tourist board, festival), as the KB names it, per language when it differs; omit when not known. Never Voxford by default. */
+    organizer: name.optional(),
     city: localized,
     countryCode: z.string().length(2),
     /** One line on what the event is, e.g. a free street performance. */
@@ -104,7 +106,8 @@ const references = defineCollection({
   loader: glob({ pattern: '**/*.json', base: './src/content/references' }),
   schema: ({ image }) =>
     z.object({
-      name: z.string().min(1),
+      /** Per language when it differs, e.g. a tourist board (read it with `inLang`). */
+      name,
       /** `venue` (a stage Voxford was invited onto) and `artist` show as lines of names, never as logos. */
       kind: z.enum(['company', 'city', 'tourist-board', 'institution', 'media', 'festival', 'event', 'venue', 'artist']),
       /** Official logo (src/assets/references/README.md lists each source). Without one the name shows as text. */

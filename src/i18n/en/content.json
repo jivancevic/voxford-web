@@ -64,6 +64,9 @@
     "upcomingHeading": "Upcoming concerts",
     "all": "All upcoming concerts",
     "eventPage": "Event page",
+    "map": "Map",
+    "addToCalendar": "Add to calendar",
+    "free": "Free entry",
     "organizer": "Organised by {name}",
     "empty": "No public concerts are announced right now. New dates appear here and on {handle}.",
     "publicOnly": "Public concerts only. Corporate events and private celebrations are never listed."
@@ -179,15 +182,15 @@
     "serviceType": "Live music for conferences and corporate events"
   },
   "weddings": {
-    "lead": "{disambiguation}. Five voices for the ceremony, a surprise at the party or the whole evening, at weddings across Croatia and in Slovenia.",
+    "lead": "{disambiguation}. Five voices for the ceremony, or a surprise for the bride and groom, at weddings across Croatia, Slovenia and the region.",
     "facts": [
       {
         "term": "Ceremony",
-        "detail": "POP-UP, up to {popUpMax} minutes, fully a cappella"
+        "detail": "From the walk in to the way out, fully a cappella"
       },
       {
-        "term": "Celebration",
-        "detail": "CLASSIC, {classicMin} to {classicMax} minutes, or GOLD with piano and cajón"
+        "term": "Surprise",
+        "detail": "POP-UP, up to {popUpMax} minutes, at the party"
       },
       {
         "term": "Where",
@@ -198,28 +201,18 @@
         "detail": "A contract and a deposit, paid when you sign"
       }
     ],
-    "programmeHeading": "Moments we sing at",
-    "programmeIntro": "In the order of the day. Pick one or combine them.",
+    "programmeHeading": "Two moments we sing at",
+    "programmeIntro": "In the order of the day. Pick one or have both.",
     "moments": [
       {
         "title": "The ceremony",
-        "package": "pop-up",
-        "body": "The walk in, the moment after the vows, the way out. Up to {popUpMax} minutes, five voices and nothing else."
+        "note": "Fully a cappella",
+        "body": "The walk in, the moment after the vows, the way out. Five voices and nothing else."
       },
       {
         "title": "A surprise for the couple",
         "package": "pop-up",
         "body": "We walk into the party unannounced, and the couple finds out when the first chord starts."
-      },
-      {
-        "title": "During dinner",
-        "package": "classic",
-        "body": "{classicMin} to {classicMax} minutes between the courses: klapa songs and the Croatian and international hits your guests know."
-      },
-      {
-        "title": "The whole evening",
-        "package": "gold",
-        "body": "{goldMin} to {goldMax} minutes with piano and cajón, when you want live music to carry the night."
       }
     ],
     "serviceType": "Live music for weddings"
@@ -247,27 +240,7 @@
     "pastHeading": "Recent public concerts",
     "past": [
       {
-        "name": "Music evenings in Ivanić-Grad",
-        "year": "2025"
-      },
-      {
-        "name": "Advent in Jastrebarsko",
-        "year": "2024"
-      },
-      {
-        "name": "Summer concerts in Biograd na Moru",
-        "year": "2023 to 2025"
-      },
-      {
-        "name": "Concert in Orebić, the first on Pelješac",
-        "year": "2026"
-      },
-      {
-        "name": "St Anthony's Day concert, Korčula",
-        "year": "2026"
-      },
-      {
-        "name": "Pag Lace Festival",
+        "name": "Blitvijada, Podgora",
         "year": "2026"
       },
       {
@@ -279,12 +252,28 @@
         "year": "2026"
       },
       {
-        "name": "Blitvijada, Podgora",
+        "name": "St Anthony's Day concert, Korčula",
         "year": "2026"
       },
       {
-        "name": "La Nuit des Chœurs, Villers-la-Ville, Belgium",
+        "name": "Pag Lace Festival",
         "year": "2026"
+      },
+      {
+        "name": "Concert in Orebić, the first on Pelješac",
+        "year": "2026"
+      },
+      {
+        "name": "Music evenings in Ivanić-Grad",
+        "year": "2025"
+      },
+      {
+        "name": "Summer concerts in Biograd na Moru",
+        "year": "2023 to 2025"
+      },
+      {
+        "name": "Advent in Jastrebarsko",
+        "year": "2024"
       }
     ],
     "serviceType": "Advent and summer concerts for cities and tourist boards"

@@ -1,5 +1,5 @@
 {
-  "name": "Turistička zajednica Grada Visa",
+  "name": { "en": "Tourist Board of Vis", "hr": "Turistička zajednica Grada Visa" },
   "kind": "tourist-board",
   "logo": "../../assets/references/tz-vis.png",
   "mono": "silhouette",

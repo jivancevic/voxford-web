@@ -1,10 +1,17 @@
 ---
-// Upcoming public concerts: date, name, place (the venue only when it is
-// known), the organizer when a source names one, a one-line description, and
-// the organiser's event page when there is one. Public concerts only (spec › Information
-// architecture); the caller decides how many and adds the Event JSON-LD.
+// Upcoming public concerts as tickets (Josip, #40): a stub with the big date
+// (day, month, weekday) lit by the stage light, then the name, the place (the
+// venue only when it is known), the organizer when a source names one, a
+// one-line description and a free-entry tag. One pill per ticket, "Add to
+// calendar" (a static .ics, src/lib/concerts.ts › icsRoute); the map search and
+// the organiser's event page are arrow links. Public concerts only (spec ›
+// Information architecture); the caller decides how many and adds the Event
+// JSON-LD.
 import type { CollectionEntry } from 'astro:content';
-import { format, getStrings, LOCALE_META, type Locale } from '@/i18n';
+import Pill from '@/components/Pill.astro';
+import { format, getStrings, inLang, LOCALE_META, type Locale } from '@/i18n';
+import { pathFor } from '@/i18n/routes';
+import { concertPlace, mapUrl } from '@/lib/concert-ics';
 
 interface Props {
   lang: Locale;
@@ -15,54 +22,78 @@ interface Props {
 
 const { lang, concerts, level = 'h2' } = Astro.props;
 const t = getStrings(lang);
+const c = t.content.concerts;
 const Name = level;
 const locale = LOCALE_META[lang].htmlLang;
 const month = new Intl.DateTimeFormat(locale, { month: 'short', timeZone: 'UTC' });
+const weekday = new Intl.DateTimeFormat(locale, { weekday: 'long', timeZone: 'UTC' });
 const full = new Intl.DateTimeFormat(locale, { dateStyle: 'full', timeZone: 'UTC' });
-const country = new Intl.DisplayNames([locale], { type: 'region' });
 
-const rows = concerts.map((c) => {
-  const day = new Date(`${c.data.startDate.slice(0, 10)}T12:00:00Z`);
-  const time = /T(\d{2}:\d{2})/.exec(c.data.startDate)?.[1];
+const rows = concerts.map((entry) => {
+  const d = entry.data;
+  const day = new Date(`${d.startDate.slice(0, 10)}T12:00:00Z`);
+  // The local time as the source wrote it (19:00 in Austria stays 19:00).
+  const time = /T(\d{2}:\d{2})/.exec(d.startDate)?.[1];
+  const place = concertPlace(d, lang);
   return {
-    id: c.id,
-    iso: c.data.startDate,
+    id: entry.id,
+    iso: d.startDate,
     day: day.getUTCDate(),
     month: month.format(day).replace('.', ''),
     year: day.getUTCFullYear(),
-    when: time ? `${full.format(day)}, ${time}` : full.format(day),
-    name: c.data.name[lang],
-    place: [c.data.venue, c.data.city[lang], country.of(c.data.countryCode)].filter(Boolean).join(' · '),
-    organizer: c.data.organizer ? format(t.content.concerts.organizer, { name: c.data.organizer }) : undefined,
-    description: c.data.description?.[lang],
-    url: c.data.url,
+    weekday: weekday.format(day),
+    time,
+    when: full.format(day),
+    name: d.name[lang],
+    place: place.join(' · '),
+    mapUrl: mapUrl(place),
+    organizer: d.organizer ? format(c.organizer, { name: inLang(d.organizer, lang) }) : undefined,
+    description: d.description?.[lang],
+    free: d.free,
+    ics: `${pathFor('concerts', lang)}${entry.id}.ics`,
+    url: d.url,
   };
 });
 ---
 
-<ol class="concerts" role="list">
+<ol class="tickets" role="list">
   {
     rows.map((r) => (
-      <li class="concerts__item">
-        <time class="concerts__date" datetime={r.iso}>
-          <span class="numeral concerts__day">{r.day}</span>
-          <span class="label">
+      <li class="ticket">
+        <time class="ticket__stub" datetime={r.iso}>
+          <span class="visually-hidden">{r.time ? `${r.when}, ${r.time}` : r.when}</span>
+          <span class="ticket__day numeral" aria-hidden="true">
+            {r.day}
+          </span>
+          <span class="ticket__month label" aria-hidden="true">
             {r.month} {r.year}
           </span>
+          <span class="ticket__weekday" aria-hidden="true">
+            {r.weekday}
+            {r.time && <span class="ticket__time">{r.time}</span>}
+          </span>
         </time>
-        <div class="concerts__body">
-          <Name class="concerts__name">{r.name}</Name>
-          <p class="concerts__when">{r.when}</p>
-          <p class="concerts__place">{r.place}</p>
-          {r.organizer && <p class="concerts__organizer">{r.organizer}</p>}
-          {r.description && <p class="concerts__description">{r.description}</p>}
-          {r.url && (
-            <p>
-              <a href={r.url} rel="noopener">
-                {t.content.concerts.eventPage}
+        <div class="ticket__body">
+          <div class="ticket__text">
+            <Name class="ticket__name">{r.name}</Name>
+            <p class="ticket__place">{r.place}</p>
+            {r.organizer && <p class="ticket__organizer">{r.organizer}</p>}
+            {r.description && <p class="ticket__description">{r.description}</p>}
+            {r.free && <p class="ticket__free label">{c.free}</p>}
+          </div>
+          <div class="ticket__actions">
+            <Pill href={r.ics} variant="ghost" class="ticket__calendar">
+              {c.addToCalendar}
+            </Pill>
+            <a class="arrow-link" href={r.mapUrl} rel="noopener">
+              {c.map}
+            </a>
+            {r.url && (
+              <a class="arrow-link arrow-link--out" href={r.url} rel="noopener">
+                {c.eventPage}
               </a>
-            </p>
-          )}
+            )}
+          </div>
         </div>
       </li>
     ))
@@ -70,62 +101,187 @@ const rows = concerts.map((c) => {
 </ol>
 
 <style>
-  .concerts {
+  .tickets {
     list-style: none;
     margin: 0;
     padding: 0;
     display: grid;
+    gap: var(--space-4);
   }
 
-  .concerts__item {
+  /*
+    A ticket: the stub and the body, split by a perforation with a notch at
+    each end (a mask cuts the notches, so they show whatever is behind).
+  */
+  .ticket {
+    --stub: 7rem;
+    --notch: 0.625rem;
+    position: relative;
     display: grid;
-    grid-template-columns: 5.5rem minmax(0, 1fr);
-    gap: var(--space-5);
-    align-items: start;
+    grid-template-columns: var(--stub) minmax(0, 1fr);
     max-inline-size: none;
-    padding-block: var(--space-5);
-    border-block-start: var(--line-thin) solid var(--color-border);
+    border-radius: var(--radius-card);
+    background:
+      var(--glow-corner) 0 0 / var(--stub) 100% no-repeat,
+      var(--color-bg-surface);
+    mask:
+      radial-gradient(circle var(--notch) at var(--stub) 0, transparent 98%, black) top / 100% 51% no-repeat,
+      radial-gradient(circle var(--notch) at var(--stub) 100%, transparent 98%, black) bottom / 100% 51% no-repeat;
   }
 
-  .concerts__item:last-child {
-    border-block-end: var(--line-thin) solid var(--color-border);
+  /* Stage light along the top edge. */
+  .ticket::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    block-size: var(--line-thin);
+    background: var(--gradient-light);
+    border-radius: var(--radius-card) var(--radius-card) 0 0;
   }
 
-  .concerts__date {
+  .ticket__stub {
     display: grid;
+    align-content: start;
     justify-items: start;
     gap: var(--space-1);
+    padding: var(--space-5) var(--space-4) var(--space-5) var(--space-5);
+    border-inline-end: var(--line-thin) dashed var(--color-border);
   }
 
-  .concerts__day {
-    font-size: var(--text-title);
-  }
-
-  .concerts__body {
-    display: grid;
-    gap: var(--space-2);
-  }
-
-  .concerts__name {
-    font-family: var(--font-body);
-    font-size: var(--text-lead);
-    font-weight: 600;
-    line-height: 1.3;
-    letter-spacing: normal;
-    text-transform: none;
-  }
-
-  .concerts__when {
+  .ticket__day {
+    font-size: var(--text-date);
     color: var(--color-text);
   }
 
-  .concerts__when::first-letter {
+  .ticket__month {
+    color: var(--color-text);
+  }
+
+  /* A block, not a grid: ::first-letter (Croatian weekdays are lowercase) needs a block container. */
+  .ticket__weekday {
+    display: block;
+    color: var(--color-text-secondary);
+    font-size: var(--text-small);
+    line-height: var(--leading-label);
+  }
+
+  .ticket__weekday::first-letter {
     text-transform: uppercase;
   }
 
-  .concerts__place,
-  .concerts__organizer,
-  .concerts__description {
+  .ticket__time {
+    display: block;
+    color: var(--color-text);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .ticket__body {
+    display: grid;
+    gap: var(--space-5);
+    align-content: space-between;
+    padding: var(--space-5) var(--space-5) var(--space-5) var(--space-6);
+  }
+
+  .ticket__text {
+    display: grid;
+    gap: var(--space-2);
+    justify-items: start;
+  }
+
+  .ticket__name {
+    max-inline-size: 30ch;
+    font-family: var(--font-headline);
+    font-size: var(--text-heading);
+    line-height: var(--leading-heading);
+  }
+
+  .ticket__place {
+    color: var(--color-text);
+  }
+
+  .ticket__organizer,
+  .ticket__description {
     color: var(--color-text-secondary);
+  }
+
+  /* A tag, not a button: small, the brand hairline around it. */
+  .ticket__free {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-block-start: var(--space-1);
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-pill);
+    color: var(--color-text);
+    background:
+      linear-gradient(var(--color-bg-surface), var(--color-bg-surface)) padding-box,
+      var(--gradient-light) border-box;
+    border: var(--line-thin) solid transparent;
+  }
+
+  .ticket__free::before {
+    content: '';
+    inline-size: 0.4rem;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--color-text-accent);
+  }
+
+  .ticket__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-5);
+  }
+
+  .ticket__actions :global(.ticket__calendar) {
+    background:
+      linear-gradient(var(--color-bg-surface), var(--color-bg-surface)) padding-box,
+      var(--gradient-light) border-box;
+  }
+
+  /* Wide: the actions sit at the right of the body, level with the name. */
+  @media (width >= 60rem) {
+    .ticket {
+      --stub: 9rem;
+    }
+
+    .ticket__stub {
+      padding-inline-start: var(--space-6);
+    }
+
+    .ticket__body {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: start;
+      gap: var(--space-6);
+      padding: var(--space-6) var(--space-6) var(--space-6) var(--space-7);
+    }
+
+    .ticket__actions {
+      flex-direction: column;
+      align-items: flex-end;
+      gap: var(--space-1);
+    }
+  }
+
+  @media (width < 30rem) {
+    .ticket {
+      --stub: 5.75rem;
+    }
+
+    .ticket__stub {
+      padding-inline: var(--space-4) var(--space-3);
+    }
+
+    .ticket__body {
+      padding-inline: var(--space-4);
+    }
+  }
+
+  @media (forced-colors: active) {
+    .ticket {
+      border: 1px solid CanvasText;
+    }
   }
 </style>

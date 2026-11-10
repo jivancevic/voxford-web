@@ -25,6 +25,9 @@
     "concerts": "Upcoming concerts",
     "inquiry": "Inquiry"
   },
+  "navShort": {
+    "concerts": "Concerts"
+  },
   "cta": {
     "inquiry": "Send an inquiry"
   },

@@ -20,6 +20,12 @@ describe('route table', () => {
     expect(missing).toEqual([]);
   });
 
+  it("serves each concert's .ics under the concerts path in every language (ConcertList links there)", () => {
+    for (const lang of LOCALES) {
+      expect(existsSync(`${pagesDir}${lang}/${ROUTES.concerts[lang]}/[id].ics.ts`), lang).toBe(true);
+    }
+  });
+
   it('gives every page a distinct path per language', () => {
     for (const lang of LOCALES) {
       const paths = PAGE_KEYS.map((p) => pathFor(p, lang));
