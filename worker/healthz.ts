@@ -1,3 +1,4 @@
+import { BUILD_COMMIT } from './build-info';
 import type { Env } from './env';
 
 // Liveness for the post-merge `smoke` workflow: 200 whenever the Worker runs,
@@ -6,7 +7,7 @@ import type { Env } from './env';
 // Reads no binding and no secret.
 export function handleHealthz(env: Env): Response {
   return Response.json(
-    { ok: true, commit: env.COMMIT_SHA || null },
+    { ok: true, commit: env.COMMIT_SHA || BUILD_COMMIT || null },
     { headers: { 'Cache-Control': 'no-store' } },
   );
 }

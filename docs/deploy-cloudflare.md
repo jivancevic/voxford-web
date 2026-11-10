@@ -6,13 +6,13 @@ The site is one Worker, `voxford-web`, with the Astro build (`dist/`) as static 
 
 | Step | Command | Where it is set |
 |---|---|---|
-| Build | `npm run build` | Workers Builds › Settings › Build › Build command |
-| Deploy (`main`) | `npm run deploy` (= `wrangler deploy --var COMMIT_SHA:$WORKERS_CI_COMMIT_SHA`) | Deploy command |
-| Preview (other branches) | `npx wrangler versions upload` | Non-production branch deploy command |
+| Build | `npm run build` (first bakes `WORKERS_CI_COMMIT_SHA` into `worker/build-info.ts`) | Workers Builds › Settings › Build › Build command |
+| Deploy (`main`) | `npm run deploy` or the dashboard default `npx wrangler deploy`; both report the commit | Deploy command |
+| Preview (other branches) | the dashboard default `npx wrangler preview` (needs the `previews` block in `wrangler.jsonc`) or `npx wrangler versions upload` | Non-production branch deploy command |
 
 Build variables (Workers Builds › Settings › Build › Variables): `SITE_URL` = the production origin without a trailing slash (until ticket G the `https://voxford-web.<subdomain>.workers.dev` URL), `SITE_INDEXABLE` unset until the domain is live, `NODE_VERSION` = `26`.
 
-`COMMIT_SHA` is what `/healthz` reports and what the `smoke` workflow compares with the merged commit. Workers Builds sets `WORKERS_CI_COMMIT_SHA` during the build; locally it is empty and `/healthz` says `"commit": null`.
+`/healthz` reports the deployed commit, which the `smoke` workflow compares with the merged commit. Workers Builds sets `WORKERS_CI_COMMIT_SHA`; `scripts/build-info.mjs` writes it into `worker/build-info.ts` before the Astro build, so the commit is in the bundle whichever deploy command runs (`COMMIT_SHA` from `npm run deploy` wins when set). Locally the file stays empty and `/healthz` says `"commit": null`.
 
 ## Setup (once, by Josip)
 

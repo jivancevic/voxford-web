@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "node scripts/build-info.mjs && astro build",
     "preview": "npm run build && wrangler dev",
     "check": "astro check && tsc -p worker/tsconfig.json",
     "lint": "eslint .",
