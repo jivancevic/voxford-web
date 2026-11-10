@@ -10,7 +10,7 @@ The site is one Worker, `voxford-web`, with the Astro build (`dist/`) as static 
 | Deploy (`main`) | `npm run deploy` (= `wrangler deploy --var COMMIT_SHA:$WORKERS_CI_COMMIT_SHA`) | Deploy command |
 | Preview (other branches) | `npx wrangler versions upload` | Non-production branch deploy command |
 
-Build variables (Workers Builds › Settings › Build › Variables): `SITE_URL` = the production origin without a trailing slash (until ticket G the `https://voxford-web.<subdomain>.workers.dev` URL), `SITE_INDEXABLE` unset until the domain is live, `NODE_VERSION` = `26`.
+Build variables (Workers Builds › Settings › Build › Variables): `SITE_URL` = the production origin without a trailing slash (until ticket G `https://voxford-web.josip-ivancevic00.workers.dev`), `SITE_INDEXABLE` unset until the domain is live, `NODE_VERSION` = `26`.
 
 `COMMIT_SHA` is what `/healthz` reports and what the `smoke` workflow compares with the merged commit. Workers Builds sets `WORKERS_CI_COMMIT_SHA` during the build; locally it is empty and `/healthz` says `"commit": null`.
 
@@ -60,7 +60,7 @@ gh api repos/jivancevic/voxford-web --jq .allow_auto_merge
 jq -e '.permissions.allow | index("Bash(gh pr merge --auto --squash)")' .claude/settings.json
 ```
 
-State on 2026-11-10 (ticket A): no branch protection (404), `allow_auto_merge: false`, no allow entry, Workers Builds not connected.
+State on 2026-11-10 (ticket A): Workers Builds connected on Josip's account, production URL `https://voxford-web.josip-ivancevic00.workers.dev` (also the `PRODUCTION_URL` repo variable); no branch protection (404), `allow_auto_merge: false`, no allow entry.
 
 ## Post-merge check
 
