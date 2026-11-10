@@ -1,10 +1,22 @@
 ---
-// View for the `inquiry` page (owner: ticket D). Both language routes
-// render this file; replace the placeholder with the real page.
-import PagePlaceholder from '@/components/PagePlaceholder.astro';
-import type { Locale } from '@/i18n';
+// View for the `inquiry` page (owner: ticket D). Date first, then the occasion,
+// then the visitor: three steps numbered like a concert programme.
+//
+// Works without JavaScript: a plain POST to the Worker's /api/inquiry, which
+// answers with the visitor's mail app (a prefilled mailto:) or the thank-you
+// state (#inquiry-sent, shown with :target). The script below enhances it:
+// prefill from the URL (src/lib/inquiry-url.ts), inline validation with an
+// error summary, Turnstile, and the sent / mailto / error states in place.
+// Every word on the page is in this static HTML; the script only shows and hides.
+import Crest from '@/components/Crest.astro';
+import Photo from '@/components/Photo.astro';
+import Pill from '@/components/Pill.astro';
+import { EVENT_TYPES, GROUP, PACKAGES } from '@/data/site-facts';
+import { format, getStrings, type Locale } from '@/i18n';
 import type { PageKey } from '@/i18n/routes';
+import { pathFor } from '@/i18n/routes';
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import { FIELD, GUEST_RANGES, LIMITS } from '@/lib/inquiry';
 import { breadcrumbsFor, loadPage } from '@/lib/page';
 
 interface Props {
@@ -14,6 +26,20 @@ interface Props {
 const { lang } = Astro.props;
 const page: PageKey = 'inquiry';
 const copy = await loadPage(page, lang);
+const t = getStrings(lang);
+const s = t.inquiry;
+const f = s.fields;
+
+/**
+ * Public Turnstile site key, set at build time (Workers Builds variable
+ * PUBLIC_TURNSTILE_SITE_KEY). The fallback is Cloudflare's published
+ * "always passes, invisible" test key; with a real secret on the Worker it
+ * never verifies, so a missing variable degrades to the mailto: fallback.
+ */
+const TURNSTILE_SITE_KEY: string = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '1x00000000000000000000BB';
+
+const id = (name: string) => `inquiry-${name}`;
+const mailtoPlain = `mailto:${GROUP.email}`;
 ---
 
 <BaseLayout
@@ -21,7 +47,642 @@ const copy = await loadPage(page, lang);
   page={page}
   title={copy.data.title}
   description={copy.data.description}
+  ogPhoto="hakEsplanade"
   jsonLd={[breadcrumbsFor(Astro.site!, page, lang)]}
 >
-  <PagePlaceholder lang={lang} heading={copy.data.heading} />
+  <div class="inquiry container" data-inquiry data-lang={lang}>
+    <header class="inquiry__intro">
+      <h1>{copy.data.heading}</h1>
+      <span class="light-line inquiry__line" aria-hidden="true"></span>
+      <p class="lead">{s.lead}</p>
+      <Photo photo="hakEsplanade" lang={lang} sizes="(min-width: 64rem) 34vw, 0px" showLabel class="inquiry__photo" />
+      <div class="inquiry__direct">
+        <p>{s.direct.lead} <a href={mailtoPlain}>{GROUP.email}</a></p>
+        <p>{format(s.direct.manager, { name: GROUP.manager.name, company: GROUP.manager.company })}</p>
+      </div>
+    </header>
+
+    <div class="inquiry__body">
+      <form
+        id={id('form')}
+        class="inquiry-form"
+        action="/api/inquiry"
+        method="post"
+        accept-charset="utf-8"
+        data-inquiry-form
+      >
+        <input type="hidden" name={FIELD.lang} value={lang} />
+
+        <div
+          class="inquiry-form__summary"
+          tabindex="-1"
+          hidden
+          data-error-summary
+          data-heading-one={s.summary.headingOne}
+          data-heading-many={s.summary.heading}
+        >
+          <h2 class="inquiry-form__summary-heading" data-summary-heading></h2>
+          <ul data-summary-list></ul>
+        </div>
+
+        <p class="inquiry-form__note">{s.requiredNote}</p>
+
+        <ol class="steps">
+          <li class="step">
+            <div class="step__head">
+              <span class="step__no text-light" aria-hidden="true">01</span>
+              <h2 class="step__title">{s.steps.when}</h2>
+            </div>
+
+            <div class="step__row">
+              <div class="field" data-field="date">
+                <label class="field__label" for={id('date')}>{f.date.label}</label>
+                <input class="input" id={id('date')} name={FIELD.date} type="date" data-describedby="" />
+                <p class="field__error" id={id('date-error')} hidden>{f.date.error}</p>
+              </div>
+              <label class="check">
+                <input type="checkbox" name={FIELD.flexible} value="1" id={id('flexible')} />
+                <span>{f.flexible.label}</span>
+              </label>
+            </div>
+
+            <div class="field" data-field="city">
+              <label class="field__label" for={id('city')}>{f.city.label}</label>
+              <p class="field__hint" id={id('city-hint')}>{f.city.hint}</p>
+              <input
+                class="input"
+                id={id('city')}
+                name={FIELD.city}
+                type="text"
+                required
+                maxlength={LIMITS.city}
+                autocomplete="address-level2"
+                aria-describedby={id('city-hint')}
+                data-describedby={id('city-hint')}
+              />
+              <p class="field__error" id={id('city-error')} hidden>{f.city.error}</p>
+            </div>
+          </li>
+
+          <li class="step">
+            <div class="step__head">
+              <span class="step__no text-light" aria-hidden="true">02</span>
+              <h2 class="step__title">{s.steps.occasion}</h2>
+            </div>
+
+            <fieldset class="field chips" data-field="type" id={id('type')} data-describedby="">
+              <legend class="field__label">{f.type.label}</legend>
+              <p class="field__error" id={id('type-error')} hidden>{f.type.error}</p>
+              <div class="chips__list">
+                {
+                  EVENT_TYPES.map((type, i) => (
+                    <label class="chip">
+                      <input type="radio" name={FIELD.type} value={type} required id={i === 0 ? id('type-first') : undefined} />
+                      <span>{s.types[type]}</span>
+                    </label>
+                  ))
+                }
+              </div>
+            </fieldset>
+
+            <fieldset class="field chips" data-field="guests" id={id('guests')} data-describedby="">
+              <legend class="field__label">{f.guests.label}</legend>
+              <p class="field__error" id={id('guests-error')} hidden>{f.guests.error}</p>
+              <div class="chips__list">
+                {
+                  GUEST_RANGES.map((range, i) => (
+                    <label class="chip">
+                      <input type="radio" name={FIELD.guests} value={range} required id={i === 0 ? id('guests-first') : undefined} />
+                      <span>{s.guests[range]}</span>
+                    </label>
+                  ))
+                }
+              </div>
+            </fieldset>
+
+            <fieldset class="field chips" data-field="package" id={id('package')} aria-describedby={id('package-hint')} data-describedby={id('package-hint')}>
+              <legend class="field__label">{f.package.label} <span class="field__optional">({s.optional})</span></legend>
+              <p class="field__hint" id={id('package-hint')}>{f.package.hint}</p>
+              <p class="field__error" id={id('package-error')} hidden>{f.package.error}</p>
+              <div class="chips__list">
+                {
+                  PACKAGES.map((p, i) => (
+                    <label class="chip chip--display">
+                      <input type="radio" name={FIELD.package} value={p.key} id={i === 0 ? id('package-first') : undefined} />
+                      <span>{p.name}</span>
+                    </label>
+                  ))
+                }
+                <label class="chip">
+                  <input type="radio" name={FIELD.package} value="" checked />
+                  <span>{s.packageUnsure}</span>
+                </label>
+              </div>
+            </fieldset>
+          </li>
+
+          <li class="step">
+            <div class="step__head">
+              <span class="step__no text-light" aria-hidden="true">03</span>
+              <h2 class="step__title">{s.steps.you}</h2>
+            </div>
+
+            <div class="step__grid">
+              <div class="field" data-field="name">
+                <label class="field__label" for={id('name')}>{f.name.label}</label>
+                <input class="input" id={id('name')} name={FIELD.name} type="text" required maxlength={LIMITS.name} autocomplete="name" data-describedby="" />
+                <p class="field__error" id={id('name-error')} hidden>{f.name.error}</p>
+              </div>
+
+              <div class="field" data-field="email">
+                <label class="field__label" for={id('email')}>{f.email.label}</label>
+                <p class="field__hint" id={id('email-hint')}>{f.email.hint}</p>
+                <input
+                  class="input"
+                  id={id('email')}
+                  name={FIELD.email}
+                  type="email"
+                  required
+                  maxlength={LIMITS.email}
+                  autocomplete="email"
+                  spellcheck="false"
+                  aria-describedby={id('email-hint')}
+                  data-describedby={id('email-hint')}
+                />
+                <p class="field__error" id={id('email-error')} hidden>{f.email.error}</p>
+              </div>
+
+              <div class="field" data-field="phone">
+                <label class="field__label" for={id('phone')}>
+                  {f.phone.label} <span class="field__optional">({s.optional})</span>
+                </label>
+                <input class="input" id={id('phone')} name={FIELD.phone} type="tel" maxlength={LIMITS.phone} autocomplete="tel" data-describedby="" />
+                <p class="field__error" id={id('phone-error')} hidden>{f.phone.error}</p>
+              </div>
+            </div>
+
+            <div class="field" data-field="message">
+              <label class="field__label" for={id('message')}>
+                {f.message.label} <span class="field__optional">({s.optional})</span>
+              </label>
+              <p class="field__hint" id={id('message-hint')}>{f.message.hint}</p>
+              <textarea
+                class="input input--area"
+                id={id('message')}
+                name={FIELD.message}
+                rows="5"
+                maxlength={LIMITS.message}
+                aria-describedby={id('message-hint')}
+                data-describedby={id('message-hint')}></textarea>
+              <p class="field__error" id={id('message-error')} hidden>{f.message.error}</p>
+            </div>
+          </li>
+        </ol>
+
+        <div class="inquiry-form__trap" aria-hidden="true">
+          <label for={id('website')}>{s.honeypot}</label>
+          <input id={id('website')} name={FIELD.honeypot} type="text" tabindex="-1" autocomplete="off" />
+        </div>
+
+        <div class="inquiry-form__turnstile" data-turnstile data-sitekey={TURNSTILE_SITE_KEY}></div>
+
+        <div class="inquiry-form__send">
+          <Pill type="submit" class="inquiry-form__submit" data-submit data-label-busy={s.sending}>
+            <span data-submit-label>{t.common.cta.inquiry}</span>
+          </Pill>
+          <p class="inquiry-form__privacy">{s.privacyNote}</p>
+        </div>
+      </form>
+
+      <section class="state state--sent" id="inquiry-sent" hidden data-state="sent" aria-labelledby="inquiry-sent-heading">
+        <Crest width={72} alt="" class="state__crest" />
+        <h2 id="inquiry-sent-heading" tabindex="-1" data-state-heading>{s.sent.heading}</h2>
+        <span class="light-line state__line" aria-hidden="true"></span>
+        <p data-sent-body data-template={s.sent.body}>{s.sent.bodyNoEmail}</p>
+        <Pill href={pathFor('inquiry', lang)} variant="ghost" data-action="again">{s.sent.again}</Pill>
+      </section>
+
+      <section class="state" id="inquiry-mailto" hidden data-state="mailto" aria-labelledby="inquiry-mailto-heading">
+        <h2 id="inquiry-mailto-heading" tabindex="-1" data-state-heading>{s.mailto.heading}</h2>
+        <span class="light-line state__line" aria-hidden="true"></span>
+        <p>{format(s.mailto.body, { email: GROUP.email })}</p>
+        <div class="state__actions">
+          <Pill href={mailtoPlain} data-mailto-link>{s.mailto.open}</Pill>
+          <Pill variant="ghost" data-action="back">{s.mailto.back}</Pill>
+        </div>
+      </section>
+
+      <section class="state state--error" id="inquiry-error" hidden data-state="error" aria-labelledby="inquiry-error-heading">
+        <h2 id="inquiry-error-heading" tabindex="-1" data-state-heading>{s.error.heading}</h2>
+        <span class="light-line state__line" aria-hidden="true"></span>
+        <p>{s.error.body}</p>
+        <div class="state__actions">
+          <Pill data-action="retry">{s.error.retry}</Pill>
+          <Pill href={mailtoPlain} variant="ghost" data-mailto-link>{s.error.mailto}</Pill>
+        </div>
+      </section>
+    </div>
+  </div>
 </BaseLayout>
+
+<script>
+  import { enhanceInquiryForm } from './inquiry-form';
+
+  const root = document.querySelector<HTMLElement>('[data-inquiry]');
+  if (root) enhanceInquiryForm(root);
+</script>
+
+<style>
+  .inquiry {
+    display: grid;
+    gap: var(--space-8);
+    padding-block: var(--space-8) var(--section-gap);
+  }
+
+  .inquiry__intro {
+    display: grid;
+    gap: var(--space-5);
+    align-content: start;
+  }
+
+  .inquiry__line {
+    inline-size: min(16rem, 60%);
+  }
+
+  .inquiry__intro :global(.inquiry__photo) {
+    display: none;
+  }
+
+  .inquiry__direct {
+    display: grid;
+    gap: var(--space-2);
+    color: var(--color-text-secondary);
+    font-size: var(--text-small);
+  }
+
+  @media (width >= 64rem) {
+    .inquiry {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      align-items: start;
+      gap: var(--space-9);
+    }
+
+    .inquiry__intro :global(.inquiry__photo) {
+      display: block;
+      overflow: hidden;
+      border-radius: var(--radius-card);
+    }
+  }
+
+  /* ---- Form ---- */
+
+  .inquiry-form {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  .inquiry-form[hidden] {
+    display: none;
+  }
+
+  .inquiry-form__note {
+    color: var(--color-text-muted);
+    font-size: var(--text-small);
+  }
+
+  .inquiry-form__summary {
+    display: grid;
+    gap: var(--space-3);
+    padding: var(--space-5);
+    border: var(--line-thin) solid var(--color-text-accent);
+    border-radius: var(--radius-card);
+    background: var(--color-bg-surface);
+  }
+
+  .inquiry-form__summary[hidden] {
+    display: none;
+  }
+
+  .inquiry-form__summary-heading {
+    font-size: var(--text-heading);
+  }
+
+  .inquiry-form__summary ul {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding-inline-start: var(--space-5);
+  }
+
+  .steps {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .step {
+    display: grid;
+    gap: var(--space-6);
+    max-width: none;
+    padding-block: var(--space-7);
+    border-block-start: var(--line-thin) solid var(--color-border-subtle);
+  }
+
+  .step:first-child {
+    padding-block-start: var(--space-4);
+    border-block-start: 0;
+  }
+
+  .step__head {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-4);
+  }
+
+  /* The programme number: Staubach digits lit by the brand light (.text-light, decorative). */
+  .step__no {
+    font-family: var(--font-display);
+    font-size: var(--text-title);
+    line-height: 0.9;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .step__title {
+    font-size: var(--text-heading);
+  }
+
+  .step__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: start;
+    gap: var(--space-4) var(--space-6);
+  }
+
+  .step__row .field {
+    flex: 1 1 14rem;
+    max-inline-size: 20rem;
+  }
+
+  .step__grid {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  @media (width >= 40rem) {
+    .step__grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  /* ---- Fields ---- */
+
+  .field {
+    display: grid;
+    gap: var(--space-2);
+    min-inline-size: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .field__label {
+    padding: 0;
+    color: var(--color-text);
+    font-weight: 600;
+  }
+
+  fieldset.field > .field__label {
+    margin-block-end: var(--space-2);
+  }
+
+  .field__optional {
+    color: var(--color-text-muted);
+    font-weight: 400;
+  }
+
+  .field__hint {
+    color: var(--color-text-muted);
+    font-size: var(--text-small);
+  }
+
+  .field__error {
+    color: var(--color-text-accent);
+    font-size: var(--text-small);
+    font-weight: 600;
+  }
+
+  .field__error[hidden] {
+    display: none;
+  }
+
+  .input {
+    inline-size: 100%;
+    min-block-size: var(--pill-height);
+    padding: var(--space-3) var(--space-4);
+    border: var(--line-thin) solid var(--color-border-strong);
+    border-radius: var(--radius-card);
+    background: var(--color-bg-surface);
+    color: var(--color-text);
+    font: inherit;
+    transition: border-color var(--duration-fast) var(--ease-out);
+  }
+
+  .input:hover {
+    border-color: var(--color-text-muted);
+  }
+
+  .input:focus-visible {
+    border-color: var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  .input--area {
+    min-block-size: 9rem;
+    resize: vertical;
+  }
+
+  .input[aria-invalid='true'] {
+    border-color: var(--color-text-accent);
+  }
+
+  /* The date and its "flexible" box. */
+  .check {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-block-size: var(--pill-height);
+    cursor: pointer;
+  }
+
+  /* Next to the date input, level with it (below the date's label). */
+  @media (width >= 30rem) {
+    .step__row .check {
+      margin-block-start: calc(var(--text-body) * var(--leading-body) + var(--space-2));
+    }
+  }
+
+  .check input {
+    inline-size: 1.25rem;
+    block-size: 1.25rem;
+    margin: 0;
+    accent-color: var(--color-text-accent);
+  }
+
+  /* ---- Chips: radio buttons dressed as content-width pills ---- */
+
+  .chips__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-3);
+  }
+
+  .chip {
+    position: relative;
+    display: inline-flex;
+  }
+
+  .chip input {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .chip span {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 2.75rem;
+    padding: 0 var(--space-5);
+    border: var(--line-thin) solid var(--color-border-strong);
+    border-radius: var(--radius-pill);
+    color: var(--color-text-secondary);
+    font-size: var(--text-small);
+    font-weight: 500;
+    transition:
+      background-color var(--duration-fast) var(--ease-out),
+      color var(--duration-fast) var(--ease-out),
+      box-shadow var(--duration-base) var(--ease-out);
+  }
+
+  .chip--display span {
+    font-family: var(--font-display);
+    font-size: var(--text-body);
+    letter-spacing: var(--tracking-display);
+  }
+
+  .chip:hover span {
+    border-color: var(--color-text-secondary);
+    color: var(--color-text);
+  }
+
+  .chip input:checked + span {
+    border-color: transparent;
+    background: var(--color-action-bg);
+    color: var(--color-action-text);
+    box-shadow: var(--glow-pink);
+  }
+
+  .chip input:focus-visible + span {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 3px;
+  }
+
+  .chips[data-invalid] .chip span {
+    border-color: var(--color-text-accent);
+  }
+
+  /* ---- Honeypot: off-screen, not display:none (some bots skip hidden fields) ---- */
+
+  .inquiry-form__trap {
+    position: absolute;
+    inset-inline-start: -10000px;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+  }
+
+  .inquiry-form__turnstile:empty {
+    display: none;
+  }
+
+  .inquiry-form__send {
+    display: grid;
+    gap: var(--space-4);
+    justify-items: start;
+    padding-block-start: var(--space-4);
+  }
+
+  .inquiry-form__send :global(.inquiry-form__submit[aria-disabled='true']) {
+    cursor: progress;
+    opacity: 0.75;
+  }
+
+  .inquiry-form__privacy {
+    color: var(--color-text-muted);
+    font-size: var(--text-small);
+  }
+
+  /* ---- States: sent, mailto, error ---- */
+
+  .state {
+    position: relative;
+    display: grid;
+    gap: var(--space-5);
+    justify-items: start;
+    padding: var(--space-8) var(--space-6);
+    border-radius: var(--radius-card);
+    background: var(--color-bg-surface);
+    overflow: hidden;
+  }
+
+  .state[hidden] {
+    display: none;
+  }
+
+  /* Light from the top edge of the panel. */
+  .state::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    block-size: var(--line-thin);
+    background: var(--gradient-light);
+  }
+
+  .state h2 {
+    font-size: var(--text-title);
+  }
+
+  .state h2:focus {
+    outline: none;
+  }
+
+  .state__line {
+    inline-size: min(12rem, 50%);
+  }
+
+  .state__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+
+  .state--sent {
+    justify-items: center;
+    text-align: center;
+  }
+
+  .state--sent p {
+    margin-inline: auto;
+  }
+
+  /* No JavaScript: the Worker redirects a sent inquiry to #inquiry-sent. */
+  .state--sent:target {
+    display: grid;
+  }
+
+  .inquiry__body:has(.state--sent:target) .inquiry-form {
+    display: none;
+  }
+</style>

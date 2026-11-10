@@ -1,3 +1,125 @@
 {
-  "privacyNote": "We use your details only to reply to your inquiry."
+  "privacyNote": "We use your details only to reply to your inquiry.",
+  "lead": "Start with the date. We reply with availability and an offer for your event.",
+  "requiredNote": "Fields marked optional can stay empty; everything else helps us answer in one reply.",
+  "optional": "optional",
+  "steps": {
+    "when": "Date and place",
+    "occasion": "The occasion",
+    "you": "About you"
+  },
+  "fields": {
+    "date": {
+      "label": "Date of the event",
+      "error": "Choose a date from today on, or tick “The date is flexible”."
+    },
+    "flexible": {
+      "label": "The date is flexible"
+    },
+    "city": {
+      "label": "City or venue",
+      "hint": "For example: Zagreb, The Westin",
+      "error": "Tell us the city or the venue."
+    },
+    "type": {
+      "label": "What is the occasion?",
+      "error": "Choose the occasion."
+    },
+    "guests": {
+      "label": "How many guests?",
+      "error": "Choose roughly how many guests."
+    },
+    "package": {
+      "label": "Package",
+      "hint": "If you already know which one",
+      "error": "Choose a package or “Not sure yet”."
+    },
+    "name": {
+      "label": "Your name",
+      "error": "Tell us your name."
+    },
+    "email": {
+      "label": "Email",
+      "hint": "We reply to this address.",
+      "error": "Enter an email address like name@company.com."
+    },
+    "phone": {
+      "label": "Phone",
+      "error": "Use digits, spaces and + ( ) - only."
+    },
+    "message": {
+      "label": "Anything else?",
+      "hint": "The programme, the moment you want music for, timings",
+      "error": "Keep the message under 2,000 characters."
+    }
+  },
+  "types": {
+    "conference": "Conference or corporate event",
+    "wedding": "Wedding",
+    "advent": "Advent or a city event",
+    "concert": "Concert or festival",
+    "private": "Private celebration",
+    "other": "Something else"
+  },
+  "guests": {
+    "under-50": "Under 50",
+    "50-150": "50–150",
+    "150-400": "150–400",
+    "over-400": "Over 400",
+    "unsure": "Not sure yet"
+  },
+  "packageUnsure": "Not sure yet",
+  "honeypot": "Leave this field empty",
+  "sending": "Sending…",
+  "direct": {
+    "lead": "Prefer email? Write to",
+    "manager": "Bookings are handled by our manager {name}, {company}."
+  },
+  "summary": {
+    "heading": "Please check {count} fields",
+    "headingOne": "Please check one field"
+  },
+  "sent": {
+    "heading": "Thank you. Your inquiry is with us.",
+    "body": "We will reply to {email} with availability and an offer.",
+    "bodyNoEmail": "We will reply by email with availability and an offer.",
+    "again": "Send another inquiry"
+  },
+  "mailto": {
+    "heading": "One last step: send it from your email",
+    "body": "Your inquiry is written and waiting in an email to {email}. Open it, check it and press send.",
+    "open": "Open the email",
+    "back": "Back to the form"
+  },
+  "error": {
+    "heading": "Your inquiry did not go through",
+    "body": "Nothing was sent. Try again, or send the same inquiry from your own email.",
+    "retry": "Try again",
+    "mailto": "Send it by email"
+  },
+  "widget": {
+    "label": "Check availability",
+    "date": "Date",
+    "city": "City or venue",
+    "submit": "Check availability"
+  },
+  "mail": {
+    "subject": "Inquiry: {details}",
+    "flexibleDate": "flexible date",
+    "dateFlexible": "{date} (flexible)",
+    "greeting": "Hello Voxford,",
+    "intro": "I would like to check your availability.",
+    "message": "Message",
+    "footer": "Sent from the inquiry form on {site}. Reply to this email to answer {name}.",
+    "labels": {
+      "type": "Occasion",
+      "date": "Date",
+      "city": "City / venue",
+      "guests": "Guests",
+      "package": "Package",
+      "name": "Name",
+      "email": "Email",
+      "phone": "Phone"
+    }
+  }
 }

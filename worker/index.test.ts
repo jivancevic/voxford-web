@@ -65,9 +65,9 @@ describe('GET /healthz', () => {
 });
 
 describe('/api', () => {
-  it('stubs the inquiry endpoint until ticket D', async () => {
-    expect((await call('/api/inquiry', { method: 'POST' })).status).toBe(501);
+  it('routes /api/inquiry to the inquiry handler (worker/inquiry.test.ts covers it)', async () => {
     expect((await call('/api/inquiry')).status).toBe(405);
+    expect((await call('/api/inquiry/', { method: 'POST' })).status).toBe(415);
   });
 
   it('404s unknown API paths as JSON', async () => {

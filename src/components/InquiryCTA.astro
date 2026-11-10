@@ -21,6 +21,20 @@ const { lang, prefill, label, variant = 'primary', class: className } = Astro.pr
 const t = getStrings(lang);
 ---
 
-<Pill href={inquiryUrl(lang, prefill)} variant={variant} class:list={['inquiry-cta', className]} data-inquiry-cta>
-  {label ?? t.common.cta.inquiry}
+<Pill href={inquiryUrl(lang, prefill)} variant={variant} class:list={['inquiry-cta', `inquiry-cta--${variant}`, className]} data-inquiry-cta>
+  <span>{label ?? t.common.cta.inquiry}</span>
+  {variant === 'primary' && <span class="inquiry-cta__arrow" aria-hidden="true">→</span>}
 </Pill>
+
+<style>
+  /* The one action on every page: the primary pill carries a small arrow that leans in on hover. */
+  .inquiry-cta__arrow {
+    display: inline-block;
+    transition: transform var(--duration-base) var(--ease-out);
+  }
+
+  :global(.inquiry-cta:hover) .inquiry-cta__arrow,
+  :global(.inquiry-cta:focus-visible) .inquiry-cta__arrow {
+    transform: translateX(0.2em);
+  }
+</style>

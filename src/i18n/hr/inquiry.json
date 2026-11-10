@@ -1,3 +1,125 @@
 {
-  "privacyNote": "Vaše podatke koristimo samo da bismo odgovorili na upit."
+  "privacyNote": "Vaše podatke koristimo samo da bismo odgovorili na upit.",
+  "lead": "Počnite od datuma. Odgovorit ćemo Vam s dostupnošću i ponudom za Vaš događaj.",
+  "requiredNote": "Polja označena kao neobavezna možete ostaviti prazna; sve ostalo pomaže nam da odgovorimo u jednom mailu.",
+  "optional": "neobavezno",
+  "steps": {
+    "when": "Datum i mjesto",
+    "occasion": "Prigoda",
+    "you": "O Vama"
+  },
+  "fields": {
+    "date": {
+      "label": "Datum događaja",
+      "error": "Odaberite datum od danas nadalje ili označite „Datum je fleksibilan”."
+    },
+    "flexible": {
+      "label": "Datum je fleksibilan"
+    },
+    "city": {
+      "label": "Grad ili prostor",
+      "hint": "Na primjer: Zagreb, The Westin",
+      "error": "Napišite grad ili prostor."
+    },
+    "type": {
+      "label": "Koja je prigoda?",
+      "error": "Odaberite prigodu."
+    },
+    "guests": {
+      "label": "Koliko gostiju?",
+      "error": "Odaberite otprilike koliko gostiju."
+    },
+    "package": {
+      "label": "Paket",
+      "hint": "Ako već znate koji",
+      "error": "Odaberite paket ili „Još ne znam”."
+    },
+    "name": {
+      "label": "Vaše ime",
+      "error": "Napišite svoje ime."
+    },
+    "email": {
+      "label": "E-pošta",
+      "hint": "Na ovu adresu šaljemo odgovor.",
+      "error": "Upišite adresu e-pošte, npr. ime@tvrtka.hr."
+    },
+    "phone": {
+      "label": "Telefon",
+      "error": "Koristite samo brojke, razmake i znakove + ( ) -."
+    },
+    "message": {
+      "label": "Još nešto?",
+      "hint": "Program, trenutak za koji želite glazbu, satnica",
+      "error": "Poruka neka bude kraća od 2.000 znakova."
+    }
+  },
+  "types": {
+    "conference": "Konferencija ili poslovni događaj",
+    "wedding": "Vjenčanje",
+    "advent": "Advent ili gradski događaj",
+    "concert": "Koncert ili festival",
+    "private": "Privatna proslava",
+    "other": "Nešto drugo"
+  },
+  "guests": {
+    "under-50": "Do 50",
+    "50-150": "50–150",
+    "150-400": "150–400",
+    "over-400": "Više od 400",
+    "unsure": "Još ne znam"
+  },
+  "packageUnsure": "Još ne znam",
+  "honeypot": "Ovo polje ostavite prazno",
+  "sending": "Šaljemo…",
+  "direct": {
+    "lead": "Radije pišete mailom? Javite nam se na",
+    "manager": "Bookingom se bavi naša menadžerica {name}, {company}."
+  },
+  "summary": {
+    "heading": "Provjerite polja ({count})",
+    "headingOne": "Provjerite jedno polje"
+  },
+  "sent": {
+    "heading": "Hvala Vam. Upit je stigao do nas.",
+    "body": "Odgovorit ćemo na {email} s dostupnošću i ponudom.",
+    "bodyNoEmail": "Odgovorit ćemo Vam mailom s dostupnošću i ponudom.",
+    "again": "Pošaljite novi upit"
+  },
+  "mailto": {
+    "heading": "Još jedan korak: pošaljite ga iz svoje e-pošte",
+    "body": "Upit je napisan i čeka u mailu za {email}. Otvorite ga, provjerite i pošaljite.",
+    "open": "Otvorite mail",
+    "back": "Natrag na obrazac"
+  },
+  "error": {
+    "heading": "Upit nije poslan",
+    "body": "Ništa nije otišlo. Pokušajte ponovno ili pošaljite isti upit iz svoje e-pošte.",
+    "retry": "Pokušajte ponovno",
+    "mailto": "Pošaljite mailom"
+  },
+  "widget": {
+    "label": "Provjerite dostupnost",
+    "date": "Datum",
+    "city": "Grad ili prostor",
+    "submit": "Provjerite dostupnost"
+  },
+  "mail": {
+    "subject": "Upit: {details}",
+    "flexibleDate": "fleksibilan datum",
+    "dateFlexible": "{date} (fleksibilno)",
+    "greeting": "Pozdrav, Voxford,",
+    "intro": "Zanima me jeste li slobodni.",
+    "message": "Poruka",
+    "footer": "Poslano s obrasca za upit na {site}. Za odgovor osobi {name} samo odgovorite na ovaj mail.",
+    "labels": {
+      "type": "Prigoda",
+      "date": "Datum",
+      "city": "Grad / prostor",
+      "guests": "Gosti",
+      "package": "Paket",
+      "name": "Ime",
+      "email": "E-pošta",
+      "phone": "Telefon"
+    }
+  }
 }

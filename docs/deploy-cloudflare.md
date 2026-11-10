@@ -92,6 +92,64 @@ By hand: dashboard › voxford-web › Deployments › the last good version ›
     gh pr create --fill
     gh pr merge --auto --squash
 
+## Inquiry (ticket D)
+
+`POST /api/inquiry` (`worker/inquiry.ts`) has two modes, picked at runtime:
+
+- **mailto fallback** (now): no email binding. The form hands the written-out inquiry to the visitor's own mail app, addressed to `voxford.official@gmail.com`. Nothing is sent from the Worker, so nothing here can be abused.
+- **Email Sending** (once the domain is on Cloudflare): with the `EMAIL` binding and `INQUIRY_FROM` set, a submission that passes Turnstile is emailed to `voxford.official@gmail.com` with Reply-To the visitor. A submission without a Turnstile token (no JavaScript, widget blocked) still gets the mailto fallback; a failed check or a failed send gets it too, with an error message.
+
+Names only here; values never go in a file or a PR.
+
+| Name | Kind | Where | Value |
+|---|---|---|---|
+| `PUBLIC_TURNSTILE_SITE_KEY` | build variable (public) | Workers Builds › Settings › Build › Variables | the widget's site key; unset = Cloudflare's test key, which a real secret rejects (mailto fallback) |
+| `TURNSTILE_SECRET` | Worker secret | `wrangler secret put` | the widget's secret key |
+| `TURNSTILE_HOSTNAMES` | Worker var, optional | `.dev.vars` locally | unset in production: the Worker accepts the host the request came to |
+| `EMAIL` | `send_email` binding | `wrangler.jsonc` | added with the domain (below) |
+| `INQUIRY_FROM` | Worker var | `wrangler.jsonc` `vars` | `inquiry@<domain>`, added with the domain |
+
+Locally: `cp .dev.vars.example .dev.vars` gives Cloudflare's always-pass test secret, so `npm run preview` runs the whole path with the mailto fallback. To try the email path locally, add a `send_email` binding to a copy of the config and `INQUIRY_FROM` to `.dev.vars`; `wrangler dev` then simulates the send and prints where it saved the message.
+
+### Turnstile (Josip, once Workers Builds is connected)
+
+1. Create an invisible widget for the `workers.dev` host and store its secret on the Worker without printing it:
+
+   ```bash
+   ( set +x
+     out=$(npx wrangler turnstile widget create "voxford-web inquiry" \
+       --domain voxford-web.<subdomain>.workers.dev --mode invisible --json)
+     printf '%s' "$out" | jq -r .sitekey
+     printf '%s' "$out" | jq -r .secret | npx wrangler secret put TURNSTILE_SECRET --name voxford-web
+     unset out )
+   ```
+
+   (Or in the dashboard: Turnstile › Add widget, mode *Invisible*, then `npx wrangler secret put TURNSTILE_SECRET --name voxford-web` and paste the secret at the prompt.)
+2. Put the printed site key in the Workers Builds build variable `PUBLIC_TURNSTILE_SITE_KEY` and redeploy (it is baked into the static page).
+3. Check: `npx wrangler secret list --name voxford-web` lists `TURNSTILE_SECRET`.
+
+Preview version URLs (`<version>-voxford-web.<subdomain>.workers.dev`) are not on the widget, so their form always takes the mailto fallback. That is expected.
+
+### Email Sending (with ticket G, after the domain is on Cloudflare)
+
+Sending only to a verified address in the account is free on every plan, so the binding is pinned to the group's address.
+
+```bash
+npx wrangler email sending enable <domain>
+npx wrangler email routing addresses create voxford.official@gmail.com   # then click the link in that inbox
+npx wrangler email sending list                                         # <domain> is listed
+npx wrangler turnstile widget update <sitekey> --domain <domain> --domain voxford-web.<subdomain>.workers.dev --mode invisible
+```
+
+Then, in a PR, add to `wrangler.jsonc`:
+
+```jsonc
+"send_email": [{ "name": "EMAIL", "destination_address": "voxford.official@gmail.com" }],
+"vars": { "INQUIRY_FROM": "inquiry@<domain>" }
+```
+
+After that deploy, send one inquiry from the live page and check that it arrives, with Reply-To set to the address typed in the form.
+
 ## Domain (ticket G)
 
 Not chosen yet. When it is: add the domain to the Cloudflare account, add `routes` with `custom_domain: true` to `wrangler.jsonc`, `www` → apex redirect, set `SITE_URL` and `SITE_INDEXABLE=true`, update `PRODUCTION_URL`, turn the zone's AI-crawler block off (Security › Bots), and submit the sitemap in Search Console and Bing Webmaster Tools.
