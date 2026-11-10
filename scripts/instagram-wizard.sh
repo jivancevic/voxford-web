@@ -185,13 +185,19 @@ finish() {
 # Replace the example below. Set TOTAL_STAGES to match the stages you write.
 # ──────────────────────────────────────────────────────────────────────────
 
-# Voxford web, ticket E: the Instagram side of the daily reels sync
-# (worker/reels.ts). Run from the repo root:
+
+# Voxford web: the Instagram side of the daily reels sync (worker/reels.ts).
+# Run from the repo root:
 #
 #   scripts/instagram-wizard.sh          # the whole setup, first time
-#   scripts/instagram-wizard.sh token    # only a new token (it lasts 60 days; the
-#                                        # sync extends it daily, so this is for
-#                                        # when the Worker log says it stopped)
+#   scripts/instagram-wizard.sh token    # only a new token and the account id
+#                                        # (the token never expires; this is for
+#                                        # a revoked one: the log says code 190)
+#
+# Meta gives new apps only the Instagram API with Unified login: a system-user
+# token (EAA…, never expires) of the business portfolio that owns
+# voxford.official, used on graph.facebook.com (docs/adr/0004). The old
+# "Instagram Tester" role and Instagram Login (IGAA… tokens) do not apply.
 #
 # Secrets never touch a file: the token and the deploy hook URL are held in
 # this shell only and go straight into the Worker's secrets with
@@ -199,7 +205,8 @@ finish() {
 # that owns voxford-web (docs/deploy-cloudflare.md › Setup).
 
 ENV_FILE=/dev/null # nothing in this wizard is written to a file
-IG_API="https://graph.instagram.com/v24.0"
+GRAPH="https://graph.facebook.com/v24.0"
+IG_ACCOUNT="voxford.official"
 MODE="${1:-all}"
 cd "$(dirname "$0")/.."
 
@@ -215,76 +222,95 @@ put_worker_secret() {
   fi
 }
 
-if [[ "$MODE" == token ]]; then TOTAL_STAGES=2; else TOTAL_STAGES=7; fi
+# graph_get PATH QUERY… calls the Graph API with the token read from stdin
+# (curl -K -), so it never shows in `ps`. Prints the JSON body; fails on an error.
+graph_get() {
+  local path="$1"; shift
+  local args=()
+  for q in "$@"; do args+=(--data-urlencode "$q"); done
+  printf 'data-urlencode = "access_token=%s"\n' "$INSTAGRAM_TOKEN" | curl -fsS -G -K - "${args[@]}" "$GRAPH/$path" 2>/dev/null
+}
+
+# json EXPR reads JSON on stdin and prints EXPR evaluated on it as `d` (empty on any error).
+json() { node -e 'let s="";process.stdin.on("data",c=>s+=c).on("end",()=>{try{const d=JSON.parse(s);const v=('"$1"');if(v!==undefined&&v!==null)process.stdout.write(String(v))}catch{}})'; }
+
+if [[ "$MODE" == token ]]; then TOTAL_STAGES=2; else TOTAL_STAGES=6; fi
 banner "Voxford reels sync: Meta app and Instagram token"
 
 if [[ "$MODE" != token ]]; then
   stage "Instagram: a professional account"
-  say "The Instagram API with Instagram Login only works for Business or Creator accounts."
-  step "In the Instagram app, logged in as voxford.official: Profile → ☰ → Account type and tools."
+  say "The Instagram API only works for Business or Creator accounts."
+  step "In the Instagram app, logged in as $IG_ACCOUNT: Profile → ☰ → Account type and tools."
   step "If it says 'Switch to professional account', the account is personal: switch it (Creator or Business)."
   note "Most likely it is already professional (it shows insights). Nothing to copy here."
   pause "Done? Press Enter"
 
-  stage "Meta for Developers: your developer account"
-  say "The app lives in a Meta developer account. Yours (Josip's) is fine: the app only reads voxford.official."
+  stage "The Meta app, in the $IG_ACCOUNT business portfolio"
+  say "The app lives in your Meta developer account and belongs to the business portfolio that owns $IG_ACCOUNT."
   open_url "https://developers.facebook.com/apps/"
-  step "Log in with Facebook. If asked, finish 'Register as a developer' (verify phone or email)."
-  step "You should land on 'Apps' with a green 'Create app' button."
-  pause "On the Apps page? Press Enter"
+  step "No app yet: 'Create app' → name 'Voxford web' → use case: the Instagram one → business portfolio: $IG_ACCOUNT → create."
+  step "App already there: open it → Use cases → Instagram API → Customize → 'API setup with Unified login' → '+ Business portfolio' → $IG_ACCOUNT."
+  note "'Publishing requirements' (business verification, App Review) are not needed: the app stays in"
+  note "Development mode and only reads its own portfolio's account. Click Next past them."
+  note "Skip the 'Instagram Tester' role: it belongs to the retired API (it answers 'Invalid id')."
+  pause "App connected to the portfolio? Press Enter"
 
-  stage "Create the app"
-  step "Click 'Create app'. App name: Voxford web. Contact email: voxford.official@gmail.com."
-  step "Use case: pick the Instagram one (it mentions managing messages and content on Instagram)."
-  step "Business portfolio: skip it ('I don't want to connect a business portfolio yet') unless one exists."
-  step "Finish the steps and click 'Create app' (Meta may ask for your Facebook password)."
-  note "The app stays in Development mode: it only needs to read the account that has a role on it."
-  pause "App created? Press Enter"
-
-  stage "Give voxford.official a role on the app"
-  say "In Development mode the app can only read Instagram accounts that are its testers."
-  step "App dashboard → App roles → Roles → Add People → Instagram Tester → voxford.official → Add."
-  step "Accept it in Instagram (logged in as voxford.official): Settings → Website permissions → Apps and websites → Tester invites → Accept."
-  note "On the web: instagram.com → Settings → Apps and websites → Tester invites."
-  open_url "https://www.instagram.com/accounts/manage_access/"
-  pause "Invite accepted? Press Enter"
+  stage "A system user for the sync"
+  say "The token belongs to a system user of the portfolio, not to a person, so it never expires."
+  open_url "https://business.facebook.com/settings/system-users"
+  step "Business settings ($IG_ACCOUNT) → Users → System users → Add. Name: voxford-web reels. Role: Employee."
+  step "On that system user: Assign assets → Instagram accounts → $IG_ACCOUNT, with the smallest access offered."
+  step "Assign assets again → Apps → Voxford web, with the smallest access offered."
+  pause "System user has both assets? Press Enter"
 fi
 
-stage "Generate the long-lived token"
-say "The dashboard makes a long-lived token (60 days) for a tester account in one click."
-open_url "https://developers.facebook.com/apps/"
-step "Open the Voxford web app → Use cases → the Instagram use case → Customize / 'API setup with Instagram login'."
-step "Under '2. Generate access tokens' click 'Add account' and log in as voxford.official; allow the access asked for."
-step "Click 'Generate token' next to voxford.official, tick 'I understand', copy the token (starts with IG)."
+stage "Generate the token"
+open_url "https://business.facebook.com/settings/system-users"
+step "System users → voxford-web reels → 'Generate new token' (or 'Generate token')."
+step "App: Voxford web. Expiration: Never."
+step "Permissions: only instagram_basic. Add business_management only if Meta refuses without it."
+step "Generate, then copy the token (starts with EAA). Meta shows it once."
 ask_secret INSTAGRAM_TOKEN "Paste the token (hidden):"
 while [[ -z "$INSTAGRAM_TOKEN" ]]; do ask_secret INSTAGRAM_TOKEN "Empty. Paste the token:"; done
 
-say "Checking it against the Instagram API…"
-# ig_get PATH QUERY… calls the API with the token read from stdin (curl -K -), so it never shows in `ps`.
-ig_get() {
-  local path="$1"; shift
-  local args=()
-  for q in "$@"; do args+=(--data-urlencode "$q"); done
-  printf 'data-urlencode = "access_token=%s"\n' "$INSTAGRAM_TOKEN" | curl -fsS -G -K - "${args[@]}" "$IG_API/$path" 2>/dev/null
-}
+say "Checking it against the Graph API…"
+if ! who=$(graph_get me "fields=id,name"); then
+  warn "Meta refused the token. Copy it again (the whole string), then re-run: scripts/instagram-wizard.sh token"
+  exit 1
+fi
+printf '  %s✓ the token works (system user: %s)%s\n' "$GREEN" "$(printf '%s' "$who" | json 'd.name')" "$RESET"
 
-if who=$(ig_get me "fields=username"); then
-  username=$(printf '%s' "$who" | sed -n 's/.*"username":"\([^"]*\)".*/\1/p')
-  printf '  %s✓ the token reads @%s%s\n' "$GREEN" "$username" "$RESET"
-  [[ "$username" == "voxford.official" ]] || warn "that is not voxford.official: generate the token for the right account"
-  reels=$(ig_get me/media "fields=media_product_type" "limit=25" | grep -o '"REELS"' | wc -l | tr -d ' ')
-  note "reels among the 25 newest posts: $reels (the site shows the newest 6)"
+# The account's Instagram user id: ask Meta which Instagram accounts the system
+# user may read; if that edge answers nothing useful, Business settings shows it.
+INSTAGRAM_USER_ID=$(graph_get me/assigned_instagram_accounts "fields=id,username" \
+  | json "(d.data||[]).filter(a=>a.username==='$IG_ACCOUNT').map(a=>a.id)[0]" || true)
+if [[ -z "$INSTAGRAM_USER_ID" ]]; then
+  note "Could not look up the account id automatically."
+  step "Business settings → Accounts → Instagram accounts → $IG_ACCOUNT: copy its ID (a long number, usually 1784…)."
+  ask INSTAGRAM_USER_ID "Instagram account ID:"
+fi
+while ! [[ "$INSTAGRAM_USER_ID" =~ ^[0-9]+$ ]]; do ask INSTAGRAM_USER_ID "Digits only. Instagram account ID:"; done
+
+if account=$(graph_get "$INSTAGRAM_USER_ID" "fields=username"); then
+  username=$(printf '%s' "$account" | json 'd.username')
+  printf '  %s✓ the token reads @%s (id %s)%s\n' "$GREEN" "$username" "$INSTAGRAM_USER_ID" "$RESET"
+  [[ "$username" == "$IG_ACCOUNT" ]] || warn "that is not $IG_ACCOUNT: check the ID and the system user's assets"
+  reels=$(graph_get "$INSTAGRAM_USER_ID/media" "fields=media_product_type" "limit=25" \
+    | json "(d.data||[]).filter(m=>m.media_product_type==='REELS').length" || true)
+  note "reels among the 25 newest posts: ${reels:-?} (the site shows the newest 6)"
 else
-  warn "Instagram refused the token. Copy it again (whole string), then re-run: scripts/instagram-wizard.sh token"
+  warn "The token cannot read Instagram account $INSTAGRAM_USER_ID."
+  warn "Check that the system user has $IG_ACCOUNT assigned and the token has instagram_basic, then re-run: scripts/instagram-wizard.sh token"
   exit 1
 fi
 
-stage "Store the token in Cloudflare"
-say "The Worker reads it as the secret INSTAGRAM_TOKEN; it never goes into the repo or a file."
-if confirm "Set INSTAGRAM_TOKEN on the voxford-web Worker now?"; then
+stage "Store the token and the account id in Cloudflare"
+say "The Worker reads them as the secrets INSTAGRAM_TOKEN and INSTAGRAM_USER_ID; they never go into the repo or a file."
+if confirm "Set both on the voxford-web Worker now?"; then
   put_worker_secret INSTAGRAM_TOKEN "$INSTAGRAM_TOKEN"
+  put_worker_secret INSTAGRAM_USER_ID "$INSTAGRAM_USER_ID"
 else
-  SKIPPED+=("Worker secret INSTAGRAM_TOKEN: npx wrangler secret put INSTAGRAM_TOKEN")
+  SKIPPED+=("Worker secrets: npx wrangler secret put INSTAGRAM_TOKEN, then npx wrangler secret put INSTAGRAM_USER_ID ($INSTAGRAM_USER_ID)")
 fi
 unset INSTAGRAM_TOKEN
 

@@ -5,11 +5,13 @@ import { MANIFEST_KEY, readManifest, syncReels, type ReelsManifest } from './ree
 import { FakeR2 } from './test-support/fake-r2';
 
 // A fake Instagram API and CDN: the account's media list (newest first, paged),
-// the token refresh endpoint, the files behind media_url/thumbnail_url and the
-// deploy hook. Every request is recorded.
+// the files behind media_url/thumbnail_url and the deploy hook. Every request
+// is recorded.
 
 const HOOK = 'https://api.cloudflare.com/client/v4/workers/builds/deploy_hooks/test-hook';
-const TOKEN = 'IGAAtest-token';
+const TOKEN = 'EAAtest-system-user-token';
+const USER_ID = '17841400000000000';
+const MEDIA_URL = `${IG_GRAPH}/v24.0/${USER_ID}/media`;
 
 interface FakeMedia {
   id: string;
@@ -37,22 +39,18 @@ class FakeInstagram {
   apiStatus = 200;
   cdnFails = new Set<string>();
   hookStatus = 200;
-  refreshedToken = TOKEN;
   requests: { url: string; method: string }[] = [];
 
   fetch = vi.fn(async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
     const url = String(input);
     this.requests.push({ url, method: init?.method ?? 'GET' });
     if (url === HOOK) return Response.json({ success: true }, { status: this.hookStatus });
-    if (url.startsWith(`${IG_GRAPH}/refresh_access_token`)) {
-      return Response.json({ access_token: this.refreshedToken, token_type: 'bearer', expires_in: 5_184_000 });
-    }
-    if (url.startsWith(`${IG_GRAPH}/`)) {
+    if (url.startsWith(`${MEDIA_URL}?`)) {
       if (this.apiStatus !== 200) {
         return Response.json({ error: { message: 'Error validating access token', code: 190 } }, { status: this.apiStatus });
       }
       const page = Number(new URL(url).searchParams.get('page') ?? '0');
-      const next = page + 1 < this.pages.length ? `${IG_GRAPH}/v24.0/me/media?page=${page + 1}` : undefined;
+      const next = page + 1 < this.pages.length ? `${MEDIA_URL}?page=${page + 1}` : undefined;
       return Response.json({ data: (this.pages[page] ?? []).map(media), ...(next ? { paging: { next } } : {}) });
     }
     if (url.startsWith('https://cdn.example/')) {
@@ -78,7 +76,7 @@ let NOW = new Date('2026-11-10T04:17:00Z');
 const later = (days: number) => (NOW = new Date(NOW.getTime() + days * 86_400_000));
 
 const env = (vars: Partial<Env> = {}) =>
-  ({ MEDIA: bucket.asBinding(), INSTAGRAM_TOKEN: TOKEN, DEPLOY_HOOK_URL: HOOK, ...vars }) as unknown as Env;
+  ({ MEDIA: bucket.asBinding(), INSTAGRAM_TOKEN: TOKEN, INSTAGRAM_USER_ID: USER_ID, DEPLOY_HOOK_URL: HOOK, ...vars }) as unknown as Env;
 const run = (vars?: Partial<Env>) => syncReels(env(vars), ctx, { fetch: ig.fetch as typeof fetch, now: () => NOW, log });
 const manifest = () => JSON.parse(bucket.text(MANIFEST_KEY)!) as ReelsManifest;
 const reels = (...ids: number[]): FakeMedia[] => ids.map((id) => ({ id: String(id), day: id }));
@@ -144,7 +142,7 @@ describe('syncReels', () => {
     ];
     await run();
     expect(manifest().reels.map((r) => r.id)).toEqual(['19', '18', '17', '16', '15', '14']);
-    expect(ig.hits(`${IG_GRAPH}/v24.0/me/media`)).toHaveLength(3);
+    expect(ig.hits(MEDIA_URL)).toHaveLength(3);
   });
 
   it('does nothing when nothing changed: no writes, no rebuild', async () => {
@@ -216,7 +214,7 @@ describe('syncReels', () => {
     const original = ig.fetch.getMockImplementation()!;
     ig.fetch.mockImplementation(async (input, init) => {
       const res = await original(input, init);
-      if (!String(input).includes('/me/media')) return res;
+      if (!String(input).startsWith(MEDIA_URL)) return res;
       const body = (await res.json()) as { data: Record<string, unknown>[] };
       delete body.data[0]!.thumbnail_url;
       return Response.json(body);
@@ -316,9 +314,18 @@ describe('syncReels', () => {
     expect(bucket.text('reels/1/video.mp4')).toBe('bytes of 1.mp4');
   });
 
-  it('does nothing without a token', async () => {
-    const result = await run({ INSTAGRAM_TOKEN: undefined });
+  it('does nothing before setup', async () => {
+    const result = await run({ INSTAGRAM_TOKEN: undefined, INSTAGRAM_USER_ID: undefined });
     expect(result).toEqual({ status: 'skipped', reels: 0, rebuilt: false });
+    expect(ig.requests).toHaveLength(0);
+    expect(log.warn).not.toHaveBeenCalled();
+  });
+
+  it('warns and does nothing when only half the setup is there', async () => {
+    expect((await run({ INSTAGRAM_USER_ID: undefined })).status).toBe('skipped');
+    expect(log.warn).toHaveBeenCalledWith(expect.stringContaining('INSTAGRAM_USER_ID not set'));
+    expect((await run({ INSTAGRAM_TOKEN: undefined })).status).toBe('skipped');
+    expect(log.warn).toHaveBeenCalledWith(expect.stringContaining('INSTAGRAM_TOKEN not set'));
     expect(ig.requests).toHaveLength(0);
   });
 
@@ -338,16 +345,20 @@ describe('syncReels', () => {
     expect(log.error).toHaveBeenCalledWith('reels: deploy hook answered 500');
   });
 
-  it('extends the token on every run and warns when Instagram rotates it', async () => {
+  it('reads the account by its user id with the token, and never refreshes it', async () => {
     ig.pages = [reels(1)];
     await run();
-    expect(ig.hits(`${IG_GRAPH}/refresh_access_token`)).toHaveLength(1);
-    expect(log.info).toHaveBeenCalledWith('reels: token extended, valid 60 more days');
+    const api = ig.hits(`${IG_GRAPH}/`);
+    expect(api).toHaveLength(1);
+    const url = new URL(api[0]!.url);
+    expect(url.pathname).toBe(`/v24.0/${USER_ID}/media`);
+    expect(url.searchParams.get('access_token')).toBe(TOKEN);
+    expect(url.searchParams.get('fields')).toContain('media_product_type');
+  });
 
-    ig.refreshedToken = 'IGAA-new';
-    await run();
-    expect(log.warn).toHaveBeenCalledWith(expect.stringContaining('issued a new token'));
-    expect(JSON.stringify(log.warn.mock.calls)).not.toContain('IGAA-new');
+  it('refuses a user id that is not numeric, before calling the API', async () => {
+    await expect(run({ INSTAGRAM_USER_ID: 'voxford.official' })).rejects.toThrow('not a numeric Instagram user id');
+    expect(ig.requests).toHaveLength(0);
   });
 
   it('refuses media ids that would escape the reels/ prefix', async () => {
