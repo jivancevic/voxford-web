@@ -7,7 +7,7 @@ import { syncReels } from './reels';
 // The Worker in front of the static site. wrangler.jsonc routes only the paths
 // in `assets.run_worker_first` here; every other request is served straight
 // from the Astro build. Route table is ticket A's; handlers live in their own
-// files, one owner each (CONTEXT.md › Seams).
+// files, one owner each (AGENTS.md › Seams).
 export default {
   async fetch(request, env, ctx): Promise<Response> {
     const { pathname } = new URL(request.url);

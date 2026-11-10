@@ -13,7 +13,8 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  # Decides whether the change is docs-only. The build skips through its own
+  # Decides whether the change is docs-only: docs/ and root-level *.md.
+  # Page copy (src/content/**/*.md) is code here: it ships. The build skips through its own
   # `if`, not a workflow path filter (that would leave the required check
   # pending forever). If this job fails, the build runs anyway.
   changes:
@@ -38,7 +39,7 @@ jobs:
             files=$(gh api "repos/$GITHUB_REPOSITORY/compare/$BEFORE...$AFTER" --jq 'if (.files | length) >= 300 then error("compare lists at most 300 files") else .files[].filename end') || files=could-not-list
           fi
           code=false
-          printf '%s\n' "$files" | grep -qvE '^(docs/.*|.*\.md)$' && code=true
+          printf '%s\n' "$files" | grep -qvE '^(docs/.*|[^/]+\.md)$' && code=true
           echo "code=$code" >> "$GITHUB_OUTPUT"
 
   # One job, one `npm ci`: lint, type checks, tests, then the build the deploy runs.

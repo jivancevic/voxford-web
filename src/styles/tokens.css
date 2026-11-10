@@ -44,6 +44,10 @@
   --color-text-accent: var(--brand-pink);
   --color-text-inverse: var(--ink-950);
 
+  /* Text set directly on a photo sits on this scrim (worst case: a white frame). */
+  --color-scrim: color-mix(in oklab, var(--ink-950) 72%, transparent);
+  --color-text-on-photo: var(--ink-100);
+
   /* ---- Semantic: lines ---- */
   --color-border-subtle: var(--ink-800);
   --color-border: var(--ink-700);
@@ -79,6 +83,7 @@
   --text-heading: clamp(1.5rem, 1.2rem + 1.2vw, 2rem); /* h3: 24 → 32 */
   --text-title: clamp(2.25rem, 1.6rem + 2.6vw, 3.5rem); /* h2: 36 → 56 */
   --text-display: clamp(3rem, 1.8rem + 5.6vw, 6.5rem); /* h1: 48 → 104 */
+  --text-wordmark: 1.5rem; /* the VOXFORD wordmark in the header */
   --text-numeral: clamp(4rem, 2rem + 8vw, 9rem); /* one big Staubach number per screen */
 
   --leading-display: 1;

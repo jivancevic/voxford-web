@@ -42,5 +42,16 @@
   },
   "placeholder": {
     "note": "This page is being written."
+  },
+  "llms": {
+    "summary": "Five singers, founded in {year}, booked for conferences and corporate events, weddings, Advent and summer concerts and private celebrations in Zagreb, across Croatia and the region.",
+    "members": "Members (stage order)",
+    "packages": "Packages",
+    "stages": "Notable stages",
+    "bookings": "Bookings",
+    "management": "management",
+    "notConfused": "Not to be confused with vOx Chamber Choir, Oxford.",
+    "pages": "Pages (English)",
+    "profiles": "Profiles"
   }
 }

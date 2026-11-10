@@ -5,6 +5,7 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
+import { THEME_COLOR } from './theme';
 
 const css = readFileSync(fileURLToPath(new URL('./tokens.css', import.meta.url)), 'utf8');
 
@@ -57,6 +58,12 @@ const PAIRS: [string, string, number][] = [
   ['--color-focus', '--color-bg', 3],
   ['--color-border-strong', '--color-bg', 3],
 ];
+
+describe('theme.ts', () => {
+  it('THEME_COLOR equals the page background token', () => {
+    expect(THEME_COLOR.toLowerCase()).toBe(resolve(root, '--color-bg').toLowerCase());
+  });
+});
 
 describe.each([
   ['dark base (:root)', root],

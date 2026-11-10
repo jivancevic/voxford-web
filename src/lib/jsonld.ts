@@ -20,6 +20,7 @@ import { pathFor } from '@/i18n/routes';
 export type JsonLdNode = Record<string, unknown> & { '@type': string | string[] };
 
 const abs = (site: URL, path: string) => new URL(path, site).href;
+const areaServed = () => AREA_SERVED.map((name) => ({ '@type': 'Country', name }));
 
 /** Stable @id of the group entity; the same on every page and in both languages. */
 export const groupId = (site: URL) => abs(site, '/#voxford');
@@ -38,12 +39,12 @@ export function musicGroupJsonLd(site: URL, lang: Locale, opts: { description: s
     ...(opts.logo ? { logo: opts.logo } : {}),
     email: GROUP.email,
     foundingDate: String(GROUP.foundingYear),
-    foundingLocation: { '@type': 'Place', name: `${GROUP.city}, Croatia` },
+    foundingLocation: { '@type': 'Place', name: `${GROUP.city}, ${GROUP.country}` },
     location: {
       '@type': 'Place',
       address: { '@type': 'PostalAddress', addressLocality: GROUP.city, addressCountry: GROUP.countryCode },
     },
-    areaServed: AREA_SERVED.map((name) => ({ '@type': 'Country', name })),
+    areaServed: areaServed(),
     genre: [...GROUP.genres],
     sameAs: Object.values(PROFILES),
     member: MEMBERS.map((m) => ({
@@ -115,7 +116,7 @@ export function packageServiceJsonLd(
     serviceType: opts.serviceType,
     description: opts.description,
     provider: { '@id': groupId(site) },
-    areaServed: AREA_SERVED.map((name) => ({ '@type': 'Country', name })),
+    areaServed: areaServed(),
     url,
     offers: {
       '@type': 'Offer',

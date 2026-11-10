@@ -2,6 +2,7 @@
 // Site header: crest home link, primary nav, language switch, the one pill.
 // Works with no JavaScript: on narrow screens the nav is a native <details> menu.
 import Crest from '@/components/Crest.astro';
+import { GROUP } from '@/data/site-facts';
 import InquiryCTA from '@/components/InquiryCTA.astro';
 import LanguageSwitch from '@/components/LanguageSwitch.astro';
 import { getStrings, type Locale } from '@/i18n';
@@ -21,7 +22,7 @@ const t = getStrings(lang);
   <div class="header__bar container">
     <a class="header__home" href={pathFor('home', lang)} aria-label={t.common.a11y.homeLink}>
       <Crest variant="symbol" width={36} loading="eager" />
-      <span class="display header__wordmark" aria-hidden="true">Voxford</span>
+      <span class="display header__wordmark" aria-hidden="true">{GROUP.name}</span>
     </a>
 
     <nav class="header__wide" aria-label={t.common.a11y.mainNav}>
@@ -93,7 +94,7 @@ const t = getStrings(lang);
   }
 
   .header__wordmark {
-    font-size: 1.5rem;
+    font-size: var(--text-wordmark);
   }
 
   .header__end {

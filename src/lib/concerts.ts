@@ -9,3 +9,9 @@ export async function getUpcomingConcerts(now = new Date()) {
     .filter((c) => c.data.startDate.slice(0, 10) >= today)
     .sort((a, b) => a.data.startDate.localeCompare(b.data.startDate));
 }
+
+/** Page keys from `pages` minus `concerts` when there is nothing upcoming. */
+export async function withoutEmptyConcerts<T extends string>(pages: readonly T[]): Promise<T[]> {
+  const hasConcerts = (await getUpcomingConcerts()).length > 0;
+  return pages.filter((p) => p !== 'concerts' || hasConcerts);
+}

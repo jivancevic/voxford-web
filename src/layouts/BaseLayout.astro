@@ -15,6 +15,7 @@ import { alternatesFor, type PageKey } from '@/i18n/routes';
 import { musicGroupJsonLd, webSiteJsonLd, type JsonLdNode } from '@/lib/jsonld';
 import { canonicalUrl, hreflangAlternates, robotsMeta } from '@/lib/seo';
 import '@/styles/global.css';
+import { THEME_COLOR } from '@/styles/theme';
 
 interface Props {
   lang: Locale;
@@ -79,7 +80,7 @@ const nodes: JsonLdNode[] = [
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" href="/favicon.png" type="image/png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <meta name="theme-color" content="#0a0910" />
+    <meta name="theme-color" content={THEME_COLOR} />
 
     <Font cssVariable="--font-instrument-sans" preload />
     <Font cssVariable="--font-big-shoulders" />

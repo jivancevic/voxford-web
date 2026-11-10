@@ -40,6 +40,11 @@ describe('Accept-Language parsing', () => {
     expect(pickLocale('hr;q=0, *;q=0.5')).toBe('en');
   });
 
+  it('picks the first language the site has, not just the first listed', () => {
+    expect(pickLocale('de-DE, de;q=0.9, hr;q=0.8, en;q=0.7')).toBe('hr');
+    expect(pickLocale('de, en;q=0.9, hr;q=0.8')).toBe('en');
+  });
+
   it('only treats hr as Croatian', () => {
     expect(pickLocale('hr-BA')).toBe('hr');
     expect(pickLocale('sr, bs')).toBe('en');

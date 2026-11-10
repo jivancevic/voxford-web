@@ -23,8 +23,10 @@ export const GROUP = {
   /** KB CONTEXT.md › Voxford; brand/biografija.md */
   foundingYear: 2021,
   city: 'Zagreb',
+  country: 'Croatia',
   countryCode: 'HR',
-  genres: ['A cappella', 'Vocal pop', 'Klapa'],
+  /** KB CONTEXT.md: Voxford borrows the klapa sound but is not a klapa, so no "Klapa" genre. */
+  genres: ['A cappella'],
   /** KB CONTEXT.md, spec › Audience: every inquiry goes here. */
   email: 'voxford.official@gmail.com',
   /** KB ljudi-i-procesi/ekipa.md. No phone on the site (spec: needs consent). */
@@ -55,6 +57,14 @@ export const PROFILES = {
 } as const;
 
 export type ProfileKey = keyof typeof PROFILES;
+
+export const PROFILE_LABELS: Record<ProfileKey, string> = {
+  instagram: 'Instagram',
+  tiktok: 'TikTok',
+  facebook: 'Facebook',
+  youtube: 'YouTube',
+  spotify: 'Spotify',
+};
 
 /** The most-watched video (KB brand/biografija.md). */
 export const SIGNATURE_VIDEO = {

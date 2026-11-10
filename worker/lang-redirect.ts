@@ -19,9 +19,14 @@ export function preferredLanguages(header: string | null): string[] {
     .map((l) => l.tag);
 }
 
+/** The first language the visitor prefers that the site has; EN when none. */
 export function pickLocale(header: string | null): Locale {
-  const best = preferredLanguages(header)[0];
-  return best && (best === 'hr' || best.startsWith('hr-')) ? 'hr' : DEFAULT_LOCALE;
+  for (const tag of preferredLanguages(header)) {
+    const base = tag.split('-')[0];
+    if (base === 'hr') return 'hr';
+    if (base === 'en') return 'en';
+  }
+  return DEFAULT_LOCALE;
 }
 
 export function handleRootRedirect(request: Request): Response {

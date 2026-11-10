@@ -2,10 +2,10 @@
 // Site footer: crest as a seal, contact, management, profiles, all pages.
 // Every fact comes from site-facts.
 import Crest from '@/components/Crest.astro';
-import { GROUP, PROFILES, type ProfileKey } from '@/data/site-facts';
+import { GROUP, PROFILE_LABELS, PROFILES, type ProfileKey } from '@/data/site-facts';
 import { getStrings, type Locale } from '@/i18n';
 import { FOOTER_PAGES, pathFor } from '@/i18n/routes';
-import { getUpcomingConcerts } from '@/lib/concerts';
+import { withoutEmptyConcerts } from '@/lib/concerts';
 
 interface Props {
   lang: Locale;
@@ -13,16 +13,8 @@ interface Props {
 
 const { lang } = Astro.props;
 const t = getStrings(lang);
-const PROFILE_LABELS: Record<ProfileKey, string> = {
-  instagram: 'Instagram',
-  tiktok: 'TikTok',
-  youtube: 'YouTube',
-  facebook: 'Facebook',
-  spotify: 'Spotify',
-};
 const year = new Date().getFullYear();
-const hasConcerts = (await getUpcomingConcerts()).length > 0;
-const footerPages = FOOTER_PAGES.filter((p) => p !== 'concerts' || hasConcerts);
+const footerPages = await withoutEmptyConcerts(FOOTER_PAGES);
 ---
 
 <footer class="footer">

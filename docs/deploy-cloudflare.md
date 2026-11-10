@@ -19,7 +19,48 @@ Build variables (Workers Builds › Settings › Build › Variables): `SITE_URL
 1. Log wrangler in to the Cloudflare account that should own the site: `npx wrangler logout && npx wrangler login`, then `npx wrangler whoami` shows that account.
 2. Dashboard › Workers & Pages › Create › Import a repository › `jivancevic/voxford-web`, project name `voxford-web`, production branch `main`, the commands and variables above.
 3. After the first deploy, copy the `workers.dev` URL into the build variable `SITE_URL` and into the GitHub repository variable `PRODUCTION_URL` (`gh variable set PRODUCTION_URL --repo jivancevic/voxford-web --body https://voxford-web.<subdomain>.workers.dev`), then redeploy.
-4. Branch protection requires `ci` and the Workers Builds check (its exact name is on the first PR's checks list).
+4. Branch protection, auto-merge and the merge permission: see *Ready for auto-merge* below.
+
+## Ready for auto-merge
+
+STANDARDS' order: this runbook merged, then branch protection with the required checks, then `allow_auto_merge`, then the human's allow entry. Josip runs these; `/ship` merges nothing until all of them read back as below.
+
+```bash
+# 1. Branch protection: the required checks, no review count (the review is /ship's round 2).
+#    The second context is the Workers Builds check's exact name, from a PR's checks list
+#    after step 2 of Setup (typically "Workers Builds: voxford-web").
+gh api -X PUT repos/jivancevic/voxford-web/branches/main/protection --input - <<'JSON'
+{
+  "required_status_checks": { "strict": false, "contexts": ["ci", "Workers Builds: voxford-web"] },
+  "enforce_admins": false,
+  "required_pull_request_reviews": null,
+  "restrictions": null
+}
+JSON
+
+# 2. Allow auto-merge on the repo
+gh api -X PATCH repos/jivancevic/voxford-web -F allow_auto_merge=true
+```
+
+3. The allow entry, added by hand to `.claude/settings.json` and committed (exact string, no wildcard):
+
+```json
+{
+  "worktree": { "bgIsolation": "worktree" },
+  "permissions": { "allow": ["Bash(gh pr merge --auto --squash)"] }
+}
+```
+
+Read-back (what `/ship` checks):
+
+```bash
+gh api repos/jivancevic/voxford-web/branches/main/protection \
+  --jq '{contexts: .required_status_checks.contexts, strict: .required_status_checks.strict, enforce_admins: .enforce_admins.enabled}'
+gh api repos/jivancevic/voxford-web --jq .allow_auto_merge
+jq -e '.permissions.allow | index("Bash(gh pr merge --auto --squash)")' .claude/settings.json
+```
+
+State on 2026-11-10 (ticket A): no branch protection (404), `allow_auto_merge: false`, no allow entry, Workers Builds not connected.
 
 ## Post-merge check
 
