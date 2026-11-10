@@ -157,6 +157,11 @@ describe('GET /media/*', () => {
     expect(gets).toHaveBeenCalledTimes(1);
   });
 
+  it('rethrows an R2 failure on a satisfiable range instead of answering 416', async () => {
+    vi.spyOn(bucket, 'get').mockRejectedValueOnce(new Error('R2 unavailable'));
+    await expect(get('/media/top/carol/loop.h264.mp4', { Range: 'bytes=0-' })).rejects.toThrow('R2 unavailable');
+  });
+
   it('lets a real R2 failure surface as an error, not as 416', async () => {
     vi.spyOn(bucket, 'get').mockRejectedValueOnce(new Error('R2 unavailable'));
     await expect(get('/media/top/carol/loop.h264.mp4')).rejects.toThrow('R2 unavailable');

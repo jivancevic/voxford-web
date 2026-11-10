@@ -15,7 +15,8 @@ import { latestReels, refreshToken, type Fetch, type IgMedia } from './instagram
 // All or nothing: the manifest is written only after every file is in R2, so a
 // failed run leaves the last good feed in place and the site keeps rendering.
 // An empty answer from Instagram keeps the feed too. A reel that leaves the
-// feed keeps its files for RETIRE_DAYS, so a live page never loses a file.
+// feed keeps its files for RETIRE_DAYS and while a rebuild is pending, so a
+// live page never loses a file.
 // Without INSTAGRAM_TOKEN the sync does nothing (local dev, before setup).
 
 export const REEL_COUNT = 6;
@@ -154,9 +155,10 @@ export async function syncReels(env: Env, _ctx: ExecutionContext, deps: Deps = d
     }
   }
 
-  // Retired reels' files go once no deployed page can still show them.
+  // Retired reels' files go once no deployed page can still show them: at least
+  // RETIRE_DAYS after they left, and never while this feed's rebuild is pending.
   const cutoff = now.getTime() - RETIRE_DAYS * 86_400_000;
-  const kept = current.retired.filter((r) => Date.parse(r.since) > cutoff);
+  const kept = current.rebuilt ? current.retired.filter((r) => Date.parse(r.since) > cutoff) : current.retired;
   if (kept.length !== current.retired.length) await writeManifest(bucket, (current = { ...current, retired: kept }));
   const keep = new Set([MANIFEST_KEY, ...[...current.reels.map((r) => r.id), ...kept.map((r) => r.id)].flatMap((id) => Object.values(keysFor(id)))]);
   const stale = (await bucket.list({ prefix: 'reels/' })).objects.map((o) => o.key).filter((k) => !keep.has(k));

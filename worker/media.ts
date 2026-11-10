@@ -104,6 +104,8 @@ export async function handleMedia(
     if (!range) throw err;
     const head = await env.MEDIA.head(key);
     if (!head) return notFound();
+    const unsatisfiable = 'suffix' in range ? range.suffix === 0 : (range.offset ?? 0) >= head.size;
+    if (!unsatisfiable) throw err;
     return new Response('Range not satisfiable', {
       status: 416,
       headers: { 'Content-Range': `bytes */${head.size}` },

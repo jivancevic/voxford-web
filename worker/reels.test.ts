@@ -255,6 +255,20 @@ describe('syncReels', () => {
     expect(bucket.objects.has('reels/1/video.mp4')).toBe(true);
   });
 
+  it('keeps retired files past the week while the rebuild is still pending', async () => {
+    ig.pages = [reels(2, 1)];
+    await run({ DEPLOY_HOOK_URL: undefined });
+    ig.pages = [reels(3, 2)];
+    await run({ DEPLOY_HOOK_URL: undefined });
+    later(30);
+    await run({ DEPLOY_HOOK_URL: undefined });
+    expect(manifest().rebuilt).toBe(false);
+    expect(bucket.objects.has('reels/1/video.mp4')).toBe(true);
+    later(1);
+    await run();
+    expect(bucket.objects.has('reels/1/video.mp4')).toBe(false);
+  });
+
   it('rebuilds when only a caption changed', async () => {
     ig.pages = [reels(2, 1)];
     await run();
