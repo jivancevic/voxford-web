@@ -26,6 +26,12 @@ import portraitDavid from '@/assets/photos/home/portrait-david.jpg';
 import portraitDora from '@/assets/photos/home/portrait-dora.jpg';
 import portraitJosip from '@/assets/photos/home/portrait-josip.jpg';
 import portraitVita from '@/assets/photos/home/portrait-vita.jpg';
+// Stages and artists (ReferencesWall, #33): our own photos from Drive › Photo.
+// The files carry no photographer in their metadata, so these have no credit.
+import stageArena from '@/assets/photos/stages/arena-zagreb-2025.webp';
+import stageDanijela from '@/assets/photos/stages/danijela-martinovic-2025.webp';
+import stageKutlic from '@/assets/photos/stages/marko-kutlic-2023.jpg';
+import stageTvornica from '@/assets/photos/stages/tvornica-kulture-2023.jpg';
 import type { MemberKey } from '@/data/site-facts';
 
 export interface Photo {
@@ -102,6 +108,42 @@ export const PHOTOS = {
     },
     credit: 'Mirta Cindrić',
     source: 'Media kit › 2025 Photoshoot Mirta',
+  },
+  stageArenaZagreb: {
+    src: stageArena,
+    alt: {
+      en: 'Voxford, five singers at microphones, on the dark stage of Arena Zagreb',
+      hr: 'Voxford, pet pjevača za mikrofonima, na zamračenoj pozornici Arene Zagreb',
+    },
+    label: { en: 'WITH DALMATINO · 2025', hr: 'S DALMATINOM · 2025' },
+    source: 'Drive › Photo › 2025 Arena Dalmatino › 20250215-dsd-6926.webp',
+  },
+  stageTvornica: {
+    src: stageTvornica,
+    alt: {
+      en: 'The five singers of Voxford at microphones on the stage of Tvornica kulture, in blue light',
+      hr: 'Petorka Voxforda za mikrofonima na pozornici Tvornice kulture, u plavom svjetlu',
+    },
+    label: { en: 'WITH MARKO KUTLIĆ · 2023', hr: 'S MARKOM KUTLIĆEM · 2023' },
+    source: 'Drive › Photo › 2023 Tvornica Marko Kutlić › PHOTO-2023-11-28-10-21-06.jpg',
+  },
+  stageKutlic: {
+    src: stageKutlic,
+    alt: {
+      en: 'Marko Kutlić singing at the front of the stage, Voxford at their microphones behind him',
+      hr: 'Marko Kutlić pjeva na rubu pozornice, a Voxford za mikrofonima iza njega',
+    },
+    label: { en: 'TVORNICA KULTURE · 2023', hr: 'TVORNICA KULTURE · 2023' },
+    source: 'Drive › Photo › 2023 Tvornica Marko Kutlić › PHOTO-2023-11-28-10-21-06 (7).jpg',
+  },
+  stageDanijela: {
+    src: stageDanijela,
+    alt: {
+      en: 'Danijela Martinović in a red dress singing with Voxford in a festive TV studio',
+      hr: 'Danijela Martinović u crvenoj haljini pjeva s Voxfordom u blagdanski uređenom TV studiju',
+    },
+    label: { en: 'CHRISTMAS SPECIAL · HRT · 2025', hr: 'BOŽIĆNA EMISIJA · HRT · 2025' },
+    source: 'Drive › Photo › 2025 Božić s Danijelom › Voxford i Danijela.webp',
   },
 } as const satisfies Record<string, Photo>;
 

@@ -17,16 +17,21 @@
     "credit": "Portraits: {credit}"
   },
   "proof": {
-    "heading": "Found on a phone, booked for the stage",
+    "heading": "Found on your phone, booked for the stage.",
     "body": "The five have {followers} followers across networks and {views} views behind them. Carol of the Bells alone has {carol}.",
     "watch": "Watch Carol of the Bells"
   },
+  "concerts": {
+    "heading": "Hear us live",
+    "lead": "Public concerts, open to everyone.",
+    "all": "All upcoming concerts"
+  },
   "rooms": {
-    "heading": "Music for conferences and corporate events in Zagreb",
-    "body": "We open conferences, sing at award galas and come back with short sets between sessions. There is no stage to build: five singers at microphones, from a moment of up to {shortest} minutes to a full concert. For the longest show we bring our own piano and cajón.",
-    "conferencesLink": "Conferences and corporate events",
+    "heading": "From conferences to concerts.",
+    "body": "From opening your conference or gala with the national anthems to harmonizing on the most special day of your life, or entertaining tourists and citizens on a city stage, we make every occasion special and memorable. It is as simple as it gets: five singers and five microphones, from a moment of up to {shortest} minutes to a full concert. For the longest show we bring our own piano and cajón.",
+    "conferencesLink": "Conferences and corporate events in Zagreb",
     "listLabel": "Also booked for",
-    "weddings": "The ceremony, a surprise for the couple, or the whole evening.",
+    "weddings": "The ceremony, or a surprise for the couple.",
     "advent": "Advent stages and summer concerts for cities and tourist boards.",
     "private": "A short surprise for your guests, or a whole concert."
   },

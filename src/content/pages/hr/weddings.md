@@ -1,6 +1,6 @@
 ---
 title: "A cappella za vjenčanja"
-description: "Voxford pjeva na vjenčanjima diljem Hrvatske i regije: pet glasova za obred, iznenađenje za mladence ili cijelu večer."
+description: "Voxford pjeva na vjenčanjima diljem Hrvatske i regije: pet glasova za obred, iznenađenje za mladence ili koncert za vrijeme večere."
 heading: "Vjenčanja"
 source: "brand/biografija.md, posao/ponuda/ponuda.md, posao/klijenti/reference.md › Vjenčanja, repertoar/repertoar.md, CONTEXT.md › Predujam"
 ---

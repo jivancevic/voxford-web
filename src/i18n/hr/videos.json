@@ -22,6 +22,9 @@
     "closing": "Želite ovo uživo na svom događaju?",
     "recorded": "Snimljeno"
   },
+  "card": {
+    "play": "Pokrenite {title}"
+  },
   "reel": {
     "play": "Pokrenite reel: {caption}",
     "playUntitled": "Pokrenite reel od {date}",

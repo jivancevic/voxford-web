@@ -7,6 +7,7 @@ import { Picture } from 'astro:assets';
 import carolM4a from '@/assets/audio/carol-chord.m4a?url';
 import carolWebm from '@/assets/audio/carol-chord.webm?url';
 import AvailabilityCheck from '@/components/AvailabilityCheck.astro';
+import ConcertList from '@/components/content/ConcertList.astro';
 import Crest from '@/components/Crest.astro';
 import InquiryCTA from '@/components/InquiryCTA.astro';
 import Photo from '@/components/Photo.astro';
@@ -18,6 +19,7 @@ import { GROUP, MEMBERS, NUMBERS, PACKAGES, SIGNATURE_VIDEO } from '@/data/site-
 import { format, getStrings, type Locale } from '@/i18n';
 import { pathFor, type PageKey } from '@/i18n/routes';
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getUpcomingConcerts } from '@/lib/concerts';
 import { loadPage } from '@/lib/page';
 
 interface Props {
@@ -37,6 +39,8 @@ const otherRooms = (['weddings', 'advent', 'private'] as const).map((key) => ({
   name: t.common.nav[key],
   line: h.rooms[key],
 }));
+// The next public concerts (#33); the block hides when nothing is upcoming.
+const nextConcerts = (await getUpcomingConcerts()).slice(0, 3);
 const portraitCredit = [...new Set(Object.values(PORTRAITS).map((p) => p.credit))].join(', ');
 const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
 ---
@@ -189,8 +193,26 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
         <Pill href={SIGNATURE_VIDEO.url} variant="ghost" rel="noopener" target="_blank">{h.proof.watch}</Pill>
       </div>
     </div>
-    <VideoRail lang={lang} class="proof__rail container" />
+    <VideoRail lang={lang} inline class="proof__rail container" />
+    <!-- The newest reels from the daily sync, played in place; absent until the feed has run. -->
+    <VideoRail lang={lang} source="reels" limit={4} inline class="proof__reels container" />
   </section>
+
+  <!-- 4b · Live: the next public concerts, where the proof turns into a date (flow) -->
+  {
+    nextConcerts.length > 0 && (
+      <section class="live container" data-sc-act="flow" aria-labelledby="live-title">
+        <div class="live__head" data-sc-in>
+          <h2 id="live-title">{h.concerts.heading}</h2>
+          <p class="live__lead">{h.concerts.lead}</p>
+        </div>
+        <ConcertList lang={lang} concerts={nextConcerts} level="h3" />
+        <a class="live__all" href={pathFor('concerts', lang)}>
+          {h.concerts.all}<span aria-hidden="true">&nbsp;→</span>
+        </a>
+      </section>
+    )
+  }
 
   <!-- 5 · Recognition: house lights up; the rooms Voxford is booked for (flow + parallax media) -->
   <section class="rooms surface-light" data-sc-act="flow" aria-labelledby="rooms-title">
@@ -201,7 +223,7 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
         <p class="rooms__travel">{t.common.footer.travel}</p>
         <div class="rooms__actions">
           <a class="rooms__primary" href={pathFor('conferences', lang)}>
-            {h.rooms.conferencesLink}<span aria-hidden="true"> →</span>
+            {h.rooms.conferencesLink}<span aria-hidden="true">&nbsp;→</span>
           </a>
           <InquiryCTA lang={lang} prefill={{ type: 'conference' }} variant="ghost" />
         </div>
@@ -899,6 +921,10 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
     margin-block-start: var(--space-8);
   }
 
+  .proof :global(.proof__reels) {
+    margin-block-start: var(--space-7);
+  }
+
   /* The reveal: the numeral is uncovered left to right, like a light sweeping a sign. */
   :global(.sc-motion) .proof__num {
     clip-path: inset(0 0 0 0);
@@ -932,6 +958,44 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
   @media (width < 60rem) {
     .proof__grid {
       grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  /* ---------- 4b · Live ---------- */
+
+  .live {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: var(--space-5) var(--space-8);
+    align-items: start;
+    padding-block: 0 var(--section-gap);
+  }
+
+  .live__head {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .live__lead {
+    color: var(--color-text-secondary);
+  }
+
+  .live__all {
+    grid-column: 2;
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--pill-height);
+    font-weight: 600;
+  }
+
+  @media (width < 60rem) {
+    .live {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .live__all {
+      grid-column: 1;
     }
   }
 

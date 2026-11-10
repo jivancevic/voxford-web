@@ -111,6 +111,8 @@ const references = defineCollection({
       logo: image().optional(),
       /** Monochrome treatment: `silhouette` (one light colour) or `grayscale` (keeps a filled box readable). */
       mono: z.enum(['silhouette', 'grayscale']).default('silhouette'),
+      /** Venues and artists only: our own photo from that stage or with that artist, a key in src/data/photos.ts. */
+      photo: z.string().optional(),
       url: z.url().optional(),
       order: z.number().int(),
     }),

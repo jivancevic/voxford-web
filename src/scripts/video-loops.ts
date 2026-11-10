@@ -55,8 +55,12 @@ function videoFor(frame: HTMLElement): HTMLVideoElement | undefined {
   return video;
 }
 
+// A frame playing the whole video in place (video-inline.ts) is the visitor's
+// now: the loop never comes back over it.
+const isFull = (frame: HTMLElement) => frame.classList.contains('is-full');
+
 function play(frame: HTMLElement) {
-  if (reducedMotion.matches) return;
+  if (reducedMotion.matches || isFull(frame)) return;
   started.add(frame);
   videoFor(frame)
     ?.play()
@@ -66,6 +70,7 @@ function play(frame: HTMLElement) {
 }
 
 function pause(frame: HTMLElement) {
+  if (isFull(frame)) return;
   frame.querySelector('video')?.pause();
 }
 
