@@ -132,7 +132,7 @@ const rows: { label: string; cell: (p: Package) => string }[] = [
 
   .compare__table thead th {
     font-size: var(--text-heading);
-    border-block-end: 2px solid transparent;
+    border-block-end: calc(2 * var(--line-thin)) solid transparent;
     border-image: var(--gradient-light) 1;
   }
 

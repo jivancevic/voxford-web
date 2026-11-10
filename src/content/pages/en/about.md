@@ -7,7 +7,7 @@ source: "brand/biografija.md, brand/u-medijima.md, ljudi-i-procesi/ekipa.md, pos
 
 ## How it started
 
-The five of us come from choir singing, music education and the Dalmatian klapa tradition. The story started in a student flat in Zagreb, and in {foundingYear} we posted our first short a cappella video. The covers of Croatian and international hits that followed went viral, and invitations from other artists came with them: Tonči Huljić took us to Ljubljana and Vienna with his Mediterraneo project, Marko Kutlić brought us on stage at Tvornica kulture, and Dalmatino called us up as surprise guests at Arena Zagreb.
+The five of us come from choir singing, music education and the Dalmatian klapa tradition. The story started in a student flat, and in {foundingYear} we posted our first short a cappella video. The covers of Croatian and international hits that followed went viral, and invitations from other artists came with them: Tonči Huljić took us to Ljubljana and Vienna with his Mediterraneo project, Marko Kutlić brought us on stage at Tvornica kulture, and Dalmatino called us up as surprise guests at Arena Zagreb.
 
 ## The sound
 

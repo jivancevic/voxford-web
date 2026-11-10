@@ -103,7 +103,7 @@
       {
         "title": "Gala večera ili dodjela nagrada",
         "package": "classic",
-        "body": "Od {classicMin} do {classicMax} minuta a cappelle između sljedova ili oko dodjele, kao na gala večeri Unisport Stars u hotelu The Westin Zagreb."
+        "body": "Od {classicMin} do {classicMax} minuta a cappelle između sljedova ili oko dodjele, dok gosti ostaju za stolovima."
       },
       {
         "title": "Večernji koncert",
@@ -203,7 +203,7 @@
       {
         "title": "Iznenađenje za mladence",
         "package": "pop-up",
-        "body": "Prijatelji i obitelj znali su nas pozvati da nenajavljeno uđemo na slavlje. Mladenci saznaju tek kad krene prvi akord."
+        "body": "Nenajavljeno uđemo na slavlje, a mladenci saznaju tek kad krene prvi akord."
       },
       {
         "title": "Za vrijeme večere",
@@ -240,10 +240,6 @@
     ],
     "pastHeading": "Nedavni javni koncerti",
     "past": [
-      {
-        "name": "Advent u Zagrebu, Ledeni park",
-        "year": "2025."
-      },
       {
         "name": "Glazbene večeri u Ivanić-Gradu",
         "year": "2025."

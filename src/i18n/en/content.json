@@ -103,7 +103,7 @@
       {
         "title": "Gala dinner or awards night",
         "package": "classic",
-        "body": "{classicMin} to {classicMax} minutes of a cappella around the courses or the awards, as at the Unisport Stars gala at The Westin Zagreb."
+        "body": "{classicMin} to {classicMax} minutes of a cappella around the courses or the awards, while the guests stay at their tables."
       },
       {
         "title": "The evening concert",
@@ -203,7 +203,7 @@
       {
         "title": "A surprise for the couple",
         "package": "pop-up",
-        "body": "Friends and family have booked us to walk into the party unannounced. The couple finds out when the first chord starts."
+        "body": "We walk into the party unannounced, and the couple finds out when the first chord starts."
       },
       {
         "title": "During dinner",
@@ -240,10 +240,6 @@
     ],
     "pastHeading": "Recent public concerts",
     "past": [
-      {
-        "name": "Advent in Zagreb, Ice Park",
-        "year": "2025"
-      },
       {
         "name": "Music evenings in Ivanić-Grad",
         "year": "2025"
