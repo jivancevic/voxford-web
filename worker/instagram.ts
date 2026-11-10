@@ -3,9 +3,10 @@
 //
 // The token is a system-user access token (starts with EAA, never expires) of
 // the business portfolio that owns voxford.official, from the Worker secret
-// INSTAGRAM_TOKEN; the account is addressed by its Instagram user id, the
-// secret INSTAGRAM_USER_ID. Meta no longer offers new apps the Instagram Login
-// variant (graph.instagram.com, 60-day IGAA tokens): docs/adr/0004.
+// INSTAGRAM_TOKEN; the account is the one Instagram account assigned to that
+// system user (or the secret INSTAGRAM_USER_ID, when set). Meta no longer
+// offers new apps the Instagram Login variant (graph.instagram.com, 60-day
+// IGAA tokens): docs/adr/0004.
 // https://developers.facebook.com/docs/instagram-platform/reference/instagram-media
 
 export const IG_GRAPH = 'https://graph.facebook.com';
@@ -67,6 +68,26 @@ const isReel = (m: IgMedia) =>
   (m.media_product_type === 'REELS' || m.media_product_type === undefined) &&
   !!m.media_url &&
   !!m.thumbnail_url;
+
+/**
+ * The Instagram user id of the one Instagram account assigned to the token's
+ * system user. Fails when there is none or more than one (then set INSTAGRAM_USER_ID).
+ * https://developers.facebook.com/documentation/ads-commerce/marketing-api/reference/system-user/assigned_instagram_accounts
+ */
+export async function assignedInstagramAccount(fetchFn: Fetch, token: string): Promise<string> {
+  const body = await getJson<{ data?: { id?: string }[] }>(
+    fetchFn,
+    `${IG_GRAPH}/${IG_VERSION}/me/assigned_instagram_accounts?fields=id,username&access_token=${encodeURIComponent(token)}`,
+  );
+  const ids = (body.data ?? []).map((a) => a.id).filter((id): id is string => !!id && isInstagramUserId(id));
+  if (ids.length !== 1) {
+    throw new InstagramError(
+      `the token's system user has ${ids.length} Instagram accounts assigned; assign exactly one or set INSTAGRAM_USER_ID`,
+      0,
+    );
+  }
+  return ids[0]!;
+}
 
 /**
  * The newest `count` reels of the Instagram account `userId`, newest first.

@@ -190,7 +190,7 @@ finish() {
 # Run from the repo root:
 #
 #   scripts/instagram-wizard.sh          # the whole setup, first time
-#   scripts/instagram-wizard.sh token    # only a new token and the account id
+#   scripts/instagram-wizard.sh token    # only a new token
 #                                        # (the token never expires; this is for
 #                                        # a revoked one: the log says code 190)
 #
@@ -280,12 +280,16 @@ if ! who=$(graph_get me "fields=id,name"); then
 fi
 printf '  %s✓ the token works (system user: %s)%s\n' "$GREEN" "$(printf '%s' "$who" | json 'd.name')" "$RESET"
 
-# The account's Instagram user id: ask Meta which Instagram accounts the system
-# user may read; if that edge answers nothing useful, Business settings shows it.
-INSTAGRAM_USER_ID=$(graph_get me/assigned_instagram_accounts "fields=id,username" \
-  | json "(d.data||[]).filter(a=>a.username==='$IG_ACCOUNT').map(a=>a.id)[0]" || true)
+# The account's Instagram user id. The Worker finds it the same way on every run
+# (the one Instagram account assigned to the system user); only when that does
+# not work here is the id stored as INSTAGRAM_USER_ID.
+assigned=$(graph_get me/assigned_instagram_accounts "fields=id,username" || true)
+INSTAGRAM_USER_ID=$(printf '%s' "$assigned" | json "(d.data||[]).length===1&&d.data[0].username==='$IG_ACCOUNT'?d.data[0].id:''" || true)
+PIN_USER_ID=""
 if [[ -z "$INSTAGRAM_USER_ID" ]]; then
-  note "Could not look up the account id automatically."
+  PIN_USER_ID=yes
+  note "The system user does not have exactly one Instagram account ($IG_ACCOUNT) assigned,"
+  note "or Meta would not say; the id will be stored as the secret INSTAGRAM_USER_ID."
   step "Business settings → Accounts → Instagram accounts → $IG_ACCOUNT: copy its ID (a long number, usually 1784…)."
   ask INSTAGRAM_USER_ID "Instagram account ID:"
 fi
@@ -304,13 +308,14 @@ else
   exit 1
 fi
 
-stage "Store the token and the account id in Cloudflare"
-say "The Worker reads them as the secrets INSTAGRAM_TOKEN and INSTAGRAM_USER_ID; they never go into the repo or a file."
-if confirm "Set both on the voxford-web Worker now?"; then
+stage "Store the token in Cloudflare"
+say "The Worker reads it as the secret INSTAGRAM_TOKEN; it never goes into the repo or a file."
+if confirm "Set INSTAGRAM_TOKEN on the voxford-web Worker now?"; then
   put_worker_secret INSTAGRAM_TOKEN "$INSTAGRAM_TOKEN"
-  put_worker_secret INSTAGRAM_USER_ID "$INSTAGRAM_USER_ID"
+  if [[ -n "$PIN_USER_ID" ]]; then put_worker_secret INSTAGRAM_USER_ID "$INSTAGRAM_USER_ID"; fi
 else
-  SKIPPED+=("Worker secrets: npx wrangler secret put INSTAGRAM_TOKEN, then npx wrangler secret put INSTAGRAM_USER_ID ($INSTAGRAM_USER_ID)")
+  SKIPPED+=("Worker secret INSTAGRAM_TOKEN: npx wrangler secret put INSTAGRAM_TOKEN")
+  if [[ -n "$PIN_USER_ID" ]]; then SKIPPED+=("Worker secret INSTAGRAM_USER_ID ($INSTAGRAM_USER_ID): npx wrangler secret put INSTAGRAM_USER_ID"); fi
 fi
 unset INSTAGRAM_TOKEN
 

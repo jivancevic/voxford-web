@@ -12,6 +12,7 @@ const HOOK = 'https://api.cloudflare.com/client/v4/workers/builds/deploy_hooks/t
 const TOKEN = 'EAAtest-system-user-token';
 const USER_ID = '17841400000000000';
 const MEDIA_URL = `${IG_GRAPH}/v24.0/${USER_ID}/media`;
+const ASSIGNED_URL = `${IG_GRAPH}/v24.0/me/assigned_instagram_accounts`;
 
 interface FakeMedia {
   id: string;
@@ -37,6 +38,8 @@ function media(m: FakeMedia) {
 class FakeInstagram {
   pages: FakeMedia[][] = [];
   apiStatus = 200;
+  /** The Instagram accounts assigned to the token's system user. */
+  assigned: { id: string; username: string }[] = [{ id: USER_ID, username: 'voxford.official' }];
   cdnFails = new Set<string>();
   hookStatus = 200;
   requests: { url: string; method: string }[] = [];
@@ -45,6 +48,7 @@ class FakeInstagram {
     const url = String(input);
     this.requests.push({ url, method: init?.method ?? 'GET' });
     if (url === HOOK) return Response.json({ success: true }, { status: this.hookStatus });
+    if (url.startsWith(`${ASSIGNED_URL}?`)) return Response.json({ data: this.assigned });
     if (url.startsWith(`${MEDIA_URL}?`)) {
       if (this.apiStatus !== 200) {
         return Response.json({ error: { message: 'Error validating access token', code: 190 } }, { status: this.apiStatus });
@@ -76,7 +80,7 @@ let NOW = new Date('2026-11-10T04:17:00Z');
 const later = (days: number) => (NOW = new Date(NOW.getTime() + days * 86_400_000));
 
 const env = (vars: Partial<Env> = {}) =>
-  ({ MEDIA: bucket.asBinding(), INSTAGRAM_TOKEN: TOKEN, INSTAGRAM_USER_ID: USER_ID, DEPLOY_HOOK_URL: HOOK, ...vars }) as unknown as Env;
+  ({ MEDIA: bucket.asBinding(), INSTAGRAM_TOKEN: TOKEN, DEPLOY_HOOK_URL: HOOK, ...vars }) as unknown as Env;
 const run = (vars?: Partial<Env>) => syncReels(env(vars), ctx, { fetch: ig.fetch as typeof fetch, now: () => NOW, log });
 const manifest = () => JSON.parse(bucket.text(MANIFEST_KEY)!) as ReelsManifest;
 const reels = (...ids: number[]): FakeMedia[] => ids.map((id) => ({ id: String(id), day: id }));
@@ -314,18 +318,9 @@ describe('syncReels', () => {
     expect(bucket.text('reels/1/video.mp4')).toBe('bytes of 1.mp4');
   });
 
-  it('does nothing before setup', async () => {
-    const result = await run({ INSTAGRAM_TOKEN: undefined, INSTAGRAM_USER_ID: undefined });
+  it('does nothing without a token', async () => {
+    const result = await run({ INSTAGRAM_TOKEN: undefined, INSTAGRAM_USER_ID: USER_ID });
     expect(result).toEqual({ status: 'skipped', reels: 0, rebuilt: false });
-    expect(ig.requests).toHaveLength(0);
-    expect(log.warn).not.toHaveBeenCalled();
-  });
-
-  it('warns and does nothing when only half the setup is there', async () => {
-    expect((await run({ INSTAGRAM_USER_ID: undefined })).status).toBe('skipped');
-    expect(log.warn).toHaveBeenCalledWith(expect.stringContaining('INSTAGRAM_USER_ID not set'));
-    expect((await run({ INSTAGRAM_TOKEN: undefined })).status).toBe('skipped');
-    expect(log.warn).toHaveBeenCalledWith(expect.stringContaining('INSTAGRAM_TOKEN not set'));
     expect(ig.requests).toHaveLength(0);
   });
 
@@ -345,18 +340,37 @@ describe('syncReels', () => {
     expect(log.error).toHaveBeenCalledWith('reels: deploy hook answered 500');
   });
 
-  it('reads the account by its user id with the token, and never refreshes it', async () => {
+  it("reads the reels of the account assigned to the token's system user, and never refreshes the token", async () => {
     ig.pages = [reels(1)];
     await run();
-    const api = ig.hits(`${IG_GRAPH}/`);
-    expect(api).toHaveLength(1);
-    const url = new URL(api[0]!.url);
-    expect(url.pathname).toBe(`/v24.0/${USER_ID}/media`);
-    expect(url.searchParams.get('access_token')).toBe(TOKEN);
-    expect(url.searchParams.get('fields')).toContain('media_product_type');
+    const api = ig.hits(`${IG_GRAPH}/`).map((r) => new URL(r.url));
+    expect(api.map((u) => u.pathname)).toEqual(['/v24.0/me/assigned_instagram_accounts', `/v24.0/${USER_ID}/media`]);
+    expect(api.every((u) => u.searchParams.get('access_token') === TOKEN)).toBe(true);
+    expect(api[1]!.searchParams.get('fields')).toContain('media_product_type');
   });
 
-  it('refuses a user id that is not numeric, before calling the API', async () => {
+  it('reads the account INSTAGRAM_USER_ID names without asking which is assigned', async () => {
+    ig.pages = [reels(1)];
+    ig.assigned = [];
+    await run({ INSTAGRAM_USER_ID: USER_ID });
+    expect(ig.hits(ASSIGNED_URL)).toHaveLength(0);
+    expect(manifest().reels.map((r) => r.id)).toEqual(['1']);
+  });
+
+  it('stops, writing nothing, unless exactly one Instagram account is assigned', async () => {
+    ig.pages = [reels(1)];
+    ig.assigned = [];
+    await expect(run()).rejects.toThrow('0 Instagram accounts assigned');
+    ig.assigned = [
+      { id: USER_ID, username: 'voxford.official' },
+      { id: '17841499999999999', username: 'someone.else' },
+    ];
+    await expect(run()).rejects.toThrow('2 Instagram accounts assigned; assign exactly one or set INSTAGRAM_USER_ID');
+    expect(ig.hits(MEDIA_URL)).toHaveLength(0);
+    expect(bucket.objects.size).toBe(0);
+  });
+
+  it('refuses a user id that is not numeric, before reading media', async () => {
     await expect(run({ INSTAGRAM_USER_ID: 'voxford.official' })).rejects.toThrow('not a numeric Instagram user id');
     expect(ig.requests).toHaveLength(0);
   });

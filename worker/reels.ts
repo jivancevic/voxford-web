@@ -1,6 +1,6 @@
 import type { Env } from './env';
 import { CACHE_IMMUTABLE, CACHE_MANIFEST } from './media';
-import { latestReels, type Fetch, type IgMedia } from './instagram';
+import { assignedInstagramAccount, latestReels, type Fetch, type IgMedia } from './instagram';
 
 // Daily reels sync (cron in wrangler.jsonc, called from worker/index.ts).
 //
@@ -16,9 +16,10 @@ import { latestReels, type Fetch, type IgMedia } from './instagram';
 // An empty answer from Instagram keeps the feed too. A reel that leaves the
 // feed keeps its files for RETIRE_DAYS and while a rebuild is pending, so a
 // live page never loses a file.
-// Without INSTAGRAM_TOKEN and INSTAGRAM_USER_ID the sync does nothing (local
-// dev, before setup). The token is a system-user token that never expires, so
-// there is nothing to refresh (docs/adr/0004).
+// Without INSTAGRAM_TOKEN the sync does nothing (local dev, before setup). The
+// token is a system-user token that never expires, so there is nothing to
+// refresh; the account is the one assigned to it, unless INSTAGRAM_USER_ID
+// names it (docs/adr/0004).
 
 export const REEL_COUNT = 6;
 export const MANIFEST_KEY = 'reels/manifest.json';
@@ -108,14 +109,13 @@ function toReel(media: IgMedia): Reel {
 
 export async function syncReels(env: Env, _ctx: ExecutionContext, deps: Deps = defaultDeps()): Promise<SyncResult> {
   const { log } = deps;
-  const { INSTAGRAM_TOKEN: token, INSTAGRAM_USER_ID: userId } = env;
-  if (!token || !userId) {
-    const missing = [!token && 'INSTAGRAM_TOKEN', !userId && 'INSTAGRAM_USER_ID'].filter(Boolean).join(' and ');
-    // Neither set: not set up yet. One of them: a half-finished setup, worth a warning.
-    log[token || userId ? 'warn' : 'info'](`reels: ${missing} not set, skipping (scripts/instagram-wizard.sh)`);
+  const token = env.INSTAGRAM_TOKEN;
+  if (!token) {
+    log.info('reels: INSTAGRAM_TOKEN is not set, skipping (scripts/instagram-wizard.sh)');
     return { status: 'skipped', reels: 0, rebuilt: false };
   }
   const bucket = env.MEDIA;
+  const userId = env.INSTAGRAM_USER_ID || (await assignedInstagramAccount(deps.fetch, token));
 
   const media = await latestReels(deps.fetch, token, userId, REEL_COUNT);
   const previous = await readManifest(bucket);

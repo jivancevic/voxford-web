@@ -23,7 +23,7 @@ export interface Env {
   MEDIA: R2Bucket;
   /** Secret: system-user token (Instagram API with Unified login, never expires). Unset: the reels sync does nothing. */
   INSTAGRAM_TOKEN?: string;
-  /** Secret: voxford.official's Instagram user id (numeric), whose reels the sync reads. Unset: the sync does nothing. */
+  /** Optional secret: the Instagram user id (numeric) to read. Unset: the one account assigned to the token's system user. */
   INSTAGRAM_USER_ID?: string;
   /** Secret: Workers Builds deploy hook URL, POSTed when the reels feed changed. */
   DEPLOY_HOOK_URL?: string;

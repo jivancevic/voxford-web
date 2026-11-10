@@ -174,7 +174,7 @@ Secrets (Worker › Settings › Variables & Secrets), set by the wizard, never 
 | Secret | What | Set by |
 |---|---|---|
 | `INSTAGRAM_TOKEN` | system-user token of the voxford.official business portfolio (`EAA…`, `instagram_basic`, never expires) | `scripts/instagram-wizard.sh` (stages 4–5) |
-| `INSTAGRAM_USER_ID` | voxford.official's Instagram user id (numeric), whose reels the sync reads | `scripts/instagram-wizard.sh` (stages 4–5) |
+| `INSTAGRAM_USER_ID` | optional: the Instagram user id to read; unset, the sync reads the one Instagram account assigned to the system user | the wizard, only when that lookup fails |
 | `DEPLOY_HOOK_URL` | Workers Builds › Settings › Builds › Deploy Hooks, branch `main` | `scripts/instagram-wizard.sh` (stage 6) |
 
     scripts/instagram-wizard.sh             # first time: Meta app in the portfolio, system user, token, deploy hook
@@ -184,7 +184,6 @@ Secrets (Worker › Settings › Variables & Secrets), set by the wizard, never 
 **Test the sync locally** against the real API and the local bucket (the token stays in this shell):
 
     read -rs INSTAGRAM_TOKEN && export INSTAGRAM_TOKEN
-    export INSTAGRAM_USER_ID=<the id the wizard printed>
     npm run build && CLOUDFLARE_INCLUDE_PROCESS_ENV=true npx wrangler dev --test-scheduled
     curl "http://localhost:8787/__scheduled?cron=17+4+*+*+*"     # then: curl localhost:8787/media/reels/manifest.json
     REELS_MANIFEST_URL=http://localhost:8787/media/reels/manifest.json npm run build   # the page with the reels
