@@ -46,6 +46,7 @@ Shared rules for B–E:
 
 - **Facts only from the KB** (`~/projects/business/voxford/`), through `site-facts.ts`. No invented numbers, quotes, clients or testimonials. This repo is public: no prices, OIB, IBAN, contracts, phone numbers or private clients' names, ever.
 - **Copy is written natively in both languages**; HR addresses the reader with capitalised "Vi". Every page copy entry names its KB `source`.
+- **Voxford speaks as "we"** (Josip, #35): FAQ answers and page copy say "we", "our", "the five of us" / "mi", "nas petero", never "they", "it", "the group", "skupina" or "petorka". Questions written from the client's side ("How do we book Voxford?") stay. Only entity statements name Voxford as the subject: meta and default descriptions (the default one is also the `MusicGroup` JSON-LD description), `llms.txt`, `VideoObject` descriptions, the "Who is Voxford?" opening line.
 - **Staubach (`.display`, `.numeral`) only for Latin-only words and numbers**: it has no Č Ć Ž Đ, and Š renders as S. Headlines that may carry Croatian letters use the headline face (h1–h3 default).
 - **No stretched buttons**: use `Pill` or `InquiryCTA` (content-width, ≥48px tall, ~28px side padding, aspect ≤ 3:1); never `width: 100%` on a button.
 - **All text in static HTML**; motion only enhances what is already in the DOM.
