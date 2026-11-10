@@ -259,12 +259,10 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
 </script>
 
 <style>
-  /* The site header is sticky and 4.5rem + its light line tall (SiteHeader.astro);
-     pinned stages sit under it. A header-height token would remove this mirror. */
+  /* Pinned stages sit under the sticky site header (--header-h, tokens.css). */
   .hero,
   .chord {
-    --home-header-h: calc(4.5rem + var(--line-thin));
-    --stage-h: calc(100svh - var(--home-header-h));
+    --stage-h: calc(100svh - var(--header-h));
   }
 
   /* ---------- 1 · Hero ---------- */
@@ -295,7 +293,7 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
 
     :global(.sc-motion) .hero__stage {
       position: sticky;
-      top: var(--home-header-h);
+      top: var(--header-h);
     }
 
     :global(.sc-motion) .hero__title {
@@ -554,7 +552,7 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
 
     :global(.sc-motion) .chord__stage {
       position: sticky;
-      top: var(--home-header-h);
+      top: var(--header-h);
       block-size: var(--stage-h);
     }
 
@@ -896,7 +894,8 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
     color: var(--color-text-secondary);
   }
 
-  .proof__rail {
+  /* :global: the class sits on VideoRail's root, outside this view's scope. */
+  .proof :global(.proof__rail) {
     margin-block-start: var(--space-8);
   }
 

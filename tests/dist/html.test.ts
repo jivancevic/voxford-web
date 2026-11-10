@@ -12,7 +12,7 @@ if (!existsSync(dist)) throw new Error('dist/ is missing: run `npm run build` fi
 
 const htmlFiles = readdirSync(dist, { recursive: true })
   .map(String)
-  .filter((f) => f.endsWith('.html') && f !== '404.html');
+  .filter((f) => f.endsWith('.html') && !f.endsWith('404.html'));
 
 /** /en/about/ for en/about/index.html */
 const pathOf = (file: string) => `/${file.replace(/index\.html$/, '')}`;
@@ -88,6 +88,16 @@ describe('JSON-LD shapes', () => {
       expect(services, page.path).toHaveLength(1);
       expect(services[0]!.offers, page.path).toHaveLength(3);
       expect(JSON.stringify(services[0]), page.path).not.toMatch(/price/i);
+    }
+  });
+});
+
+describe('404 pages', () => {
+  it('serves /hr/… a Croatian 404 and everything else the English one', () => {
+    expect(readFileSync(`${dist}404.html`, 'utf8')).toMatch(/<html lang="en"/);
+    expect(readFileSync(`${dist}hr/404.html`, 'utf8')).toMatch(/<html lang="hr"/);
+    for (const file of ['404.html', 'hr/404.html']) {
+      expect(readFileSync(`${dist}${file}`, 'utf8')).toMatch(/<meta name="robots" content="noindex/);
     }
   });
 });

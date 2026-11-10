@@ -1,4 +1,5 @@
 // @ts-check
+import { rename, rmdir } from 'node:fs/promises';
 import { defineConfig, envField, fontProviders } from 'astro/config';
 
 // Static build only (ADR 0001): every page is prerendered HTML in dist/, served
@@ -22,11 +23,31 @@ const face = (file, subset, weight) => ({
   unicodeRange: /** @type {[string]} */ ([subset === 'latin' ? LATIN : LATIN_EXT]),
 });
 
+/**
+ * Workers assets serve the nearest 404.html for a missing path
+ * (wrangler.jsonc › not_found_handling), so /hr/… needs dist/hr/404.html.
+ * Only the root 404.astro escapes build.format 'directory'; this moves the
+ * Croatian one from hr/404/index.html to hr/404.html.
+ * If build.format or the i18n prefix changes, the rename fails the build
+ * with ENOENT on purpose: fix the paths here rather than ship an English 404.
+ * @type {import('astro').AstroIntegration}
+ */
+const croatian404 = {
+  name: 'voxford:hr-404',
+  hooks: {
+    'astro:build:done': async ({ dir }) => {
+      await rename(new URL('hr/404/index.html', dir), new URL('hr/404.html', dir));
+      await rmdir(new URL('hr/404/', dir));
+    },
+  },
+};
+
 export default defineConfig({
   // Canonical origin. Set SITE_URL in Workers Builds; ticket G sets the domain.
   site: process.env.SITE_URL || 'http://localhost:8787',
   trailingSlash: 'always',
   build: { format: 'directory' },
+  integrations: [croatian404],
   i18n: {
     locales: ['en', 'hr'],
     defaultLocale: 'en',

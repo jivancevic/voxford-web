@@ -32,7 +32,6 @@ Unisport Hrvatska (no Zaklada UniSport Srce), `efzg.svg` got a `viewBox`, PNG me
 | `nuit-des-choeurs.png` | https://static.wixstatic.com/media/4819dd_52029d78ec4040e6bbc8a45c0f39f2fc~mv2.png/v1/crop/x_26,y_0,w_486,h_366/LOGO_NDC.png | https://www.nuitdeschoeurs.be/ |
 | `tz-vis.png` | https://www.vis-tourism.com/wp-content/uploads/2024/05/tz-vis-logotip.png | https://www.vis-tourism.com/hr/ |
 | `tz-crikvenica.png` | https://www.rivieracrikvenica.com/sites/all/themes/rc2016/logo.png | https://www.rivieracrikvenica.com/ |
-| `tz-pag.png` | https://tzgpag.hr/images/aslova.png | https://tzgpag.hr/hr/ |
 | `tz-ivanic-grad.svg` | https://static.wixstatic.com/shapes/bd334d_b45c703518434648a8e5e9930e07b550.svg | https://www.tzig.hr/ |
 | `tz-podgora.png` | https://tz-podgora.hr/images/logo.png | https://tz-podgora.hr/ |
 
@@ -45,3 +44,5 @@ logo (Hrvatske svjetske igre, Memorijal Boris Hanžeković, Advent Jastrebarsko)
 stages are always text, on their own lines, so a stage never reads as a client.
 Disney is text: disney.com serves its wordmark only as a 122 px PNG, and Commons is not the
 organisation's own source.
+TZ Grada Paga is text (ticket F): its logo (`aslova.png`) is a white script on a lace disc, which
+reads as a grey blob in one colour on either surface.

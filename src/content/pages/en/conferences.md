@@ -7,7 +7,7 @@ source: "brand/biografija.md, posao/ponuda/ponuda.md, posao/rideri/rideri.md, po
 
 ## Why a cappella works at a conference
 
-A conference runs on a tight schedule, so music has to fit between the talks without a long changeover. We do not need a band setup or a stage build. Five singers walk on, take a microphone each and start, and when the song ends the next speaker can go straight up.
+A conference runs on a tight schedule, so music has to fit between the talks without a long changeover. A set between talks needs no band setup and no stage build. Five singers walk on, take a microphone each and start, and when the song ends the next speaker can go straight up.
 
 Many of your guests will have seen us before they see us live. Our videos have {views} views across Instagram, TikTok, Facebook and YouTube, and Carol of the Bells alone has {carolViews}.
 

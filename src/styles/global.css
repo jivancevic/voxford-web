@@ -21,7 +21,7 @@ html {
   font-family: var(--font-body);
   font-size: 100%;
   line-height: var(--leading-body);
-  scroll-padding-top: 5rem;
+  scroll-padding-top: calc(var(--header-h) + var(--space-2));
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -42,6 +42,8 @@ body {
 
 main {
   flex: 1;
+  /* Glows bleed past the photos on purpose; WebKit counts their blur as page width (4px sideways scroll on phones). clip, unlike hidden, keeps position: sticky working. */
+  overflow-x: clip;
 }
 
 img,

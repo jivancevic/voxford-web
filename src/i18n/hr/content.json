@@ -68,7 +68,7 @@
     "publicOnly": "Samo javni koncerti. Poslovne događaje i privatne proslave ovdje ne objavljujemo."
   },
   "conferences": {
-    "lead": "{disambiguation}. Pet pjevača i pet mikrofona, bez benda koji treba postaviti: pjevamo na otvorenjima konferencija, između predavanja, na gala večerama i dodjelama nagrada, u Zagrebu, diljem Hrvatske i u regiji.",
+    "lead": "{disambiguation}. Pet pjevača i pet mikrofona, bez gradnje pozornice: pjevamo na otvorenjima konferencija, između predavanja, na gala večerama i dodjelama nagrada, u Zagrebu, diljem Hrvatske i u regiji.",
     "facts": [
       {
         "term": "Tko",
@@ -289,7 +289,7 @@
     "serviceType": "Adventski i ljetni koncerti za gradove i turističke zajednice"
   },
   "private": {
-    "lead": "{disambiguation}. Rođendani, obljetnice i obiteljska slavlja: uđemo kao iznenađenje do {popUpMax} minuta ili gostima održimo cijeli koncert.",
+    "lead": "{disambiguation}. Na privatnoj proslavi uđemo kao iznenađenje do {popUpMax} minuta ili gostima održimo cijeli koncert.",
     "facts": [
       {
         "term": "Iznenađenje",
