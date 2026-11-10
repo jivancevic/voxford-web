@@ -45,6 +45,10 @@ class FakeInstagram {
   fbPages: { id: string; ig?: string }[] = [];
   /** Status of the two account lookups (e.g. 403 when the token lacks that route's permission). */
   lookupStatus = 200;
+  /** Meta's error code and message the failing lookups answer with. */
+  lookupError = { code: 200, message: 'Missing permission' };
+  /** Which lookups fail when lookupStatus is not 200. */
+  lookupFails: 'both' | 'pages' = 'both';
   cdnFails = new Set<string>();
   hookStatus = 200;
   requests: { url: string; method: string }[] = [];
@@ -54,8 +58,9 @@ class FakeInstagram {
     this.requests.push({ url, method: init?.method ?? 'GET' });
     if (url === HOOK) return Response.json({ success: true }, { status: this.hookStatus });
     if (url.startsWith(`${ASSIGNED_URL}?`) || url.startsWith(`${PAGES_URL}?`)) {
-      if (this.lookupStatus !== 200) {
-        return Response.json({ error: { message: 'Missing permission', code: 200 } }, { status: this.lookupStatus });
+      const fails = this.lookupFails === 'both' || url.startsWith(`${PAGES_URL}?`);
+      if (this.lookupStatus !== 200 && fails) {
+        return Response.json({ error: this.lookupError }, { status: this.lookupStatus });
       }
       if (url.startsWith(`${ASSIGNED_URL}?`)) return Response.json({ data: this.assigned });
       return Response.json({
@@ -393,6 +398,36 @@ describe('syncReels', () => {
     ig.lookupStatus = 403;
     await expect(run()).rejects.toThrow('reaches no Instagram account: assign the Voxford Page (or the Instagram account) to the system user (Instagram API 403: 200 Missing permission)');
     expect(ig.hits(MEDIA_URL)).toHaveLength(0);
+    expect(bucket.objects.size).toBe(0);
+  });
+
+  it('falls back to the directly assigned account when the Page route lacks permission', async () => {
+    ig.pages = [reels(1)];
+    ig.lookupStatus = 403;
+    ig.lookupFails = 'pages';
+    await run();
+    expect(ig.hits(ASSIGNED_URL)).toHaveLength(1);
+    expect(ig.hits(MEDIA_URL)).toHaveLength(1);
+  });
+
+  it('reports a revoked token as such, without trying the other route', async () => {
+    ig.pages = [reels(1)];
+    ig.lookupStatus = 400;
+    ig.lookupError = { code: 190, message: 'Error validating access token' };
+    const err = await run().catch((e: Error) => e);
+    expect(String(err)).toContain('Instagram API 400: 190 Error validating access token');
+    expect(String(err)).not.toContain('reaches no Instagram account');
+    expect(String(err)).not.toContain(TOKEN);
+    expect(ig.hits(ASSIGNED_URL)).toHaveLength(0);
+    expect(bucket.objects.size).toBe(0);
+  });
+
+  it('reports a Meta outage during the lookup as such', async () => {
+    ig.pages = [reels(1)];
+    ig.lookupStatus = 503;
+    ig.lookupError = { code: 2, message: 'Service temporarily unavailable' };
+    await expect(run()).rejects.toThrow('Instagram API 503: 2 Service temporarily unavailable');
+    expect(ig.hits(ASSIGNED_URL)).toHaveLength(0);
     expect(bucket.objects.size).toBe(0);
   });
 
