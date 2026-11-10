@@ -236,6 +236,7 @@ describe('POST /api/inquiry with Cloudflare Email Sending (after the domain)', (
     ['wrong action', () => Response.json({ success: true, hostname: 'voxford.example', action: 'login' })],
     ['wrong hostname', () => Response.json({ success: true, hostname: 'evil.example', action: 'inquiry' })],
     ['siteverify is down', () => new Response('oops', { status: 500 })],
+    ['siteverify answers null', () => Response.json(null)],
   ])('fails closed when %s: 403 with the mailto fallback, nothing sent', async (_name, reply) => {
     siteverify.mockImplementation(async () => reply());
     const email = fakeEmail();

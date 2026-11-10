@@ -83,7 +83,10 @@ function enhance(root: HTMLElement, form: HTMLFormElement): void {
         theme: 'dark',
         language: lang,
         'response-field': false,
-        callback: (t: string) => settle(t),
+        callback: (t: string) => {
+          unavailable = false;
+          settle(t);
+        },
         'expired-callback': () => (token = ''),
         'before-interactive-callback': () => (challenged = true),
         'after-interactive-callback': () => (challenged = false),
@@ -106,7 +109,11 @@ function enhance(root: HTMLElement, form: HTMLFormElement): void {
     if (token || unavailable) return Promise.resolve(token);
     return new Promise((resolve) => {
       waiters.push(resolve);
-      setTimeout(() => resolve(token), challenged ? CHALLENGE_WAIT_MS : TOKEN_WAIT_MS);
+      setTimeout(() => {
+        // A challenge that appeared while we waited gets its own, longer wait.
+        if (challenged && !token) setTimeout(() => resolve(token), CHALLENGE_WAIT_MS);
+        else resolve(token);
+      }, challenged ? CHALLENGE_WAIT_MS : TOKEN_WAIT_MS);
     });
   }
 
@@ -237,7 +244,9 @@ function enhance(root: HTMLElement, form: HTMLFormElement): void {
       } else if (reply && !reply.ok && reply.error === 'invalid' && 'fields' in reply) {
         showErrors(reply.fields);
       } else {
-        setMailto(reply && 'mailto' in reply ? reply.mailto : undefined);
+        // Any other answer (500, 413, a Cloudflare error page): keep what was typed in the mail link.
+        const fromWorker = reply && 'mailto' in reply ? reply.mailto : undefined;
+        setMailto(fromWorker ?? inquiryMailto(result.inquiry));
         show('error');
       }
     } catch {

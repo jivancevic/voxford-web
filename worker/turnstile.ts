@@ -41,7 +41,9 @@ export async function verifyTurnstile(input: VerifyInput): Promise<VerifyResult>
       signal: AbortSignal.timeout(10_000),
     });
     if (!res.ok) return { ok: false, reason: `siteverify_${res.status}` };
-    result = await res.json();
+    const parsed: unknown = await res.json();
+    if (!parsed || typeof parsed !== 'object') return { ok: false, reason: 'siteverify_malformed' };
+    result = parsed;
   } catch {
     return { ok: false, reason: 'siteverify_unreachable' };
   }
