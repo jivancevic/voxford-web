@@ -3,7 +3,17 @@
 // validation with an error summary, Turnstile, and the sent / mailto / error
 // states without leaving the page. All text comes from the static HTML.
 
-import { FIELD, VALIDATED_FIELDS, validateInquiry, type FieldErrors, type InquiryField } from '@/lib/inquiry';
+import { DEFAULT_LOCALE, isLocale } from '@/i18n/locales';
+import {
+  FIELD,
+  localIsoDate,
+  TURNSTILE_ACTION,
+  VALIDATED_FIELDS,
+  validateInquiry,
+  type FieldErrors,
+  type InquiryField,
+} from '@/lib/inquiry';
+import { inquiryMailto } from '@/lib/inquiry-mail';
 import { parseInquiryPrefill, type InquiryPrefill } from '@/lib/inquiry-url';
 
 interface TurnstileApi {
@@ -22,20 +32,13 @@ type State = 'form' | 'sent' | 'mailto' | 'error';
 const TURNSTILE_SRC = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
 const TOKEN_WAIT_MS = 8000;
 
-/** The visitor's local date as YYYY-MM-DD. */
-function localToday(): string {
-  const d = new Date();
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-}
-
 export function enhanceInquiryForm(root: HTMLElement): void {
   const form = root.querySelector<HTMLFormElement>('[data-inquiry-form]');
   if (form) enhance(root, form);
 }
 
 function enhance(root: HTMLElement, form: HTMLFormElement): void {
-  const lang = root.dataset.lang ?? 'en';
+  const lang = isLocale(root.dataset.lang) ? root.dataset.lang : DEFAULT_LOCALE;
   const submit = form.querySelector<HTMLButtonElement>('[data-submit]')!;
   const submitLabel = form.querySelector<HTMLElement>('[data-submit-label]')!;
   const idleLabel = submitLabel.textContent ?? '';
@@ -46,7 +49,7 @@ function enhance(root: HTMLElement, form: HTMLFormElement): void {
   // The script validates and explains; the browser's own bubbles would compete with it.
   form.noValidate = true;
   const dateInput = form.elements.namedItem(FIELD.date) as HTMLInputElement;
-  dateInput.min = localToday();
+  dateInput.min = localIsoDate();
 
   applyPrefill(form, parseInquiryPrefill(window.location.search));
 
@@ -69,7 +72,7 @@ function enhance(root: HTMLElement, form: HTMLFormElement): void {
     script.addEventListener('load', () => {
       widgetId = turnstile()?.render(turnstileBox, {
         sitekey: turnstileBox.dataset.sitekey,
-        action: 'inquiry',
+        action: TURNSTILE_ACTION,
         appearance: 'interaction-only',
         theme: 'dark',
         language: lang,
@@ -103,23 +106,25 @@ function enhance(root: HTMLElement, form: HTMLFormElement): void {
   // ---- Validation ----
   const fieldBox = (name: InquiryField) => form.querySelector<HTMLElement>(`[data-field="${name}"]`);
 
+  /** A chip group is described as a whole (its fieldset); a text field through its input. */
+  function fieldParts(box: HTMLElement) {
+    const isGroup = box.matches('fieldset');
+    const described = isGroup ? box : box.querySelector<HTMLElement>('input, textarea')!;
+    const inputs = [...box.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('input, textarea')];
+    return { described, inputs, focusTarget: inputs[0]! };
+  }
+
   function setFieldError(name: InquiryField, invalid: boolean) {
     const box = fieldBox(name);
     if (!box) return;
     const error = box.querySelector<HTMLElement>('.field__error');
-    const targets = box.matches('fieldset') ? [box] : [...box.querySelectorAll<HTMLElement>('input, textarea')];
-    const base = (box.matches('fieldset') ? box : targets[0])?.dataset.describedby ?? '';
+    const { described, inputs } = fieldParts(box);
     if (error) error.hidden = !invalid;
     box.toggleAttribute('data-invalid', invalid);
-    for (const el of targets) {
-      const describedBy = [base, invalid && error ? error.id : ''].filter(Boolean).join(' ');
-      if (describedBy) el.setAttribute('aria-describedby', describedBy);
-      else el.removeAttribute('aria-describedby');
-      if (!box.matches('fieldset')) el.setAttribute('aria-invalid', String(invalid));
-    }
-    if (box.matches('fieldset')) {
-      box.querySelectorAll('input').forEach((radio) => radio.setAttribute('aria-invalid', String(invalid)));
-    }
+    const describedBy = [described.dataset.describedby ?? '', invalid && error ? error.id : ''].filter(Boolean).join(' ');
+    if (describedBy) described.setAttribute('aria-describedby', describedBy);
+    else described.removeAttribute('aria-describedby');
+    for (const input of inputs) input.setAttribute('aria-invalid', String(invalid));
   }
 
   function showErrors(errors: FieldErrors) {
@@ -132,7 +137,7 @@ function enhance(root: HTMLElement, form: HTMLFormElement): void {
       ...names.map((name) => {
         const box = fieldBox(name)!;
         const message = box.querySelector('.field__error')?.textContent ?? '';
-        const target = box.matches('fieldset') ? box.querySelector<HTMLInputElement>('input')! : box.querySelector<HTMLElement>('input, textarea')!;
+        const target = fieldParts(box).focusTarget;
         const link = document.createElement('a');
         link.href = `#${target.id}`;
         link.textContent = message;
@@ -162,7 +167,7 @@ function enhance(root: HTMLElement, form: HTMLFormElement): void {
     const flexible = target instanceof HTMLInputElement && target.name === FIELD.flexible;
     const name = (flexible ? 'date' : box?.dataset.field) as InquiryField | undefined;
     if (!name || !fieldBox(name)?.hasAttribute('data-invalid')) return;
-    const result = validateInquiry(new FormData(form), localToday());
+    const result = validateInquiry(new FormData(form), localIsoDate());
     const stillInvalid = !result.ok && Boolean(result.errors[name]);
     if (!stillInvalid) setFieldError(name, false);
     if (!form.querySelector('[data-field][data-invalid]')) summary.hidden = true;
@@ -193,7 +198,7 @@ function enhance(root: HTMLElement, form: HTMLFormElement): void {
     event.preventDefault();
     if (busy) return;
     const data = new FormData(form);
-    const result = validateInquiry(data, localToday());
+    const result = validateInquiry(data, localIsoDate());
     if (!result.ok) {
       showErrors(result.errors);
       return;
@@ -224,6 +229,8 @@ function enhance(root: HTMLElement, form: HTMLFormElement): void {
         show('error');
       }
     } catch {
+      // The Worker could not be reached: write the mail here so nothing typed is lost.
+      setMailto(inquiryMailto(result.inquiry));
       show('error');
     } finally {
       busy = false;
@@ -259,7 +266,7 @@ function applyPrefill(form: HTMLFormElement, prefill: InquiryPrefill): void {
   check(FIELD.type, prefill.type);
   check(FIELD.package, prefill.package);
   const date = form.elements.namedItem(FIELD.date) as HTMLInputElement | null;
-  if (date && prefill.date && prefill.date >= localToday()) date.value = prefill.date;
+  if (date && prefill.date && prefill.date >= localIsoDate()) date.value = prefill.date;
   const city = form.elements.namedItem(FIELD.city) as HTMLInputElement | null;
   if (city && prefill.city) city.value = prefill.city;
 }

@@ -27,6 +27,9 @@ export const FIELD = {
   turnstile: 'cf-turnstile-response',
 } as const;
 
+/** The Turnstile `action` the page renders with and the Worker requires from siteverify. */
+export const TURNSTILE_ACTION = 'inquiry';
+
 /** Longest accepted value per text field (city matches the prefill contract's cap). */
 export const LIMITS = { city: 80, name: 100, email: 254, phone: 40, message: 2000 } as const;
 
@@ -69,13 +72,13 @@ export function isValidIsoDate(value: string): boolean {
 }
 
 /** A single-line value: trimmed, control characters (CR, LF, tab…) folded to one space. */
-function line(source: FieldSource, name: string): string {
+function singleLineField(source: FieldSource, name: string): string {
   const raw = source.get(name);
   return typeof raw === 'string' ? raw.replace(/[\u0000-\u001f\u007f]+/g, ' ').replace(/\s+/g, ' ').trim() : '';
 }
 
 /** Multi-line text: keeps line breaks, drops other control characters, normalises CRLF. */
-function text(source: FieldSource, name: string): string {
+function multiLineField(source: FieldSource, name: string): string {
   const raw = source.get(name);
   return typeof raw === 'string'
     ? raw
@@ -94,45 +97,45 @@ const oneOf = <T extends string>(list: readonly T[], value: string): value is T 
  */
 export function validateInquiry(source: FieldSource, today: string): InquiryValidation {
   const errors: FieldErrors = {};
-  const langValue = line(source, FIELD.lang);
+  const langValue = singleLineField(source, FIELD.lang);
   const lang: Locale = isLocale(langValue) ? langValue : DEFAULT_LOCALE;
 
-  const type = line(source, FIELD.type);
+  const type = singleLineField(source, FIELD.type);
   if (!type) errors.type = 'required';
   else if (!oneOf(EVENT_TYPES, type)) errors.type = 'invalid';
 
-  const flexible = ['1', 'on', 'true'].includes(line(source, FIELD.flexible));
-  const date = line(source, FIELD.date);
+  const flexible = ['1', 'on', 'true'].includes(singleLineField(source, FIELD.flexible));
+  const date = singleLineField(source, FIELD.date);
   if (!date) {
     if (!flexible) errors.date = 'required';
   } else if (!isValidIsoDate(date)) errors.date = 'invalid';
   else if (date < today) errors.date = 'past';
 
-  const city = line(source, FIELD.city);
+  const city = singleLineField(source, FIELD.city);
   if (!city) errors.city = 'required';
   else if (city.length > LIMITS.city) errors.city = 'too_long';
 
-  const guests = line(source, FIELD.guests);
+  const guests = singleLineField(source, FIELD.guests);
   if (!guests) errors.guests = 'required';
   else if (!oneOf(GUEST_RANGES, guests)) errors.guests = 'invalid';
 
-  const pkg = line(source, FIELD.package);
+  const pkg = singleLineField(source, FIELD.package);
   if (pkg && !oneOf(PACKAGE_KEYS, pkg)) errors.package = 'invalid';
 
-  const name = line(source, FIELD.name);
+  const name = singleLineField(source, FIELD.name);
   if (!name) errors.name = 'required';
   else if (name.length > LIMITS.name) errors.name = 'too_long';
 
-  const email = line(source, FIELD.email);
+  const email = singleLineField(source, FIELD.email);
   if (!email) errors.email = 'required';
   else if (email.length > LIMITS.email) errors.email = 'too_long';
   else if (!EMAIL.test(email)) errors.email = 'invalid';
 
-  const phone = line(source, FIELD.phone);
+  const phone = singleLineField(source, FIELD.phone);
   if (phone.length > LIMITS.phone) errors.phone = 'too_long';
   else if (phone && !PHONE.test(phone)) errors.phone = 'invalid';
 
-  const message = text(source, FIELD.message);
+  const message = multiLineField(source, FIELD.message);
   if (message.length > LIMITS.message) errors.message = 'too_long';
 
   const partial: Partial<Inquiry> & { lang: Locale } = {
@@ -151,6 +154,12 @@ export function validateInquiry(source: FieldSource, today: string): InquiryVali
 
   if (Object.keys(errors).length > 0) return { ok: false, errors, partial };
   return { ok: true, inquiry: partial as Inquiry };
+}
+
+/** The visitor's local date as YYYY-MM-DD (the earliest date the page offers). */
+export function localIsoDate(date: Date = new Date()): string {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }
 
 /** YYYY-MM-DD of a Date in UTC. */

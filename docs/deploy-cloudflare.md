@@ -103,7 +103,7 @@ Names only here; values never go in a file or a PR.
 
 | Name | Kind | Where | Value |
 |---|---|---|---|
-| `PUBLIC_TURNSTILE_SITE_KEY` | build variable (public) | Workers Builds › Settings › Build › Variables | the widget's site key; unset = Cloudflare's test key, which a real secret rejects (mailto fallback) |
+| `PUBLIC_TURNSTILE_SITE_KEY` | build variable (public) | Workers Builds › Settings › Build › Variables | the widget's site key. Unset = Cloudflare's test key, which a real secret rejects: harmless in mailto mode, but once `EMAIL` is bound every submission ends in the error state (with the prefilled mailto link). Set it first. |
 | `TURNSTILE_SECRET` | Worker secret | `wrangler secret put` | the widget's secret key |
 | `TURNSTILE_HOSTNAMES` | Worker var, optional | `.dev.vars` locally | unset in production: the Worker accepts the host the request came to |
 | `EMAIL` | `send_email` binding | `wrangler.jsonc` | added with the domain (below) |

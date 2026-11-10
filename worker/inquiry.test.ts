@@ -196,9 +196,9 @@ describe('POST /api/inquiry with Cloudflare Email Sending (after the domain)', (
     expect(sent.get('remoteip')).toBe('203.0.113.7');
 
     expect(email.sent).toHaveLength(1);
-    const msg = email.sent[0] as { to: string; from: { email: string }; replyTo: { email: string; name: string }; subject: string; text: string };
+    const msg = email.sent[0] as { to: string; from: { email: string; name: string }; replyTo: { email: string; name: string }; subject: string; text: string };
     expect(msg.to).toBe('voxford.official@gmail.com');
-    expect(msg.from.email).toBe('inquiry@voxford.example');
+    expect(msg.from).toEqual({ email: 'inquiry@voxford.example', name: 'Voxford website' });
     expect(msg.replyTo).toEqual({ email: 'ana@example.com', name: 'Ana Horvat' });
     expect(msg.subject).toContain('Zagreb, The Westin');
     expect(msg.text).toContain('Opening of our annual summit.');

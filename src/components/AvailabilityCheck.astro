@@ -4,9 +4,10 @@
 // Props are a seam: { lang, type?, class? }.
 //
 // A plain GET form to /{lang}/inquiry/ whose field names are the prefill
-// contract (src/lib/inquiry-url.ts), so it works without JavaScript: the
-// browser itself writes ?date=…&city=…. The script only drops empty fields
-// from the URL. Sits on a photo: its own scrim keeps the text readable.
+// contract (src/lib/inquiry-url.ts): without JavaScript the browser itself
+// writes ?date=…&city=… and the visitor lands on the form (the form applies
+// the prefill with JS). The script drops empty fields from the URL. Sits on a
+// photo: its own scrim keeps the text readable.
 import Pill from '@/components/Pill.astro';
 import type { EventType } from '@/data/site-facts';
 import { getStrings, type Locale } from '@/i18n';
@@ -53,15 +54,14 @@ const uid = `availability-${type ?? 'any'}-${lang}`;
 </form>
 
 <script>
-  import { inquiryUrl, parseInquiryPrefill } from '@/lib/inquiry-url';
   import { isLocale } from '@/i18n/locales';
+  import { localIsoDate } from '@/lib/inquiry';
+  import { inquiryUrl, parseInquiryPrefill } from '@/lib/inquiry-url';
 
   // Keep the URL to the contract: no empty `date=` or `city=`, values checked.
   document.querySelectorAll<HTMLFormElement>('[data-availability]').forEach((form) => {
-    const today = new Date();
-    const pad = (n: number) => String(n).padStart(2, '0');
     const date = form.querySelector<HTMLInputElement>('input[name="date"]');
-    if (date) date.min = `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}`;
+    if (date) date.min = localIsoDate();
 
     form.addEventListener('submit', (event) => {
       const lang = form.dataset.lang;

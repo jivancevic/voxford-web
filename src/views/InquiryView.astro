@@ -5,14 +5,15 @@
 // Works without JavaScript: a plain POST to the Worker's /api/inquiry, which
 // answers with the visitor's mail app (a prefilled mailto:) or the thank-you
 // state (#inquiry-sent, shown with :target). The script below enhances it:
-// prefill from the URL (src/lib/inquiry-url.ts), inline validation with an
-// error summary, Turnstile, and the sent / mailto / error states in place.
+// prefill from the URL (src/lib/inquiry-url.ts; without JS the fields stay
+// empty), inline validation with an error summary, Turnstile, and the
+// sent / mailto / error states in place (src/scripts/inquiry-form.ts).
 // Every word on the page is in this static HTML; the script only shows and hides.
 import Crest from '@/components/Crest.astro';
 import Photo from '@/components/Photo.astro';
 import Pill from '@/components/Pill.astro';
 import { EVENT_TYPES, GROUP, PACKAGES } from '@/data/site-facts';
-import { format, getStrings, type Locale } from '@/i18n';
+import { format, getStrings, LOCALE_META, type Locale } from '@/i18n';
 import type { PageKey } from '@/i18n/routes';
 import { pathFor } from '@/i18n/routes';
 import BaseLayout from '@/layouts/BaseLayout.astro';
@@ -33,8 +34,10 @@ const f = s.fields;
 /**
  * Public Turnstile site key, set at build time (Workers Builds variable
  * PUBLIC_TURNSTILE_SITE_KEY). The fallback is Cloudflare's published
- * "always passes, invisible" test key; with a real secret on the Worker it
- * never verifies, so a missing variable degrades to the mailto: fallback.
+ * "always passes, invisible" test key, for dev and tests. A real secret
+ * rejects its tokens: once the email binding exists, a missing variable makes
+ * every submission end in the error state (with the prefilled mailto link),
+ * so set it before the binding (docs/deploy-cloudflare.md › Inquiry).
  */
 const TURNSTILE_SITE_KEY: string = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '1x00000000000000000000BB';
 
@@ -234,7 +237,7 @@ const mailtoPlain = `mailto:${GROUP.email}`;
                 maxlength={LIMITS.message}
                 aria-describedby={id('message-hint')}
                 data-describedby={id('message-hint')}></textarea>
-              <p class="field__error" id={id('message-error')} hidden>{f.message.error}</p>
+              <p class="field__error" id={id('message-error')} hidden>{format(f.message.error, { max: LIMITS.message.toLocaleString(LOCALE_META[lang].htmlLang) })}</p>
             </div>
           </li>
         </ol>
@@ -286,7 +289,7 @@ const mailtoPlain = `mailto:${GROUP.email}`;
 </BaseLayout>
 
 <script>
-  import { enhanceInquiryForm } from './inquiry-form';
+  import { enhanceInquiryForm } from '@/scripts/inquiry-form';
 
   const root = document.querySelector<HTMLElement>('[data-inquiry]');
   if (root) enhanceInquiryForm(root);
@@ -553,7 +556,7 @@ const mailtoPlain = `mailto:${GROUP.email}`;
   .chip span {
     display: inline-flex;
     align-items: center;
-    min-block-size: 2.75rem;
+    min-block-size: var(--pill-height);
     padding: 0 var(--space-5);
     border: var(--line-thin) solid var(--color-border-strong);
     border-radius: var(--radius-pill);

@@ -50,7 +50,7 @@
     "message": {
       "label": "Još nešto?",
       "hint": "Program, trenutak za koji želite glazbu, satnica",
-      "error": "Poruka neka bude kraća od 2.000 znakova."
+      "error": "Poruka neka bude kraća od {max} znakova."
     }
   },
   "types": {
@@ -120,6 +120,7 @@
       "name": "Ime",
       "email": "E-pošta",
       "phone": "Telefon"
-    }
+    },
+    "senderName": "{name} web stranica"
   }
 }

@@ -1,8 +1,8 @@
-import { composeInquiryMail, inquiryMailto, INQUIRY_TO, type MailInquiry } from '../src/lib/inquiry-mail';
-import { FIELD, isoDayUtc, validateInquiry, type FieldErrors, type Inquiry } from '../src/lib/inquiry';
+import { composeInquiryMail, inquiryMailto, INQUIRY_TO, senderName, type DraftInquiry } from '../src/lib/inquiry-mail';
+import { FIELD, isoDayUtc, TURNSTILE_ACTION, validateInquiry, type FieldErrors, type Inquiry } from '../src/lib/inquiry';
 import { pathFor } from '../src/i18n/routes';
 import type { Env } from './env';
-import { expectedHostnames, INQUIRY_ACTION, verifyTurnstile } from './turnstile';
+import { expectedHostnames, verifyTurnstile } from './turnstile';
 
 // POST /api/inquiry (ticket D). Every inquiry goes to the group's address.
 //
@@ -23,7 +23,7 @@ const NO_STORE = { 'Cache-Control': 'no-store' };
 
 /** How an inquiry leaves the Worker. Cloudflare Email Sending in production, a fake in tests. */
 export interface InquiryTransport {
-  send(mail: { to: string; replyTo: { name: string; email: string }; subject: string; text: string }): Promise<void>;
+  send(mail: { to: string; fromName: string; replyTo: { name: string; email: string }; subject: string; text: string }): Promise<void>;
 }
 
 /** Email Sending once the binding and sender exist (docs/deploy-cloudflare.md › Inquiry); otherwise null = mailto. */
@@ -34,7 +34,7 @@ export function emailTransport(env: Env): InquiryTransport | null {
   return {
     async send(mail) {
       await binding.send({
-        from: { email: from, name: 'Voxford website' },
+        from: { email: from, name: mail.fromName },
         to: mail.to,
         replyTo: mail.replyTo,
         subject: mail.subject,
@@ -80,11 +80,11 @@ export async function handleInquiry(request: Request, env: Env, _ctx: ExecutionC
   // Bots fill every field they find. Tell them it worked.
   if (fieldText(form, FIELD.honeypot)) return reply(request, lang, { kind: 'sent' });
 
-  const outcome = await decide(request, env, form, url, validation);
+  const outcome = await deliver(request, env, form, url, validation);
   return reply(request, lang, outcome);
 }
 
-async function decide(
+async function deliver(
   request: Request,
   env: Env,
   form: FormData,
@@ -92,7 +92,7 @@ async function decide(
   validation: ReturnType<typeof validateInquiry>,
 ): Promise<Outcome> {
   if (!validation.ok) {
-    return { kind: 'invalid', fields: validation.errors, mailto: inquiryMailto(validation.partial as MailInquiry) };
+    return { kind: 'invalid', fields: validation.errors, mailto: inquiryMailto(validation.partial as DraftInquiry) };
   }
   const inquiry: Inquiry = validation.inquiry;
   const mailto = inquiryMailto(inquiry);
@@ -106,7 +106,7 @@ async function decide(
     token,
     remoteIp: request.headers.get('CF-Connecting-IP'),
     hostnames: expectedHostnames(env.TURNSTILE_HOSTNAMES, url),
-    action: INQUIRY_ACTION,
+    action: TURNSTILE_ACTION,
   });
   if (!verdict.ok) {
     console.warn(JSON.stringify({ event: 'inquiry_verification_failed', reason: verdict.reason }));
@@ -115,7 +115,7 @@ async function decide(
 
   const mail = composeInquiryMail(inquiry, { site: url.host });
   try {
-    await transport.send({ to: INQUIRY_TO, replyTo: { name: inquiry.name, email: inquiry.email }, ...mail });
+    await transport.send({ to: INQUIRY_TO, fromName: senderName(inquiry.lang), replyTo: { name: inquiry.name, email: inquiry.email }, ...mail });
   } catch (error) {
     console.error(JSON.stringify({ event: 'inquiry_send_failed', error: error instanceof Error ? error.message : String(error) }));
     return { kind: 'send_failed', mailto };

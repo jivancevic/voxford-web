@@ -50,7 +50,7 @@
     "message": {
       "label": "Anything else?",
       "hint": "The programme, the moment you want music for, timings",
-      "error": "Keep the message under 2,000 characters."
+      "error": "Keep the message under {max} characters."
     }
   },
   "types": {
@@ -120,6 +120,7 @@
       "name": "Name",
       "email": "Email",
       "phone": "Phone"
-    }
+    },
+    "senderName": "{name} website"
   }
 }

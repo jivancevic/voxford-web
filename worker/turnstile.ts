@@ -4,9 +4,6 @@
 
 export const SITEVERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
 
-/** The `action` the inquiry widget renders with (src/views/InquiryView.astro). */
-export const INQUIRY_ACTION = 'inquiry';
-
 /**
  * Cloudflare's published test secrets (always pass / always fail / already
  * spent). They answer with hostname `example.com` and no `action`, so the
