@@ -37,6 +37,7 @@ function photoOf(key: string | undefined) {
     alt: p.alt[lang],
     label: 'label' in p ? p.label[lang] : undefined,
     credit: 'credit' in p ? p.credit : undefined,
+    focus: 'focus' in p ? p.focus : undefined,
   };
 }
 
@@ -107,14 +108,14 @@ const title = heading === false ? undefined : (heading ?? t.videos.references.he
           {group.photos.length > 0 && (
             <ul class="references__photos" role="list" aria-labelledby={`references-${group.id}`}>
               {group.photos.map((tile) => (
-                <li class="tile tile--photo">
+                <li class="tile tile--photo" style={tile.photo.focus ? `--focus: ${tile.photo.focus}` : undefined}>
                   <figure class="tile__figure">
                     <Picture
                       src={tile.photo.src}
                       alt={tile.photo.alt}
                       formats={['avif', 'webp']}
                       widths={widthsFor(tile.photo.src.width)}
-                      sizes="(width < 48rem) calc(100vw - 2rem), 38rem"
+                      sizes="(width < 48rem) calc(100vw - 2rem), min(38rem, 48vw)"
                       loading="lazy"
                       decoding="async"
                     />
@@ -213,33 +214,42 @@ const title = heading === false ? undefined : (heading ?? t.videos.references.he
 
   /* ---------- Stages and artists: tiles ---------- */
 
+  /* Two columns of photos; the names follow in a row of their own, or, when
+     the photos leave the last column free (an odd count), in that free cell. */
   .references__group {
     display: grid;
-    gap: var(--space-4);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
   }
 
   .references__group-label {
+    grid-column: 1 / -1;
+    margin-block-end: var(--space-1);
     color: var(--color-text-secondary);
   }
 
-  /* Photos: two or three wide frames per row. */
   .references__photos {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
-    gap: var(--space-3);
-    margin: 0;
-    padding: 0;
-    list-style: none;
+    display: contents;
   }
 
   /* Names: flex, not grid, so the tiles grow to close each row without holes. */
   .references__names {
+    grid-column: 1 / -1;
     display: flex;
     flex-wrap: wrap;
+    align-content: stretch;
     gap: var(--space-3);
     margin: 0;
     padding: 0;
     list-style: none;
+  }
+
+  .references__group:has(.references__photos > :last-child:nth-child(odd)) .references__names {
+    grid-column: auto;
+  }
+
+  .references__group:has(.references__photos > :last-child:nth-child(odd)) .tile--type {
+    flex-basis: 11rem;
   }
 
   .tile {
@@ -253,6 +263,12 @@ const title = heading === false ? undefined : (heading ?? t.videos.references.he
   .tile--photo {
     aspect-ratio: 2 / 1;
     background: var(--color-bg-raised);
+  }
+
+  /* Beside a column of names the photo may grow taller than 2:1; it crops. */
+  .tile--photo .tile__figure {
+    position: absolute;
+    inset: 0;
   }
 
   .tile--type {
@@ -290,6 +306,7 @@ const title = heading === false ? undefined : (heading ?? t.videos.references.he
     inline-size: 100%;
     block-size: 100%;
     object-fit: cover;
+    object-position: var(--focus, 50% 50%);
   }
 
   .tile__figure::after {
@@ -339,6 +356,18 @@ const title = heading === false ? undefined : (heading ?? t.videos.references.he
   }
 
   @media (width < 48rem) {
+    .references__group {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .references__group:has(.references__photos > :last-child:nth-child(odd)) .references__names {
+      grid-column: 1 / -1;
+    }
+
+    .references__group:has(.references__photos > :last-child:nth-child(odd)) .tile--type {
+      flex-basis: 9rem;
+    }
+
     .tile--photo {
       aspect-ratio: 3 / 2;
     }

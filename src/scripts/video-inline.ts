@@ -51,11 +51,13 @@ function playInline(frame: HTMLElement, button: HTMLButtonElement) {
     video.append(last);
   }
   // The last source failing (none could load) or the video itself failing
-  // (loaded, then could not decode): back to the poster.
-  let failed = false;
+  // (could not decode) before it ever played: back to the poster. Once it has
+  // played, an error (a dropped connection) leaves the player and its controls.
+  let settled = false;
+  video.addEventListener('playing', () => (settled = true), { once: true });
   const fail = () => {
-    if (failed) return;
-    failed = true;
+    if (settled) return;
+    settled = true;
     restorePoster(frame, video);
   };
   last?.addEventListener('error', fail, { once: true });
@@ -75,6 +77,9 @@ function playInline(frame: HTMLElement, button: HTMLButtonElement) {
 }
 
 function restorePoster(frame: HTMLElement, video: HTMLVideoElement) {
+  // Only take focus back when it was on the failed player (or nowhere); read it before the player goes.
+  const active = document.activeElement;
+  const takeFocus = !active || active === video || active === document.body;
   video.remove();
   frame.classList.remove('is-full');
   frame.dataset.loopFailed = 'true'; // the media did not play: no loop over the link either
@@ -84,7 +89,7 @@ function restorePoster(frame: HTMLElement, video: HTMLVideoElement) {
   poster.removeAttribute('tabindex');
   poster.removeAttribute('aria-hidden');
   poster.setAttribute('aria-label', frame.dataset.label ?? '');
-  poster.focus();
+  if (takeFocus) poster.focus();
 }
 
 function enhanceInline(frame: HTMLElement) {

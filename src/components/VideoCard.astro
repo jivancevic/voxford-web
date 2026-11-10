@@ -220,17 +220,18 @@ const Heading = `h${headingLevel}` as const;
     display: none;
   }
 
-  /* The frame clips its children, so the focus ring goes on the frame itself:
-     for the button, and for the poster link once a failed video falls back to it. */
+  /* The frame clips its children, so the focus ring goes on the frame itself: for
+     the button, the player, and the poster link once a failed video falls back to it. */
   .video-card__button:focus-visible,
   .video-card__poster:focus-visible,
   .video-card__frame :global(video:focus-visible) {
     outline: none;
   }
 
+  /* Inset: a rail that scrolls sideways clips anything outside the frame. */
   .video-card__frame:has(:is(.video-card__button, .video-card__poster, video):focus-visible) {
     outline: 2px solid var(--color-focus);
-    outline-offset: 3px;
+    outline-offset: -2px;
   }
 
   /* Playing: native controls take the frame; the mark and the shade step aside. */
