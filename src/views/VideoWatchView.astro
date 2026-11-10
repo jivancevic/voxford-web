@@ -1,14 +1,20 @@
 ---
-// View for one video's watch page (owner: ticket E): the player, the story,
-// VideoObject JSON-LD. Rendered by src/pages/{en/videos,hr/videi}/[slug].astro
-// for every entry in the `videos` collection.
+// View for one video's watch page (owner: ticket E): the player (full video
+// with sound, loads nothing until play is pressed), the title and story as
+// static text, VideoObject JSON-LD, then the other top videos and the inquiry.
+// Rendered by src/pages/{en/videos,hr/videi}/[slug].astro for every entry in
+// the `videos` collection.
 import type { CollectionEntry } from 'astro:content';
+import { getCollection } from 'astro:content';
 import { getImage } from 'astro:assets';
-import PagePlaceholder from '@/components/PagePlaceholder.astro';
-import { LOCALES, type Locale } from '@/i18n';
-import { videoPathFor } from '@/i18n/routes';
+import InquiryCTA from '@/components/InquiryCTA.astro';
+import VideoCard from '@/components/VideoCard.astro';
+import { NUMBERS } from '@/data/site-facts';
+import { format, getStrings, LOCALE_META, LOCALES, type Locale } from '@/i18n';
+import { pathFor, videoPathFor } from '@/i18n/routes';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { videoObjectJsonLd } from '@/lib/jsonld';
+import { formatDuration, mediaUrl, videoSources } from '@/lib/media';
 import { breadcrumbsFor } from '@/lib/page';
 
 interface Props {
@@ -18,29 +24,237 @@ interface Props {
 
 const { lang, video } = Astro.props;
 const site = Astro.site!;
+const t = getStrings(lang);
 const path = videoPathFor(video.id, lang);
 const alternates = Object.fromEntries(LOCALES.map((l) => [l, videoPathFor(video.id, l)])) as Record<Locale, string>;
-const poster = await getImage({ src: video.data.poster, width: 1280, format: 'jpg' });
+const poster = await getImage({ src: video.data.poster, width: 720, format: 'webp' });
+const thumbnail = await getImage({ src: video.data.poster, width: 1080, format: 'jpg' });
 const title = video.data.title[lang];
+const description = video.data.description[lang];
+const sources = videoSources(video.data.media, 'full');
+const h264 = sources.find((s) => s.src.endsWith('.h264.mp4'))!;
+const uploaded = new Intl.DateTimeFormat(LOCALE_META[lang].htmlLang, { month: 'long', year: 'numeric' }).format(
+  new Date(video.data.uploadDate),
+);
+const views = video.id === 'carol-of-the-bells' ? NUMBERS.carolViews : undefined;
+const others = (await getCollection('videos')).filter((v) => v.id !== video.id).sort((a, b) => a.data.order - b.data.order);
 ---
 
 <BaseLayout
   lang={lang}
   alternates={alternates}
   title={title}
-  description={video.data.description[lang]}
+  description={description}
   jsonLd={[
     breadcrumbsFor(site, 'videos', lang, [{ name: title, path }]),
     videoObjectJsonLd(site, {
       name: title,
-      description: video.data.description[lang],
-      thumbnailUrl: new URL(poster.src, site).href,
+      description,
+      thumbnailUrl: new URL(thumbnail.src, site).href,
       uploadDate: video.data.uploadDate,
       duration: video.data.duration,
-      contentUrl: video.data.sources[0]?.src,
+      contentUrl: new URL(mediaUrl(`${video.data.media}/full.h264.mp4`), site).href,
       path,
     }),
   ]}
 >
-  <PagePlaceholder lang={lang} heading={title} lead={video.data.description[lang]} />
+  <article class="watch container">
+    <div class="watch__stage">
+      <video
+        class="watch__player"
+        controls
+        playsinline
+        preload="none"
+        poster={poster.src}
+        width="1080"
+        height="1920"
+        aria-label={format(t.videos.watch.playerLabel, { title })}
+      >
+        {sources.map((s) => <source src={s.src} type={s.type} />)}
+        <p>
+          {t.videos.watch.noVideo} <a href={h264.src}>{title}</a>
+        </p>
+      </video>
+    </div>
+
+    <div class="watch__text">
+      <p class="label"><a href={pathFor('videos', lang)}>{t.videos.watch.back}</a></p>
+      <h1 class="watch__title">{title}</h1>
+      <span class="light-line watch__line" aria-hidden="true"></span>
+      <p class="lead">{description}</p>
+      {
+        views && (
+          <p class="watch__number">
+            <span class="numeral">{views.display}</span>
+            <span class="label">{views.label[lang]}</span>
+          </p>
+        )
+      }
+      <dl class="watch__facts">
+        <div>
+          <dt class="label">{t.videos.watch.length}</dt>
+          <dd>{formatDuration(video.data.duration)}</dd>
+        </div>
+        <div>
+          <dt class="label">{t.videos.watch.uploaded}</dt>
+          <dd><time datetime={video.data.uploadDate}>{uploaded}</time></dd>
+        </div>
+      </dl>
+      <p class="watch__note">{t.videos.watch.soundNote}</p>
+      {
+        video.data.permalink && (
+          <p>
+            <a href={video.data.permalink} rel="noopener">
+              {t.videos.watch.onInstagram}
+            </a>
+          </p>
+        )
+      }
+      <div class="watch__cta">
+        <p class="watch__closing">{t.videos.watch.closing}</p>
+        <InquiryCTA lang={lang} />
+      </div>
+    </div>
+  </article>
+
+  {
+    others.length > 0 && (
+      <section class="watch-more container" aria-labelledby="watch-more-heading">
+        <h2 class="watch-more__heading" id="watch-more-heading">
+          {t.videos.watch.more}
+        </h2>
+        <ul class="watch-more__list" role="list">
+          {others.map((v) => (
+            <li>
+              <VideoCard lang={lang} video={v} sizes="(min-width: 64rem) 15rem, 45vw" />
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
 </BaseLayout>
+
+<style>
+  .watch {
+    display: grid;
+    gap: var(--space-7);
+    padding-block: var(--space-7) var(--space-8);
+  }
+
+  @media (min-width: 56rem) {
+    .watch {
+      grid-template-columns: minmax(0, 26rem) minmax(0, 1fr);
+      align-items: start;
+      gap: var(--space-8);
+      padding-block-start: var(--space-8);
+    }
+  }
+
+  .watch__stage {
+    position: relative;
+  }
+
+  /* Light from the stage edge behind the player. */
+  .watch__stage::before {
+    content: '';
+    position: absolute;
+    inset: 10% -6% -4%;
+    z-index: -1;
+    border-radius: var(--radius-card);
+    background: var(--gradient-light-vertical);
+    filter: blur(3rem);
+    opacity: 0.35;
+  }
+
+  .watch__player {
+    display: block;
+    inline-size: 100%;
+    max-block-size: 85dvh;
+    aspect-ratio: 9 / 16;
+    margin-inline: auto;
+    border-radius: var(--radius-card);
+    background: var(--color-bg-raised);
+    object-fit: contain;
+  }
+
+  .watch__text {
+    display: grid;
+    gap: var(--space-5);
+    justify-items: start;
+  }
+
+  .watch__title {
+    font-size: var(--text-display);
+  }
+
+  .watch__line {
+    inline-size: min(12rem, 50%);
+  }
+
+  .watch__number {
+    display: grid;
+    gap: var(--space-1);
+  }
+
+  .watch__facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-5) var(--space-7);
+    margin: 0;
+  }
+
+  .watch__facts dd {
+    margin: var(--space-1) 0 0;
+    font-size: var(--text-lead);
+  }
+
+  .watch__note {
+    color: var(--color-text-muted);
+    font-size: var(--text-small);
+  }
+
+  .watch__cta {
+    display: grid;
+    gap: var(--space-4);
+    justify-items: start;
+    margin-block-start: var(--space-5);
+  }
+
+  .watch__closing {
+    font-family: var(--font-headline);
+    font-weight: 800;
+    font-size: var(--text-heading);
+    line-height: var(--leading-heading);
+    text-transform: uppercase;
+  }
+
+  .watch-more {
+    display: grid;
+    gap: var(--space-5);
+    padding-block-end: var(--section-gap);
+  }
+
+  .watch-more__heading {
+    font-size: var(--text-title);
+  }
+
+  .watch-more__list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-6) var(--space-5);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .watch-more__list > li {
+    max-inline-size: none;
+  }
+
+  @media (min-width: 48rem) {
+    .watch-more__list {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+</style>

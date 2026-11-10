@@ -1,0 +1,7 @@
+{
+  "name": "Turistička zajednica Grada Paga",
+  "kind": "tourist-board",
+  "logo": "../../assets/references/tz-pag.png",
+  "mono": "grayscale",
+  "order": 220
+}

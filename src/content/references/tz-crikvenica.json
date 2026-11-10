@@ -1,0 +1,7 @@
+{
+  "name": "Turistička zajednica Grada Crikvenice",
+  "kind": "tourist-board",
+  "logo": "../../assets/references/tz-crikvenica.png",
+  "mono": "silhouette",
+  "order": 210
+}

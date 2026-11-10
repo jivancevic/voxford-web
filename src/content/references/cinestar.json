@@ -1,0 +1,7 @@
+{
+  "name": "CineStar",
+  "kind": "company",
+  "logo": "../../assets/references/cinestar.svg",
+  "mono": "silhouette",
+  "order": 100
+}

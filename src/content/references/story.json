@@ -1,0 +1,7 @@
+{
+  "name": "Story",
+  "kind": "media",
+  "logo": "../../assets/references/story.svg",
+  "mono": "silhouette",
+  "order": 140
+}
