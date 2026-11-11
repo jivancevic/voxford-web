@@ -18,7 +18,9 @@
     "binding": "ASSETS",
     "html_handling": "auto-trailing-slash",
     "not_found_handling": "404-page",
-    "run_worker_first": ["/", "/healthz", "/api/*", "/media/*"]
+    // The chord audio goes through the Worker for byte ranges, which static
+    // assets do not answer (worker/asset-ranges.ts).
+    "run_worker_first": ["/", "/healthz", "/api/*", "/media/*", "/_astro/*.webm", "/_astro/*.m4a"]
   },
   // Daily reels sync (ticket E fills worker/reels.ts).
   "triggers": { "crons": ["17 4 * * *"] },

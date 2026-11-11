@@ -155,6 +155,8 @@ After that deploy, send one inquiry from the live page and check that it arrives
 
 Videos never go in git. The encoded top videos and the synced reels live in the R2 bucket `voxford-media` (binding `MEDIA`), and the Worker serves them from the site's own origin at `/media/top/…` and `/media/reels/…` (`worker/media.ts`, byte ranges included). `wrangler dev` uses a local bucket under `.wrangler/state`, so the same URLs work locally.
 
+Audio that ships in the static build (the home chord, `/_astro/*.webm` and `*.m4a`) also needs byte ranges, and static assets do not answer them (a `Range` request gets 200 and the whole file, so Chrome cannot seek it). `run_worker_first` in `wrangler.jsonc` routes those two patterns to the Worker, which slices the asset (`worker/asset-ranges.ts`). A new audio or video format in the build needs its pattern there too; `tests/dist/media-ranges.test.ts` fails until it has one.
+
 **Once, before the first deploy that carries the binding** (a deploy fails while the bucket is missing):
 
     npx wrangler r2 bucket create voxford-media
