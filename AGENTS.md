@@ -4,7 +4,7 @@ Voxford's public website: Astro (static) on Cloudflare Workers. Read `CONTEXT.md
 
 ## Framework notes
 
-- **Astro 7, static output.** Every page is prerendered HTML in `dist/`; there is no Astro adapter and no SSR. Dynamic paths (`/`, `/healthz`, `/api/*`, the reels cron) are the Worker in `worker/` (ADR 0001). Astro's docs: https://docs.astro.build. Astro 7 is newer than most training data: check `node_modules/astro/dist/types/public/config.d.ts` before using a config option from memory.
+- **Astro 7, static output.** Every page is prerendered HTML in `dist/`; there is no Astro adapter and no SSR. Dynamic paths (`/`, `/healthz`, `/api/*`, `/media/*`, the reels cron) are the Worker in `worker/` (ADR 0001), and so is the build's audio (`/_astro/*.webm`, `*.m4a`), because static assets do not answer byte ranges (`worker/asset-ranges.ts`). Astro's docs: https://docs.astro.build. Astro 7 is newer than most training data: check `node_modules/astro/dist/types/public/config.d.ts` before using a config option from memory.
 - **TypeScript 6, not 7.** `typescript-eslint` and `@astrojs/check` do not support TS 7 yet. Bump when they do.
 - **Content collections** are declared in `src/content.config.ts` (Astro 5+ location) with the `glob()` loader; Zod comes from `astro/zod` (Zod 4: `z.url()`, not `z.string().url()`).
 - **Fonts** use Astro's Fonts API (`fonts` in `astro.config.mjs`, `<Font>` in the layout) with local woff2 files in `src/assets/fonts/`.
