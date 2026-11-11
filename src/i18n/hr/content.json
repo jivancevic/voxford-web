@@ -278,47 +278,6 @@
     ],
     "serviceType": "Adventski i ljetni koncerti za gradove i turističke zajednice"
   },
-  "private": {
-    "lead": "{disambiguation}. Na privatnoj proslavi uđemo kao iznenađenje do {popUpMax} minuta ili gostima održimo cijeli koncert.",
-    "facts": [
-      {
-        "term": "Iznenađenje",
-        "detail": "POP-UP, do {popUpMax} minuta"
-      },
-      {
-        "term": "Koncert",
-        "detail": "CLASSIC, od {classicMin} do {classicMax} minuta, ili GOLD uz klavir i cajon"
-      },
-      {
-        "term": "Gdje",
-        "detail": "Zagreb, ostatak Hrvatske i regija"
-      },
-      {
-        "term": "Privatnost",
-        "detail": "Imena privatnih naručitelja nikad ne objavljujemo"
-      }
-    ],
-    "programmeHeading": "Kako to može izgledati",
-    "programmeIntro": "Tri načina da nas imate na privatnom slavlju.",
-    "moments": [
-      {
-        "title": "Iznenađenje",
-        "package": "pop-up",
-        "body": "Uđemo nenajavljeno, otpjevamo slavljeniku i pustimo da se slavlje nastavi. Do {popUpMax} minuta."
-      },
-      {
-        "title": "Koncert za goste",
-        "package": "classic",
-        "body": "Od {classicMin} do {classicMax} minuta a cappelle, sa setlistom složenom za ljude u prostoriji."
-      },
-      {
-        "title": "Cjeloviti koncert",
-        "package": "gold",
-        "body": "Od {goldMin} do {goldMax} minuta uz klavir i cajon: cjeloviti koncert za Vaše goste."
-      }
-    ],
-    "serviceType": "Glazba uživo za privatne proslave"
-  },
   "about": {
     "lead": "{disambiguation}. Petero nas dolazi iz raznih dijelova Hrvatske, a u Zagrebu spajamo moderni a cappella sa zvukom dalmatinske klape.",
     "membersHeading": "Petorka",

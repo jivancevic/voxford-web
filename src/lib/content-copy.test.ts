@@ -16,7 +16,7 @@ const list = (rel: string, ext: string) =>
     .filter((f) => f.endsWith(ext))
     .map((f) => `${rel}${f}`);
 
-const CONTENT_PAGES = ['conferences', 'weddings', 'advent', 'private', 'about', 'packages', 'faq', 'concerts'];
+const CONTENT_PAGES = ['conferences', 'weddings', 'advent', 'about', 'packages', 'faq', 'concerts'];
 
 const files = [
   ...LOCALES.map((l) => `../i18n/${l}/content.json`),

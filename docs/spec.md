@@ -34,7 +34,7 @@ Canonical numbers (Josip, 2026-11-10): **800K+ followers** across networks, **30
 
 ### Audience, action, language
 - **One action everywhere:** send an inquiry. Label EN "Send an inquiry", HR "Pošalji upit". Form fields: event type (chips), date (or "flexible"), city/venue, guest count (chips), name, email, phone (optional), message (optional). Date-first entry: a small "date + city → check availability" widget in the hero/nav opens the form prefilled.
-- **Prefill contract** (lets pages and the form be built in parallel): `/{lang}/inquiry?type=conference|wedding|advent|concert|private|other&date=YYYY-MM-DD&city=<text>&package=pop-up|classic|gold`.
+- **Prefill contract** (lets pages and the form be built in parallel): `/{lang}/inquiry?type=conference|wedding|advent|concert|other&date=YYYY-MM-DD&city=<text>&package=pop-up|classic|gold`.
 - **Every submission goes to `voxford.official@gmail.com`.** The site shows Jelena Đukanović (WAM Management) as the group's manager; the contact email shown is `voxford.official@gmail.com`. Jelena's phone on the site is an open question (needs her consent) — default: no phone.
 - No automatic hand-off to Sufler (a future generic issue in `jivancevic/sufler`).
 - **Languages:** EN canonical, HR full parallel. Routes `/en/…` and `/hr/…`; `/` redirects by `Accept-Language` (HR → `/hr/`, else `/en/`); `x-default` = EN; reciprocal self-referencing hreflang; no redirects on language pages themselves. Both languages are written natively, HR addresses the reader with capitalised "Vi". Localised slugs allowed (e.g. `/hr/konferencije/`).
@@ -43,7 +43,8 @@ Canonical numbers (Josip, 2026-11-10): **800K+ followers** across networks, **30
 ### Information architecture
 - **Home**: the scroll experience (scroll-craft), the essence of Voxford.
 - **Conferences & corporate events** — the primary SEO/GEO page, deepest content (why a cappella works at conferences: no stage build, fits openings/gala/awards/breaks, needs, timings, references, FAQ).
-- **Weddings** · **Advent & concerts** (for cities and tourist boards) · **Private celebrations**.
+- **Weddings** · **Advent & concerts** (for cities and tourist boards).
+- **Private celebrations**: retired on 2026-11-11, not generally offered; old URLs 301 to Home (`public/_redirects`, #52). A private request uses the inquiry's "other" type.
 - **About** (the five with their portraits and voice parts, story, press as a rail of article cards, stages: Kursalon Hübner Vienna, Križanke Ljubljana, Arena Zagreb, Tvornica kulture; not Lisinski, where Voxford never sang: Josip, 2026-11-10, #33) · **Packages** · **FAQ** · **Videos** (top videos, each with its own watch page + `VideoObject`; latest reels feed and newest YouTube uploads from the channel RSS feed; links to every network) · **Inquiry**.
 - **Upcoming concerts** section/page: public concerts only (Advent, summer concerts, festivals; never corporate or private), `Event` schema, a content collection updated by hand from Sufler in KB sessions; hidden when empty. Known entry: Musiksommer Bad Schallerbach, 2027-09-11 (see `brand/u-medijima.md`).
 - **No doorway pages** (no "music in Split/Rijeka/…" clones). Region is covered by copy ("we perform across Croatia and the region; travel costs separate") and `areaServed`.

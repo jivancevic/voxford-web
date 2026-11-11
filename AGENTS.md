@@ -20,10 +20,10 @@ Tickets B–E run in parallel worktrees on top of ticket A. Each owns its files 
 |---|---|---|---|
 | Design tokens | `src/styles/tokens.css` (the only place colours, type, spacing live), `src/styles/global.css` (pill, label, light line, base) | A | read only; a missing token is a PR note, not a local hex |
 | Layout shell | `src/layouts/BaseLayout.astro`, `src/components/{SiteHeader,SiteFooter,LanguageSwitch,Crest,Pill,Photo,JsonLd,PagePlaceholder}.astro` | A | use; pass `jsonLd`, `noindex`, `ogPhoto` through props |
-| Route table | `src/i18n/routes.ts` (paths per language, nav order), `src/pages/**` wrappers | A | read only; wrappers stay one line |
+| Route table | `src/i18n/routes.ts` (paths per language, nav order), `src/pages/**` wrappers, `public/_redirects` (retired pages → 301) | A | read only; wrappers stay one line |
 | 404 | `src/views/NotFoundView.astro`, wrappers `src/pages/404.astro` (EN) and `src/pages/hr/404.astro`; `astro.config.mjs` moves the HR one to `dist/hr/404.html`, the file Workers assets serve for a missing `/hr/…` path | A | — |
 | Page views | `src/views/HomeView.astro` | B | — |
-| | `src/views/{Conferences,Weddings,Advent,Private,About,Packages,Faq,Concerts}View.astro` | C | — |
+| | `src/views/{Conferences,Weddings,Advent,About,Packages,Faq,Concerts}View.astro` | C | — |
 | | `src/views/InquiryView.astro` | D | — |
 | | `src/views/{Videos,VideoWatch}View.astro` | E | — |
 | UI strings | `src/i18n/{en,hr}/<ns>.json`: `common` A, `home` B, `content` C, `inquiry` D, `videos` E (also the references wall) | per namespace | add keys only in your own namespace, in both languages |

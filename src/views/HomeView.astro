@@ -33,7 +33,7 @@ const t = getStrings(lang);
 const h = t.home;
 
 const shortest = Math.min(...PACKAGES.map((p) => p.minutes.min ?? p.minutes.max));
-const otherRooms = (['weddings', 'advent', 'private'] as const).map((key) => ({
+const otherRooms = (['weddings', 'advent'] as const).map((key) => ({
   key,
   href: pathFor(key, lang),
   name: t.common.nav[key],
