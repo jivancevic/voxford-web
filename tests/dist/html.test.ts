@@ -130,11 +130,17 @@ describe('JSON-LD shapes', () => {
 });
 
 describe('header (#48)', () => {
-  /** Events group, then the divider's packages, then the flat links; concerts only while its page is built. */
+  /**
+   * Written out, not read from NAV_*: an independent oracle for #48's order. Events group,
+   * then the divider's packages, then the flat links; concerts only while its page is built.
+   */
+  // The concerts page is built even when nothing is upcoming (noindex then); the
+  // sitemap lists it only while a concert is upcoming, the header's own rule.
+  const sitemap = readFileSync(`${dist}sitemap.xml`, 'utf8');
   const order = (lang: 'en' | 'hr') =>
     (['conferences', 'advent', 'weddings', 'packages', 'videos', 'concerts', 'about', 'faq'] as PageKey[])
-      .map((p) => pathFor(p, lang))
-      .filter((path) => byPath.has(path));
+      .filter((p) => p !== 'concerts' || sitemap.includes(`${pathFor(p, lang)}</loc>`))
+      .map((p) => pathFor(p, lang));
   const hrefs = (html: string) => [...html.matchAll(/<a\b[^>]*\bhref="([^"]+)"/g)].map((m) => m[1]!);
 
   it.each(pages.map((p) => [p.path, p] as const))('%s carries every header link in the static HTML, in order', (path, page) => {

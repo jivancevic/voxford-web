@@ -31,10 +31,11 @@ const item = (p: PageKey) => ({
   description: descriptions[p],
   current: p === page ? ('page' as const) : undefined,
 });
-const events = NAV_EVENTS.map(item);
-const eventsAfter = NAV_EVENTS_AFTER_DIVIDER.map(item);
+/** The Events panel: the booking pages, then (after a divider) packages. */
+const panelSections = [NAV_EVENTS.map(item), NAV_EVENTS_AFTER_DIVIDER.map(item)];
+const eventItems = panelSections.flat();
 const flat = (await withoutEmptyConcerts(NAV_FLAT)).map(item);
-const inEvents = [...events, ...eventsAfter].some((i) => i.current);
+const inEvents = eventItems.some((i) => i.current);
 /** The fan-facing profiles at the foot of the mobile menu; the footer lists them all. */
 const MENU_PROFILES: readonly ProfileKey[] = ['instagram', 'tiktok', 'youtube'];
 ---
@@ -55,31 +56,23 @@ const MENU_PROFILES: readonly ProfileKey[] = ['instagram', 'tiktok', 'youtube'];
               <span class="header__chevron" aria-hidden="true">▾</span>
             </summary>
             <div class="header__panel">
-              <ul class="header__panel-list">
-                {
-                  events.map((i) => (
-                    <li>
-                      <a class="header__panel-link" href={i.href} aria-current={i.current}>
-                        <span class="header__panel-title">{i.label}</span>
-                        <span class="header__panel-desc">{i.description}</span>
-                      </a>
-                    </li>
-                  ))
-                }
-              </ul>
-              <hr class="header__divider" />
-              <ul class="header__panel-list">
-                {
-                  eventsAfter.map((i) => (
-                    <li>
-                      <a class="header__panel-link" href={i.href} aria-current={i.current}>
-                        <span class="header__panel-title">{i.label}</span>
-                        <span class="header__panel-desc">{i.description}</span>
-                      </a>
-                    </li>
-                  ))
-                }
-              </ul>
+              {
+                panelSections.map((section, n) => (
+                  <>
+                    {n > 0 && <hr class="header__divider" />}
+                    <ul class="header__panel-list">
+                      {section.map((i) => (
+                        <li>
+                          <a class="header__panel-link" href={i.href} aria-current={i.current}>
+                            <span class="header__panel-title">{i.label}</span>
+                            <span class="header__panel-desc">{i.description}</span>
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                ))
+              }
             </div>
           </details>
         </li>
@@ -99,7 +92,7 @@ const MENU_PROFILES: readonly ProfileKey[] = ['instagram', 'tiktok', 'youtube'];
       <div class="header__lang">
         <LanguageSwitch lang={lang} alternates={alternates} />
       </div>
-      <InquiryCTA lang={lang} label={t.common.cta.header} class="header__cta" />
+      <InquiryCTA lang={lang} label={t.common.cta.header} />
 
       <details class="header__menu" data-header-disclosure data-header-menu>
         <summary class="label header__toggle">
@@ -111,7 +104,7 @@ const MENU_PROFILES: readonly ProfileKey[] = ['instagram', 'tiktok', 'youtube'];
             <p class="label header__overlay-label">{t.common.navGroup.events}</p>
             <ul class="header__overlay-list">
               {
-                [...events, ...eventsAfter].map((i) => (
+                eventItems.map((i) => (
                   <li>
                     <a href={i.href} aria-current={i.current}>
                       {i.label}
@@ -172,7 +165,7 @@ const MENU_PROFILES: readonly ProfileKey[] = ['instagram', 'tiktok', 'youtube'];
       if (isMenu(d)) document.documentElement.classList.toggle('header-menu-open', d.open);
     });
     d.addEventListener('click', (e) => {
-      if (e.target instanceof Element && e.target.closest('a')) close(d, false);
+      if (e.target instanceof Element && e.target.closest('a')) close(d, true);
     });
   }
 
@@ -200,6 +193,7 @@ const MENU_PROFILES: readonly ProfileKey[] = ['instagram', 'tiktok', 'youtube'];
     backdrop-filter: blur(14px);
   }
 
+  /* Global on purpose: the open mobile menu puts this state class on <html> (script below). */
   :global(.header-menu-open) {
     overflow: hidden;
   }
@@ -283,8 +277,7 @@ const MENU_PROFILES: readonly ProfileKey[] = ['instagram', 'tiktok', 'youtube'];
     color: var(--color-text);
   }
 
-  /* The current page (or, for the group, one of its pages): a thin pink line under the label. */
-  .header__link[aria-current='page']::after,
+  /* On one of its pages the group gets a thin pink line under its label; flat links only turn white. */
   .header__summary.is-current::after {
     content: '';
     position: absolute;
@@ -344,8 +337,7 @@ const MENU_PROFILES: readonly ProfileKey[] = ['instagram', 'tiktok', 'youtube'];
     text-decoration: none;
   }
 
-  .header__panel-link:hover,
-  .header__panel-link[aria-current='page'] {
+  .header__panel-link:hover {
     background: var(--color-bg-surface);
   }
 
