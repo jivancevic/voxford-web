@@ -17,7 +17,11 @@ export interface ProbeResult {
 /** Scroll behaviour off, lazy images eager, fonts and images in, reveals done. */
 export async function preparePage(motion: boolean): Promise<void> {
   const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-  for (const el of [document.documentElement, document.body]) el.style.scrollBehavior = 'auto';
+  // Every scroller, not only the page: a rail with its own smooth scrolling
+  // would still be moving when a probe reads it after scrollIntoView.
+  const instant = document.createElement('style');
+  instant.textContent = '*, *::before, *::after { scroll-behavior: auto !important; }';
+  document.head.append(instant);
   for (const img of document.querySelectorAll<HTMLImageElement>('img[loading="lazy"]')) img.loading = 'eager';
   await document.fonts.ready;
   if (motion) {
@@ -247,10 +251,13 @@ export function probeTaps(): Finding[] {
     // Visually hidden (skip links until focused).
     if (r.width <= 1 || r.height <= 1) continue;
     if (r.width >= MIN && r.height >= MIN) continue;
+    // Exempt only when the link's own block is running text: a card title
+    // (a heading holding the link) is a standalone target, also inside an <li>.
     if (el.tagName === 'A' && getComputedStyle(el).display === 'inline') {
+      let block = el.parentElement;
+      while (block && /^(inline|contents)$/.test(getComputedStyle(block).display)) block = block.parentElement;
       const own = (el.textContent ?? '').trim().length;
-      const block = el.parentElement?.closest('p, li, dd, td, figcaption, blockquote');
-      if (block && (block.textContent ?? '').trim().length > own + 15) continue;
+      if (block?.matches('p, li, dd, td, figcaption, blockquote') && (block.textContent ?? '').trim().length > own + 15) continue;
     }
     // Centre it, also inside a horizontal rail, so every probe point is on screen.
     target.scrollIntoView({ block: 'center', inline: 'center' });
