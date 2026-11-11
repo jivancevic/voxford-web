@@ -12,9 +12,11 @@ import { shortTitle, type LatestYouTubeVideo } from '@/lib/youtube';
 interface Props {
   lang: Locale;
   video: LatestYouTubeVideo;
+  /** CSS `sizes` of the card's slot (YouTubeRail derives it from the row). */
+  sizes: string;
 }
 
-const { lang, video } = Astro.props;
+const { lang, video, sizes } = Astro.props;
 const t = getStrings(lang);
 const title = shortTitle(video.title);
 const date = new Date(video.published);
@@ -33,7 +35,7 @@ const dateText = new Intl.DateTimeFormat(LOCALE_META[lang].htmlLang, { day: 'num
         width={video.thumbnail.width}
         height={video.thumbnail.height}
         widths={[270, 405, 540].filter((w) => w <= video.thumbnail.width)}
-        sizes="(min-width: 64rem) 15rem, 60vw"
+        sizes={sizes}
         alt=""
         loading="lazy"
         decoding="async"

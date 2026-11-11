@@ -135,7 +135,7 @@ const others = (await getCollection('videos')).filter((v) => v.id !== video.id).
         <ul class="watch-more__list" role="list">
           {others.map((v) => (
             <li>
-              <VideoCard lang={lang} video={v} sizes="(min-width: 64rem) 15rem, 45vw" />
+              <VideoCard lang={lang} video={v} sizes="(min-width: 64rem) min(18rem, 22vw), (min-width: 48rem) 21vw, 45vw" />
             </li>
           ))}
         </ul>
