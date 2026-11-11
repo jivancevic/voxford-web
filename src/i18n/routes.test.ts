@@ -2,7 +2,17 @@ import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { LOCALES } from './locales';
-import { PAGE_KEYS, ROUTES, alternatesFor, pageForPath, pathFor } from './routes';
+import {
+  FOOTER_PAGES,
+  NAV_EVENTS,
+  NAV_EVENTS_AFTER_DIVIDER,
+  NAV_FLAT,
+  PAGE_KEYS,
+  ROUTES,
+  alternatesFor,
+  pageForPath,
+  pathFor,
+} from './routes';
 
 const pagesDir = fileURLToPath(new URL('../pages/', import.meta.url));
 const redirectsFile = fileURLToPath(new URL('../../public/_redirects', import.meta.url));
@@ -67,6 +77,22 @@ describe('route table', () => {
     expect(pageForPath('/hr/o-nama/')).toEqual({ page: 'about', lang: 'hr' });
     expect(pageForPath('/en/about')).toEqual({ page: 'about', lang: 'en' });
     expect(pageForPath('/en/nope/')).toBeUndefined();
+  });
+});
+
+describe('header and footer (#48)', () => {
+  it('opens the Events group with the booking pages, conferences first, packages after the divider', () => {
+    expect(NAV_EVENTS).toEqual(['conferences', 'advent', 'weddings']);
+    expect(NAV_EVENTS_AFTER_DIVIDER).toEqual(['packages']);
+  });
+
+  it('puts videos first among the flat links, then concerts, about and the FAQ', () => {
+    expect(NAV_FLAT).toEqual(['videos', 'concerts', 'about', 'faq']);
+  });
+
+  it('reaches every page from the footer (home is the crest, inquiry the pill)', () => {
+    const unreachable = PAGE_KEYS.filter((p) => p !== 'home' && p !== 'inquiry' && !FOOTER_PAGES.includes(p));
+    expect(unreachable).toEqual([]);
   });
 });
 

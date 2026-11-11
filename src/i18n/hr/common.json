@@ -10,7 +10,8 @@
     "footerNav": "Stranice",
     "languageSwitch": "Jezik",
     "homeLink": "Voxford, naslovnica",
-    "menu": "Izbornik"
+    "menu": "Izbornik",
+    "close": "Zatvori"
   },
   "nav": {
     "home": "Naslovnica",
@@ -27,8 +28,18 @@
   "navShort": {
     "concerts": "Koncerti"
   },
+  "navGroup": {
+    "events": "Nastupi"
+  },
+  "navDescription": {
+    "conferences": "Otvorenja, gala večere, dodjele nagrada i pauze",
+    "advent": "Adventski i ljetni koncerti za turističke zajednice i organizatore",
+    "weddings": "Ceremonija ili iznenađenje za mladence",
+    "packages": "POP-UP, CLASSIC i GOLD, jedan uz drugi"
+  },
   "cta": {
-    "inquiry": "Pošalji upit"
+    "inquiry": "Pošalji upit",
+    "header": "Pošalji upit"
   },
   "footer": {
     "tagline": "A cappella senzacija iz Hrvatske.",
