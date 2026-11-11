@@ -480,9 +480,9 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
     color: var(--color-text-on-photo);
   }
 
-  /* A short window: two lines of lead, not three, so it starts below singers 1
-     and 2's chins (#74). */
-  @media (height < 46rem) {
+  /* A short landscape window: two lines of lead, not three, so it starts below
+     singers 1 and 2's chins (#74). Phones and upright screens keep the flow. */
+  @media (width >= 48rem) and (orientation: landscape) and (height < 46rem) {
     .hero__lead {
       max-inline-size: 56ch;
     }

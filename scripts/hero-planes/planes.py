@@ -97,14 +97,14 @@ subject = np.maximum(subject, (filled(hard) & ~hard).astype(np.float32))
 
 # Hand fixes, after the hole fill so it cannot close them again. Every box they
 # cut is listed in `cuts`: its straight sides are not the singers' outline, so
-# the rim stays off them (#74).
+# the rim stays off them (#74). A colour-only drop that follows the logo's own
+# shape (the gold one) leaves no straight side, so it is not listed.
 cuts = []
 # Singer 2's tight tile takes in the gold foundation logo beside her hip.
 box = (slice(600, 820), slice(860, 990))
 rgbf = np.asarray(crop, np.float32)[box]
 gold = (rgbf[..., 0] - rgbf[..., 2] > 50) & (rgbf[..., 1] > 80)
 subject[box][gold] = 0
-cuts.append(box)
 # ...and a stand and a dark audience head on either side of her.
 for box in ((slice(560, 760), slice(945, 990)), (slice(620, 800), slice(700, 742))):
     subject[box] = 0
@@ -132,12 +132,12 @@ box = (slice(486, 518), slice(1318, 1340))
 r, g, b = (np.asarray(crop, np.float32)[box][..., k] for k in range(3))
 subject[box][(b > r) | ((r - b > 40) & (g > 100) & (np.abs(r - g) < 50))] = 0
 cuts.append(box)
-# Singer 4's tight tile takes in an audience head beside her legs; the front row has it.
 # Singer 5's matte keeps a few yellow banner letters: at the top of his hair,
 # between his beard and collar, and at his back. Drop the yellow there (#74).
 for box in ((slice(380, 405), slice(1575, 1605)), (slice(495, 530), slice(1575, 1610)), (slice(700, 745), slice(1688, 1714))):
     r, g, b = (np.asarray(crop, np.float32)[box][..., k] for k in range(3))
     subject[box][(r - b > 40) & (g > 100) & (np.abs(r - g) < 50)] = 0
+# Singer 4's tight tile takes in an audience head beside her legs; the front row has it.
 box = (slice(860, 1150), slice(1440, 1490))
 subject[box] = 0
 cuts.append(box)

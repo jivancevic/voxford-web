@@ -153,9 +153,10 @@ kolektiff", the file's mandatory credit, confirmed for #31:
   stage line, minus the singers.
 - **far:** the whole crop at 1600 px with the singers inpainted out (no ghost halo), blurred,
   dimmed to 78% and desaturated by a quarter.
-- **Composition:** one 3:2 frame covers the stage, bottom-anchored 12% below it. On a short
-  wide window it drops until singers 1 and 2's heads (0.33 of the frame) clear the headline,
-  which is capped at 12svh; there the lead is 56ch wide, so it starts below their chins. No
+- **Composition:** one 3:2 frame covers the stage, bottom-anchored 12% below it. Wherever that
+  would put singers 1 and 2's heads (0.33 of the frame) behind the headline, which is any
+  short wide window, the frame drops until they clear it. The headline is at most 12svh, and
+  on a landscape window under 46rem the lead is 56ch wide, so it starts below their chins. No
   text crosses a face (#74). Phones and upright screens use the flow layout, so all five are
   in frame on a portrait tablet.
 
