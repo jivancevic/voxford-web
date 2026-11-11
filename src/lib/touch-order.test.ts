@@ -6,12 +6,12 @@ import postcss, { type AtRule, type Container, type Declaration, type Rule } fro
 import { describe, expect, it } from 'vitest';
 import { cssBlocks, lineOf, type CssBlock } from '../../tests/helpers/css-source';
 
-const TOUCH = /\(\s*(pointer\s*:\s*coarse|hover\s*:\s*none)\s*\)/;
+const TOUCH = /\(\s*((?:any-)?pointer\s*:\s*coarse|hover\s*:\s*none)\s*\)/;
 const norm = (s: string) => s.replace(/\s+/g, ' ').trim();
 
 const inAnyAtRule = (rule: Rule) => {
   for (let p = rule.parent as Container | undefined; p; p = p.parent as Container | undefined) {
-    if (p.type === 'atrule' && ['media', 'supports', 'container'].includes((p as AtRule).name)) return true;
+    if (p.type === 'atrule' && ['media', 'supports', 'container', 'layer'].includes((p as AtRule).name)) return true;
   }
   return false;
 };
@@ -36,7 +36,7 @@ const sharedSelector = (a: Rule, b: Rule) => {
   return selectorsOf(a).find((s) => bs.includes(s));
 };
 
-export function touchOrderBreaches(blocks: CssBlock[]): string[] {
+function touchOrderBreaches(blocks: CssBlock[]): string[] {
   const out: string[] = [];
   for (const b of blocks) {
     const rules: Rule[] = [];

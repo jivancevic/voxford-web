@@ -19,7 +19,7 @@ const TYPE_DECLS: Record<string, string> = {
   'src/views/HomeView.astro: font-size: min(var(--text-display), 12.5vw)': 'caps the display token at 12.5vw so a no-wrap word never overflows a narrow phone; the token still sets the size above that',
 };
 
-const COLOR_FN = /\b(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch)\(/;
+const COLOR_FN = /\b(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch|color|light-dark)\(/;
 const HEX = /(?<![&\w-])#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{4}|[0-9a-fA-F]{3})\b/;
 
 const stripComments = (s: string) =>
@@ -34,6 +34,7 @@ function withoutVars(v: string): string {
   for (let i = 0; i < v.length; ) {
     if (v.startsWith('var(', i)) {
       let depth = 0;
+      i += 3; // "var"
       do {
         if (v[i] === '(') depth++;
         else if (v[i] === ')') depth--;
@@ -45,9 +46,11 @@ function withoutVars(v: string): string {
   return out;
 }
 
-export const fontFamilyOk = (v: string) => /^(?:var\(.*\)|inherit|initial|unset)$/.test(v.trim());
+// Only var()s (and commas) may remain once the vars are taken out: `var(--a), Georgia` fails.
+const fontFamilyOk = (v: string) => /^(?:inherit|initial|unset)$/.test(v.trim()) || (v.includes('var(') && /^[\s,]*$/.test(withoutVars(v)));
 /** Absolute units outside a var() make a size that tokens.css does not control. */
-export const fontSizeOk = (v: string) => !/\d(?:rem|px|pt|vw|vh|svh|lvh|dvh|vmin|vmax|cqw|cqh|ch|ex)\b/.test(withoutVars(v));
+const fontSizeOk = (v: string) =>
+  !/\d(?:rem|px|pt|pc|cm|mm|in|q|vw|vh|svh|lvh|dvh|vmin|vmax|cqw|cqh|ch|ex)\b|\b(?:x+-)?(?:small|large)\b|\b(?:larger|smaller|medium)\b/i.test(withoutVars(v));
 
 const sources = () => walk(join(REPO, 'src'), ['.astro', '.css', '.ts']);
 
@@ -58,7 +61,9 @@ describe('colours and type come from tokens.css (#10)', () => {
       const file = rel(abs);
       if (file in COLOR_FILES) continue;
       stripComments(readFileSync(abs, 'utf8')).split('\n').forEach((line, i) => {
-        const hit = HEX.exec(line) ?? COLOR_FN.exec(line);
+        // Anchors, ids and url(#frag) are not colours even when they look like hex (#add, #face).
+        const bare = line.replace(/\b(?:href|id|for|name)=(["'])[^"']*\1/g, '').replace(/url\(\s*["']?#[^)]*\)/g, '');
+        const hit = HEX.exec(bare) ?? COLOR_FN.exec(bare);
         if (hit) out.push(`${file}:${i + 1}: colour literal \`${hit[0]}\`. Add or reuse a token in src/styles/tokens.css and use var(--…).`);
       });
     }
@@ -94,6 +99,8 @@ describe('colours and type come from tokens.css (#10)', () => {
   it('catches the old bugs (self-check)', () => {
     expect(HEX.test('color: #fff;')).toBe(true);
     expect(HEX.test('<a href="#hero">')).toBe(false);
+    expect(fontFamilyOk('var(--a), Georgia')).toBe(false);
+    expect(fontSizeOk('larger')).toBe(false);
     expect(COLOR_FN.test('background: rgba(0,0,0,.5)')).toBe(true);
     expect(COLOR_FN.test('color-mix(in oklab, var(--a) 40%, transparent)')).toBe(false);
     expect(fontFamilyOk('Georgia, serif')).toBe(false);
