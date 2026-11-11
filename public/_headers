@@ -14,9 +14,10 @@ https://:host.:subdomain.workers.dev/*
 /_astro/*
   Cache-Control: public, max-age=31536000, immutable
 
-# Icons and the manifest keep their names across builds (scripts/icons.mjs), so
-# they cannot be immutable; a day saves the revalidation round trip on every
-# page view while a new icon still reaches everyone within a day.
+# Icons (scripts/icons.mjs) and the manifest (src/pages/site.webmanifest.ts)
+# keep their names across builds, so they cannot be immutable; a day saves the
+# revalidation round trip on every page view while a new icon still reaches
+# everyone within a day.
 /favicon.ico
   Cache-Control: public, max-age=86400
 

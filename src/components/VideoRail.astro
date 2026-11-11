@@ -54,7 +54,7 @@ const headingId = `video-rail-${source}`;
               lang={lang}
               video={video}
               number={i + 1}
-              sizes="(min-width: 64rem) 15rem, 11rem"
+              sizes="(min-width: 64rem) 15rem, (min-width: 52rem) 14rem, 11rem"
               play={inline ? 'inline' : 'page'}
             />
           </li>
@@ -79,7 +79,9 @@ const headingId = `video-rail-${source}`;
     font-size: var(--text-title);
   }
 
-  /* A row that scrolls sideways on small screens and fits on wide ones. */
+  /* A row that scrolls sideways on small screens and fits on wide ones. The
+     cards' `sizes` above mirrors these columns: 11rem while the row overflows,
+     up to ~14rem once four cards fit (from ~52rem), 15rem at most. */
   .video-rail__list {
     display: grid;
     grid-auto-flow: column;
