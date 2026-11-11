@@ -125,8 +125,10 @@ the stage glow a little (`--sc-p`) and holds the stage pinned while the music pl
   videos: the stage order folded, so Josip, Ante, David at the back and Dora, Vita in front,
   each between two of the back row. No card covers another; the act does not pin. A phone on
   its side keeps the single row.
-- **Phones:** the hero does not pin; the planes still part as it scrolls by, and the date widget
-  (ticket D) sits on plain ground under the photo.
+- **Phones and screens held upright (hero):** the hero does not pin, so all five stay in frame
+  on a portrait tablet. Its scroll progress starts at 0 at the page top, where the planes line
+  up into the photo (#74), and they part as it scrolls by. The date widget (ticket D) sits on
+  plain ground under the photo.
 - **Muted or silent switch:** iOS plays through the "playback" audio session where Safari has
   one; audio only ever starts on a press.
 
