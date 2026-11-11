@@ -125,23 +125,43 @@ the stage glow a little (`--sc-p`) and holds the stage pinned while the music pl
 
 The hero headline is "Five voices. One harmony." / "Pet glasova. Jedan sklad." (Josip, #31); the
 H1 also carries the group's disambiguation line, visually hidden, so it still says who Voxford
-is. The three planes are cut from Drive `Photo › 2026 Hrvatski Akademski Sportski Savez ›
-Unisport_stars_R1JC7655_JC.jpg` by `scripts/hero-planes/build.sh` (on the machine that made
-them, macOS 26 with the same ImageMagick and cwebp, a rerun reproduces the committed files byte
-for byte; Vision and the encoders may differ elsewhere). The caption credits "Jozo Cabraja /
-kolektiff", the file's mandatory credit, confirmed for #31:
+is. The four planes are cut from Drive `Photo › 2026 Hrvatski Akademski Sportski Savez ›
+Unisport_stars_R1JC7655_JC.jpg` (2400×1600, the largest export there) by
+`scripts/hero-planes/build.sh` (on the machine that made them, macOS 26 with the same
+ImageMagick and cwebp, a rerun reproduces the committed files byte for byte; Vision and the
+encoders may differ elsewhere). The caption credits "Jozo Cabraja / kolektiff", the file's
+mandatory credit, confirmed for #31:
 
-- **Crop:** 1800×1200 at (360, 268) of the 2400×1600 frame, so the five stand between 22% and
-  97% of the width (the phone composition starts the frame at 18.5%) and the headline clears
-  the first singer's cap at 1440×900. The sponsor banners stay behind the singers; they only
+- **Crop:** 1800×1200 at (360, 268) of the 2400×1600 frame; the five stand between x 392 and
+  1730 of it, their heads from y 348. The sponsor banners stay behind the singers; they only
   show, defocused, in `far`.
 - **subject:** an Apple Vision person matte (`VNGeneratePersonSegmentationRequest`, accurate)
   run on one tile per singer, kept to that singer's column and faded out where the audience
-  covers them; on the whole frame Vision misses the singer in the dark on the left. The fourth
-  singer's white drape is added by luminance (Vision leaves it out).
+  covers them; on the whole frame Vision misses the singer in the dark on the left. Since #67:
+  - Singers 2, 3 and 4 get a second, tighter tile, which keeps singer 2's middle and singer 3's
+    left side. Singer 4 uses only hers: the wide one takes a block of banner around her
+    microphone.
+  - A close per singer puts the stands in front of them into the plane.
+  - A steep ramp (0.04 → 0.20) and a hole fill make dark clothes solid.
+  - A few drawn fixes after the hole fill remove banner and audience bits the tiles pick up.
+  - The fourth singer's white drape is added by luminance (Vision leaves it out).
+- **rim:** a soft white back-light around the five (#67, Josip chose it over a sticker stroke
+  or a frame): the filled silhouette grown and blurred, minus itself, at 55%, faded out above
+  each singer's cut line. It sits under `subject` and moves with it.
 - **front:** the audience: Vision's matte where it finds the lit heads, plus a band below the
   stage line, minus the singers.
-- **far:** the whole crop at 1600 px, blurred, dimmed to 78% and desaturated by a quarter.
+- **far:** the whole crop at 1600 px with the singers inpainted out first (#67: blurred in
+  place they left a ghost halo around the sharp singers), blurred, dimmed to 78% and
+  desaturated by a quarter.
+
+**Composition (#67).**
+- **Landscape at 48rem and up:** `far` covers the stage. `subject`, `rim` and `front` share one
+  3:2 box, anchored right, so the frame's x 380–1760 runs from the end of the lead to the right
+  gutter. The box is lifted 5.5% of the stage height and capped at 1.45 × it, lower still on a
+  short window so the heads stay below the headline. No text crosses a face, hand or
+  microphone, and the widget crosses nobody above the knee.
+- **Phones and every portrait screen:** the flow layout, with a 17:9 window on the frame's
+  x 333–1750, y 250–1000: from just above the heads to the thighs, faded top and bottom.
 
 ## Fingerprint gate
 
