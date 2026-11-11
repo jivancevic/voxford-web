@@ -10,7 +10,8 @@
     "footerNav": "Site",
     "languageSwitch": "Language",
     "homeLink": "Voxford home",
-    "menu": "Menu"
+    "menu": "Menu",
+    "close": "Close"
   },
   "nav": {
     "home": "Home",
@@ -28,8 +29,18 @@
   "navShort": {
     "concerts": "Concerts"
   },
+  "navGroup": {
+    "events": "Events"
+  },
+  "navDescription": {
+    "conferences": "Openings, gala dinners, award nights and breaks",
+    "advent": "Advent and summer concerts for tourist boards and organisers",
+    "weddings": "The ceremony, or a surprise for the couple",
+    "packages": "POP-UP, CLASSIC and GOLD, side by side"
+  },
   "cta": {
-    "inquiry": "Send an inquiry"
+    "inquiry": "Send an inquiry",
+    "header": "Enquire"
   },
   "footer": {
     "tagline": "A cappella group from Zagreb, Croatia. Five voices, no instruments.",

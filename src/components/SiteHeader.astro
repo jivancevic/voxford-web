@@ -1,14 +1,17 @@
 ---
-// Site header: crest home link, primary nav, language switch, the one pill.
-// Works with no JavaScript: on narrow screens the nav is a native <details> menu.
+// Site header (#48): crest home link, the Events group and four flat links,
+// the language switch and the one pill. Desktop from 64rem; below it a bar of
+// crest, pill and a full-screen menu. Both disclosures are native <details>,
+// so everything opens, closes and is crawlable without JavaScript; the script
+// below only adds Esc, outside-click and the mobile scroll lock.
 // A page with a short header label (`common.navShort`) uses it here only; the
 // footer, titles and breadcrumbs keep the full name.
 import Crest from '@/components/Crest.astro';
-import { GROUP } from '@/data/site-facts';
+import { GROUP, PROFILE_LABELS, PROFILES, type ProfileKey } from '@/data/site-facts';
 import InquiryCTA from '@/components/InquiryCTA.astro';
 import LanguageSwitch from '@/components/LanguageSwitch.astro';
 import { getStrings, type Locale } from '@/i18n';
-import { NAV_PAGES, pathFor, type PageKey } from '@/i18n/routes';
+import { NAV_EVENTS, NAV_EVENTS_AFTER_DIVIDER, NAV_FLAT, pathFor, type PageKey } from '@/i18n/routes';
 import { withoutEmptyConcerts } from '@/lib/concerts';
 
 interface Props {
@@ -20,7 +23,20 @@ interface Props {
 const { lang, page, alternates } = Astro.props;
 const t = getStrings(lang);
 const short: Partial<Record<PageKey, string>> = t.common.navShort;
-const items = (await withoutEmptyConcerts(NAV_PAGES)).map((p) => ({ page: p, label: short[p] ?? t.common.nav[p] }));
+const descriptions: Partial<Record<PageKey, string>> = t.common.navDescription;
+const item = (p: PageKey) => ({
+  page: p,
+  href: pathFor(p, lang),
+  label: short[p] ?? t.common.nav[p],
+  description: descriptions[p],
+  current: p === page ? ('page' as const) : undefined,
+});
+const events = NAV_EVENTS.map(item);
+const eventsAfter = NAV_EVENTS_AFTER_DIVIDER.map(item);
+const flat = (await withoutEmptyConcerts(NAV_FLAT)).map(item);
+const inEvents = [...events, ...eventsAfter].some((i) => i.current);
+/** The fan-facing profiles at the foot of the mobile menu; the footer lists them all. */
+const MENU_PROFILES: readonly ProfileKey[] = ['instagram', 'tiktok', 'youtube'];
 ---
 
 <header class="header">
@@ -32,11 +48,46 @@ const items = (await withoutEmptyConcerts(NAV_PAGES)).map((p) => ({ page: p, lab
 
     <nav class="header__wide" aria-label={t.common.a11y.mainNav}>
       <ul class="header__nav">
+        <li class="header__group">
+          <details class="header__events" data-header-disclosure>
+            <summary class:list={['header__summary', { 'is-current': inEvents }]}>
+              {t.common.navGroup.events}
+              <span class="header__chevron" aria-hidden="true">▾</span>
+            </summary>
+            <div class="header__panel">
+              <ul class="header__panel-list">
+                {
+                  events.map((i) => (
+                    <li>
+                      <a class="header__panel-link" href={i.href} aria-current={i.current}>
+                        <span class="header__panel-title">{i.label}</span>
+                        <span class="header__panel-desc">{i.description}</span>
+                      </a>
+                    </li>
+                  ))
+                }
+              </ul>
+              <hr class="header__divider" />
+              <ul class="header__panel-list">
+                {
+                  eventsAfter.map((i) => (
+                    <li>
+                      <a class="header__panel-link" href={i.href} aria-current={i.current}>
+                        <span class="header__panel-title">{i.label}</span>
+                        <span class="header__panel-desc">{i.description}</span>
+                      </a>
+                    </li>
+                  ))
+                }
+              </ul>
+            </div>
+          </details>
+        </li>
         {
-          items.map((n) => (
+          flat.map((i) => (
             <li>
-              <a href={pathFor(n.page, lang)} aria-current={n.page === page ? 'page' : undefined}>
-                {n.label}
+              <a class="header__link" href={i.href} aria-current={i.current}>
+                {i.label}
               </a>
             </li>
           ))
@@ -44,35 +95,101 @@ const items = (await withoutEmptyConcerts(NAV_PAGES)).map((p) => ({ page: p, lab
       </ul>
     </nav>
 
-    <details class="header__menu">
-      <summary class="label header__toggle">{t.common.a11y.menu}</summary>
-      <nav aria-label={t.common.a11y.mainNav}>
-        <ul class="header__nav">
-          {
-            items.map((n) => (
-              <li>
-                <a href={pathFor(n.page, lang)} aria-current={n.page === page ? 'page' : undefined}>
-                  {n.label}
-                </a>
-              </li>
-            ))
-          }
-          <li>
-            <a href={pathFor('inquiry', lang)} aria-current={page === 'inquiry' ? 'page' : undefined}>
-              {t.common.cta.inquiry}
-            </a>
-          </li>
-        </ul>
-      </nav>
-    </details>
-
     <div class="header__end">
-      <LanguageSwitch lang={lang} alternates={alternates} />
-      <InquiryCTA lang={lang} variant="ghost" class="header__cta" />
+      <div class="header__lang">
+        <LanguageSwitch lang={lang} alternates={alternates} />
+      </div>
+      <InquiryCTA lang={lang} label={t.common.cta.header} class="header__cta" />
+
+      <details class="header__menu" data-header-disclosure data-header-menu>
+        <summary class="label header__toggle">
+          <span class="header__toggle-closed">{t.common.a11y.menu}</span>
+          <span class="header__toggle-open">{t.common.a11y.close}</span>
+        </summary>
+        <div class="header__overlay">
+          <nav class="header__overlay-nav" aria-label={t.common.a11y.mainNav}>
+            <p class="label header__overlay-label">{t.common.navGroup.events}</p>
+            <ul class="header__overlay-list">
+              {
+                [...events, ...eventsAfter].map((i) => (
+                  <li>
+                    <a href={i.href} aria-current={i.current}>
+                      {i.label}
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+            <ul class="header__overlay-list">
+              {
+                flat.map((i) => (
+                  <li>
+                    <a href={i.href} aria-current={i.current}>
+                      {i.label}
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+          </nav>
+          <div class="header__overlay-foot">
+            <LanguageSwitch lang={lang} alternates={alternates} />
+            <ul class="header__profiles" aria-label={t.common.footer.followLabel}>
+              {
+                MENU_PROFILES.map((k) => (
+                  <li>
+                    <a class="label" href={PROFILES[k]} rel="me noopener" target="_blank">
+                      {PROFILE_LABELS[k]}
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
+        </div>
+      </details>
     </div>
   </div>
   <span class="light-line header__line" aria-hidden="true"></span>
 </header>
+
+<script>
+  // Enhances the header's two <details> (the Events panel and the mobile menu):
+  // Esc, a click outside or a link choice closes them, focus returns to the
+  // summary, and the open mobile menu locks the page's scroll. Without
+  // JavaScript both still open and close; they just do not close themselves.
+  const disclosures = [...document.querySelectorAll<HTMLDetailsElement>('[data-header-disclosure]')];
+  const isMenu = (d: HTMLDetailsElement) => d.hasAttribute('data-header-menu');
+
+  function close(d: HTMLDetailsElement, refocus: boolean) {
+    if (!d.open) return;
+    d.open = false;
+    if (refocus) d.querySelector('summary')?.focus();
+  }
+
+  for (const d of disclosures) {
+    d.addEventListener('toggle', () => {
+      if (isMenu(d)) document.documentElement.classList.toggle('header-menu-open', d.open);
+    });
+    d.addEventListener('click', (e) => {
+      if (e.target instanceof Element && e.target.closest('a')) close(d, false);
+    });
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    for (const d of disclosures) close(d, true);
+  });
+
+  document.addEventListener('click', (e) => {
+    for (const d of disclosures) if (e.target instanceof Node && !d.contains(e.target)) close(d, false);
+  });
+
+  // Widening to desktop hides the menu's overlay: close it so the scroll lock goes too.
+  matchMedia('(width >= 64rem)').addEventListener('change', (e) => {
+    if (e.matches) for (const d of disclosures) if (isMenu(d)) close(d, false);
+  });
+</script>
 
 <style>
   .header {
@@ -81,6 +198,10 @@ const items = (await withoutEmptyConcerts(NAV_PAGES)).map((p) => ({ page: p, lab
     z-index: var(--z-header);
     background: color-mix(in oklab, var(--color-bg) 82%, transparent);
     backdrop-filter: blur(14px);
+  }
+
+  :global(.header-menu-open) {
+    overflow: hidden;
   }
 
   .header__bar {
@@ -92,6 +213,7 @@ const items = (await withoutEmptyConcerts(NAV_PAGES)).map((p) => ({ page: p, lab
 
   .header__home {
     display: inline-flex;
+    flex: none;
     align-items: center;
     gap: var(--space-3);
     color: var(--color-text);
@@ -103,25 +225,110 @@ const items = (await withoutEmptyConcerts(NAV_PAGES)).map((p) => ({ page: p, lab
   }
 
   .header__end {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: var(--space-3);
     margin-inline-start: auto;
   }
 
-  .header__toggle {
-    display: inline-grid;
-    place-items: center;
-    min-block-size: var(--pill-height);
-    padding: 0 var(--space-4);
-    border-radius: var(--radius-pill);
-    color: var(--color-text);
-    cursor: pointer;
-    list-style: none;
+  .header__line {
+    opacity: 0.6;
   }
 
-  .header__toggle::-webkit-details-marker {
+  summary {
+    list-style: none;
+    cursor: pointer;
+  }
+
+  summary::-webkit-details-marker {
     display: none;
   }
 
+  /* ---- Desktop: the Events group and the flat links ---- */
+
+  .header__wide {
+    display: none;
+    margin-inline: auto;
+  }
+
   .header__nav {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .header__link,
+  .header__summary {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-block-size: 2.75rem;
+    color: var(--color-text-secondary);
+    font-size: var(--text-small);
+    font-weight: 500;
+    white-space: nowrap;
+    text-decoration: none;
+  }
+
+  .header__link:hover,
+  .header__summary:hover,
+  .header__link[aria-current='page'],
+  .header__summary.is-current,
+  .header__events[open] > .header__summary {
+    color: var(--color-text);
+  }
+
+  /* The current page (or, for the group, one of its pages): a thin pink line under the label. */
+  .header__link[aria-current='page']::after,
+  .header__summary.is-current::after {
+    content: '';
+    position: absolute;
+    inset-inline: 0;
+    inset-block-end: var(--space-2);
+    block-size: var(--line-thin);
+    background: var(--color-text-accent);
+  }
+
+  .header__chevron {
+    font-size: var(--text-caption);
+    transition: transform var(--duration-fast) var(--ease-out);
+  }
+
+  .header__events[open] .header__chevron {
+    transform: rotate(180deg);
+  }
+
+  .header__group {
+    position: relative;
+  }
+
+  .header__panel {
+    position: absolute;
+    inset-block-start: calc(100% + var(--space-3));
+    inset-inline-start: calc(-1 * var(--space-5));
+    inline-size: 23rem;
+    padding: var(--space-3);
+    background: var(--color-bg-raised);
+    border: var(--line-thin) solid var(--color-border);
+    border-radius: var(--radius-card);
+    box-shadow: 0 1.5rem 3.75rem color-mix(in oklab, var(--color-bg) 70%, transparent);
+  }
+
+  /* The brand light along the panel's top edge. */
+  .header__panel::before {
+    content: '';
+    position: absolute;
+    inset: 0 var(--space-5) auto;
+    block-size: var(--line-thin);
+    background: var(--gradient-light);
+  }
+
+  .header__panel-list {
     display: grid;
     gap: var(--space-1);
     margin: 0;
@@ -129,69 +336,167 @@ const items = (await withoutEmptyConcerts(NAV_PAGES)).map((p) => ({ page: p, lab
     list-style: none;
   }
 
-  .header__nav a {
-    display: inline-flex;
-    white-space: nowrap;
-    align-items: center;
-    min-block-size: 2.75rem;
-    color: var(--color-text-secondary);
-    font-size: var(--text-small);
-    font-weight: 500;
+  .header__panel-link {
+    display: grid;
+    gap: var(--space-1);
+    padding: var(--space-3) var(--space-4);
+    border-radius: calc(var(--radius-card) - var(--space-2));
     text-decoration: none;
   }
 
-  .header__nav a:hover,
-  .header__nav a[aria-current='page'] {
+  .header__panel-link:hover,
+  .header__panel-link[aria-current='page'] {
+    background: var(--color-bg-surface);
+  }
+
+  .header__panel-title {
+    color: var(--color-text);
+    font-size: var(--text-body);
+    font-weight: 600;
+  }
+
+  .header__panel-link[aria-current='page'] .header__panel-title {
+    color: var(--color-text-accent);
+  }
+
+  .header__panel-desc {
+    color: var(--color-text-secondary);
+    font-size: var(--text-caption);
+  }
+
+  .header__divider {
+    margin: var(--space-2) var(--space-4);
+    border: 0;
+    border-block-start: var(--line-thin) solid var(--color-border-subtle);
+  }
+
+  /* ---- Mobile: the menu toggle and its full-screen overlay ---- */
+
+  .header__toggle {
+    display: inline-grid;
+    place-items: center;
+    min-block-size: var(--pill-height);
+    padding: 0 var(--space-3);
+    border-radius: var(--radius-pill);
     color: var(--color-text);
   }
 
-  .header__end {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-  }
-
-  .header__line {
-    opacity: 0.6;
-  }
-
-  .header__wide {
+  .header__toggle-open,
+  .header__menu[open] .header__toggle-closed {
     display: none;
-    margin-inline: auto;
   }
 
-  /* Eight items fit from 72rem up (#40): the gaps close from 24px at 1500px to 12px at 1152px. */
-  .header__wide .header__nav {
+  .header__menu[open] .header__toggle-open {
+    display: inline;
+  }
+
+  /* The header is sticky with a backdrop filter, so it is this overlay's containing block. */
+  .header__overlay {
+    position: absolute;
+    inset-inline: 0;
+    inset-block-start: 100%;
     display: flex;
-    gap: clamp(var(--space-3), 4vw - 2.25rem, var(--space-5));
+    flex-direction: column;
+    gap: var(--space-6);
+    block-size: calc(100dvh - var(--header-h));
+    overflow-y: auto;
+    padding: var(--space-6) var(--gutter);
+    background: var(--color-bg);
   }
 
-  /* Narrow: a native <details> menu (no JavaScript); the nav drops below the bar. */
-  @media (width < 72rem) {
-    .header__menu {
-      order: 2;
-    }
+  .header__overlay-nav {
+    display: grid;
+    gap: var(--space-6);
+  }
 
+  .header__overlay-label {
+    margin-block-end: calc(-1 * var(--space-4));
+    color: var(--color-text-muted);
+  }
+
+  .header__overlay-list {
+    display: grid;
+    gap: var(--space-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .header__overlay-list a {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 2.75rem;
+    color: var(--color-text);
+    font-family: var(--font-headline);
+    font-size: var(--text-heading);
+    font-weight: 800;
+    line-height: var(--leading-heading);
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+
+  .header__overlay-list a[aria-current='page'] {
+    color: var(--color-text-accent);
+  }
+
+  .header__overlay-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    margin-block-start: auto;
+    padding-block-start: var(--space-4);
+    border-block-start: var(--line-thin) solid var(--color-border-subtle);
+  }
+
+  .header__profiles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .header__profiles a {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 2.75rem;
+    color: var(--color-text-secondary);
+    text-decoration: none;
+  }
+
+  .header__profiles a:hover {
+    color: var(--color-text);
+  }
+
+  /* Narrow: crest, pill and menu in one bar; the language switch moves into the menu. */
+  @media (width < 64rem) {
+    .header__bar,
     .header__end {
-      order: 1;
+      gap: var(--space-2);
     }
 
-    .header__menu > nav {
-      position: absolute;
-      inset-inline: 0;
-      top: 100%;
-      padding: var(--space-4) var(--gutter) var(--space-6);
-      background: var(--color-bg);
-      border-block-end: var(--line-thin) solid var(--color-border-subtle);
+    .header__lang {
+      display: none;
+    }
+  }
+
+  /* Below 480px the crest alone is the home link: crest, wordmark, pill and toggle do not fit at 375px in HR. */
+  @media (width < 30rem) {
+    .header__wordmark {
+      display: none;
     }
 
-    .header__end :global(.header__cta) {
+    /* The pill's arrow too: it keeps ~40px to spare at 360px in HR (#48). */
+    .header__end :global(.inquiry-cta__arrow) {
       display: none;
     }
   }
 
   /* Wide: the nav is inline and always visible. */
-  @media (width >= 72rem) {
+  @media (width >= 64rem) {
     .header__wide {
       display: block;
     }

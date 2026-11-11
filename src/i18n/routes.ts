@@ -68,13 +68,17 @@ export function pageForPath(pathname: string): { page: PageKey; lang: Locale } |
 }
 
 /**
- * Pages in the primary navigation, in order. Home is the crest, inquiry is the
- * pill. Concerts is in the header (Josip, #40) under its short label
- * (`common.navShort`) and, like in the footer, only while one is upcoming.
+ * The header (#48). Home is the crest and inquiry the pill. The Events group
+ * opens the booking pages, conferences first (the GEO goal), then packages
+ * after a divider; the flat links follow, videos first for the fans. Concerts
+ * shows under its short label (`common.navShort`) and, like in the footer,
+ * only while one is upcoming. Private celebrations is footer-only.
  */
-export const NAV_PAGES: readonly PageKey[] = ['conferences', 'weddings', 'advent', 'concerts', 'about', 'videos', 'packages'];
+export const NAV_EVENTS: readonly PageKey[] = ['conferences', 'advent', 'weddings'];
+export const NAV_EVENTS_AFTER_DIVIDER: readonly PageKey[] = ['packages'];
+export const NAV_FLAT: readonly PageKey[] = ['videos', 'concerts', 'about', 'faq'];
 
-/** Pages in the footer's secondary list. */
+/** Pages in the footer's secondary list: every page but home and inquiry (routes.test.ts). */
 export const FOOTER_PAGES: readonly PageKey[] = [
   'conferences',
   'weddings',

@@ -6,6 +6,7 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
+import { pathFor, type PageKey } from '../../src/i18n/routes';
 
 const dist = fileURLToPath(new URL('../../dist/', import.meta.url));
 if (!existsSync(dist)) throw new Error('dist/ is missing: run `npm run build` first');
@@ -125,6 +126,25 @@ describe('JSON-LD shapes', () => {
         expect(text(item![2]!), `${page.path}: ${q.name}`).toContain(text(q.acceptedAnswer.text));
       }
     }
+  });
+});
+
+describe('header (#48)', () => {
+  /** Events group, then the divider's packages, then the flat links; concerts only while its page is built. */
+  const order = (lang: 'en' | 'hr') =>
+    (['conferences', 'advent', 'weddings', 'packages', 'videos', 'concerts', 'about', 'faq'] as PageKey[])
+      .map((p) => pathFor(p, lang))
+      .filter((path) => byPath.has(path));
+  const hrefs = (html: string) => [...html.matchAll(/<a\b[^>]*\bhref="([^"]+)"/g)].map((m) => m[1]!);
+
+  it.each(pages.map((p) => [p.path, p] as const))('%s carries every header link in the static HTML, in order', (path, page) => {
+    const lang = path.startsWith('/hr/') ? 'hr' : 'en';
+    const wide = /<nav class="header__wide[^"]*"[^>]*>([\s\S]*?)<\/nav>/.exec(page.html)?.[1];
+    expect(wide, 'desktop nav').toBeDefined();
+    expect(hrefs(wide!)).toEqual(order(lang));
+    const menu = /<nav class="header__overlay-nav[^"]*"[^>]*>([\s\S]*?)<\/nav>/.exec(page.html)?.[1];
+    expect(menu, 'mobile menu').toBeDefined();
+    expect(hrefs(menu!)).toEqual(order(lang));
   });
 });
 
