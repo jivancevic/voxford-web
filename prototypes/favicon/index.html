@@ -1,0 +1,242 @@
+<!doctype html>
+<!--
+  PROTOTYPE, throwaway. Question: which favicon reads best for Voxford at 16/32 px,
+  in light and dark browser chrome, pinned, and as an iOS / Android home-screen icon?
+  Four variants on one page, switchable via ?variant= and the bottom bar (← →).
+  Open this file directly in a browser. Not part of the site build.
+-->
+<html lang="hr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Voxford — favicon prototip</title>
+<link id="fav" rel="icon" href="data:,">
+<script src="assets.js"></script>
+<style>
+  :root { --ink: #0a0910; --ink2: #121019; --text: #eceaf2; --muted: #8f899e; --pink: #f66386; --purple: #8345a0; --blue: #1026b8; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #17151d; color: var(--text); font: 15px/1.5 system-ui, -apple-system, sans-serif; padding: 24px 16px 120px; }
+  main { max-width: 980px; margin: 0 auto; display: grid; gap: 36px; }
+  h1 { font-size: 22px; margin: 0; }
+  h2 { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 12px; font-weight: 600; }
+  .note { color: #b4afc0; max-width: 70ch; margin: 6px 0 0; }
+  .variant-name { color: var(--pink); }
+
+  /* --- Chrome-like tab strips --- */
+  .strip { border-radius: 10px 10px 0 0; padding: 8px 8px 0; display: flex; align-items: flex-end; gap: 2px; overflow: hidden; }
+  .strip + .toolbar { border-radius: 0 0 10px 10px; height: 40px; display: flex; align-items: center; padding: 0 14px; gap: 10px; font-size: 13px; }
+  .strip.light { background: #dee1e6; color: #1f1f1f; }
+  .strip.light + .toolbar { background: #fff; color: #444; }
+  .strip.dark { background: #202124; color: #e8eaed; }
+  .strip.dark + .toolbar { background: #35363a; color: #bdc1c6; }
+  .tab { height: 34px; display: flex; align-items: center; gap: 8px; padding: 0 12px; font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-radius: 8px 8px 0 0; min-width: 0; }
+  .tab.pinned { width: 40px; justify-content: center; padding: 0; flex: none; }
+  .tab.normal { width: 200px; flex: 0 1 200px; }
+  .tab span { overflow: hidden; text-overflow: ellipsis; }
+  .strip.light .tab.active { background: #fff; }
+  .strip.dark .tab.active { background: #35363a; }
+  .tab img, .generic { width: 16px; height: 16px; flex: none; image-rendering: auto; }
+  .generic { border-radius: 3px; display: inline-block; }
+  .bookmarks { display: flex; gap: 14px; align-items: center; }
+  .bookmarks span { display: inline-flex; align-items: center; gap: 6px; }
+  .url { flex: 1; height: 28px; border-radius: 14px; display: flex; align-items: center; padding: 0 12px; }
+  .strip.light + .toolbar .url { background: #f1f3f4; }
+  .strip.dark + .toolbar .url { background: #202124; }
+
+  /* --- real sizes --- */
+  .sizes { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; }
+  .swatch { border-radius: 10px; padding: 16px; display: flex; flex-wrap: wrap; align-items: center; gap: 18px; } .swatch small { flex-basis: 100%; }
+  .swatch small { display: block; font-size: 11px; opacity: .7; }
+  .zoom { image-rendering: pixelated; width: 64px; height: 64px; }
+
+  /* --- home screens --- */
+  .homes { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+  .phone { border-radius: 28px; padding: 28px 22px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px 10px; justify-items: center; }
+  .ios { background: radial-gradient(120% 90% at 20% 10%, #6b7fd6, #2a2f6b 55%, #12142e); }
+  .android { background: linear-gradient(160deg, #3b4a3f, #1b231d); }
+  .app { display: grid; justify-items: center; gap: 5px; font-size: 11px; color: #fff; text-shadow: 0 1px 2px #0008; }
+  .app img, .app .fake { width: 60px; height: 60px; }
+  .ios .app img, .ios .app .fake { border-radius: 13.5px; }
+  .android .app img, .android .app .fake { border-radius: 50%; }
+  .fake { display: block; }
+
+  /* --- switcher --- */
+  .switcher { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 6px; background: #fff; color: #111; border-radius: 999px; padding: 6px; box-shadow: 0 8px 30px #000a; font: 600 14px system-ui; z-index: 10; }
+  .switcher button { width: 48px; height: 48px; border-radius: 50%; border: 0; background: #111; color: #fff; font-size: 18px; cursor: pointer; }
+  .switcher .label { padding: 0 14px; min-width: 210px; text-align: center; }
+  .all { display: flex; gap: 10px; flex-wrap: wrap; }
+  .all a { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 999px; background: #242030; color: var(--text); text-decoration: none; font-size: 13px; min-height: 48px; }
+  .all a[aria-current] { outline: 2px solid var(--pink); }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Favicon: <span class="variant-name" id="vname"></span></h1>
+    <p class="note" id="vnote"></p>
+    <p class="note">Strelice ← → ili traka dolje mijenjaju varijantu. Ikona u pravom tabu ovog preglednika je također trenutna varijanta.</p>
+  </header>
+
+  <section>
+    <h2>Sve četiri, 16 i 32 px</h2>
+    <div class="all" id="all"></div>
+  </section>
+
+  <section>
+    <h2>Chrome, svijetla tema</h2>
+    <div class="strip light" id="strip-light"></div>
+    <div class="toolbar"><div class="url">voxfordofficial.com/en/</div></div>
+    <h2 style="margin-top:22px">Chrome, tamna tema</h2>
+    <div class="strip dark" id="strip-dark"></div>
+    <div class="toolbar"><div class="url">voxfordofficial.com/hr/</div></div>
+  </section>
+
+  <section>
+    <h2>Stvarna veličina na raznim podlogama (zadnja je 16 px povećana 4×)</h2>
+    <div class="sizes" id="sizes"></div>
+  </section>
+
+  <section>
+    <h2>Početni zaslon: iOS (apple-touch-icon 180) i Android (maskable 192)</h2>
+    <div class="homes">
+      <div class="phone ios" id="ios"></div>
+      <div class="phone android" id="android"></div>
+    </div>
+  </section>
+</main>
+
+<div class="switcher" role="toolbar" aria-label="Varijanta">
+  <button id="prev" aria-label="Prethodna">←</button>
+  <div class="label" id="label"></div>
+  <button id="next" aria-label="Sljedeća">→</button>
+</div>
+
+<script>
+const INK = '#0a0910', TEXT = '#eceaf2', PINK = '#f66386', PURPLE = '#8345a0', BLUE = '#1026b8';
+const V_D = 'M400 1000H700V850H625L475 0H225L75 850H0V1000H300V850H225L350 150L475 850H400Z';
+const SIL_D = 'M0 0H1241V880C1241 1140 960 1320 620.5 1433C281 1320 0 1140 0 880Z';
+
+const svg = (body, size = 64) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}">${body}</svg>`;
+const uri = (s) => 'data:image/svg+xml,' + encodeURIComponent(s);
+
+// Shield traced from the KB crest (1241×1433 native), placed by height h, centred at cx, top y.
+const shieldDetail = (cx, y, h, fill) => {
+  const k = h / 1433;
+  return `<g transform="translate(${cx - 620.5 * k} ${y}) scale(${k}) translate(0 1433) scale(.1 -.1)" fill="${fill}"><path d="${SHIELD_D}"/></g>`;
+};
+const shieldSil = (cx, y, h, fill) => {
+  const k = h / 1433;
+  return `<path transform="translate(${cx - 620.5 * k} ${y}) scale(${k})" d="${SIL_D}" fill="${fill}"/>`;
+};
+// Staubach "V" (700×1000 font units, y up), placed by height h, centred at cx, top y.
+const vee = (cx, y, h, fill) => {
+  const s = h / 1000;
+  return `<path transform="translate(${cx - 350 * s} ${y + 1000 * s}) scale(${s} ${-s})" d="${V_D}" fill="${fill}"/>`;
+};
+const defs = `<defs>
+  <linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${PINK}"/><stop offset=".5" stop-color="${PURPLE}"/><stop offset="1" stop-color="${BLUE}"/></linearGradient>
+  <linearGradient id="gh" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${PINK}"/><stop offset=".5" stop-color="${PURPLE}"/><stop offset="1" stop-color="${BLUE}"/></linearGradient>
+  <radialGradient id="glow" cx=".15" cy=".05" r=".9"><stop offset="0" stop-color="${PINK}" stop-opacity=".45"/><stop offset=".45" stop-color="${PURPLE}" stop-opacity=".25"/><stop offset="1" stop-color="${BLUE}" stop-opacity="0"/></radialGradient>
+</defs>`;
+const stage = (size) => `<rect width="${size}" height="${size}" fill="${INK}"/><rect width="${size}" height="${size}" fill="url(#glow)"/>`;
+
+const VARIANTS = [
+  {
+    key: 'A', name: 'Štit iz grba',
+    note: 'Štit iz grba (šahovnica: zgrada, 20, 21, V) bez krune i vijenca. Bijeli na tamnoj temi, tamni na svijetloj (prefers-color-scheme). Na 16 px čita se kao štit sa šahovnicom; brojke nestaju.',
+    fav: (dark) => svg(shieldDetail(32, 0.5, 63, dark ? TEXT : INK)),
+    tile: () => svg(defs + stage(180) + shieldDetail(90, 34, 112, TEXT), 180),
+  },
+  {
+    key: 'B', name: 'Štit sa V, gradijent',
+    note: 'Obris štita u gradijentu svjetla (roza → ljubičasta → plava) i bijelo Staubach „V” (prvo slovo i rimska petica s grba). Isti u obje teme; najjači kontrast na 16 px.',
+    fav: () => svg(defs + shieldSil(32, 0.5, 63, 'url(#g)') + vee(32, 13, 31, '#fff')),
+    tile: () => svg(defs + stage(180) + shieldSil(90, 32, 116, 'url(#g)') + vee(90, 56, 56, '#fff'), 180),
+  },
+  {
+    key: 'C', name: 'V pločica, dvorana',
+    note: 'Tamna pločica kao dvorana, sjaj u kutu i tanka linija svjetla, bijelo Staubach „V”. Ista ikona u tabu i na početnom zaslonu. Na tamnoj temi pločica se manje odvaja od trake.',
+    fav: () => svg(defs + `<rect width="64" height="64" rx="14" fill="${INK}"/><rect width="64" height="64" rx="14" fill="url(#glow)"/>` + vee(32, 9, 40, '#fff') + `<rect x="12" y="54" width="40" height="3.5" rx="1.75" fill="url(#gh)"/>`),
+    tile: () => svg(defs + stage(180) + vee(90, 38, 92, '#fff') + `<rect x="46" y="140" width="88" height="6" rx="3" fill="url(#gh)"/>`, 180),
+  },
+  {
+    key: 'D', name: 'Danas (postojeći PNG)',
+    note: 'Ono što je sada na stranici: puni ljubičasti grb (kruna, vijenac, štit) na bijelom kvadratu, rasterski.',
+    fav: () => null, png: () => TODAY_PNG,
+    tile: () => null,
+  },
+];
+
+const favSrc = (v, dark) => v.png ? v.png() : uri(v.fav(dark));
+const tileSrc = (v) => v.tile() ? uri(v.tile()) : '../../public/apple-touch-icon.png';
+
+function generic(color, round) { return `<i class="generic" style="background:${color};border-radius:${round ? '50%' : '3px'}"></i>`; }
+
+function strip(v, dark) {
+  const me = `<img src="${favSrc(v, dark)}" width="16" height="16" alt="">`;
+  return `
+    <div class="tab pinned">${generic('#ea4335', false)}</div>
+    <div class="tab pinned">${me}</div>
+    <div class="tab normal">${generic('#1a73e8', false)}<span>Kalendar — tjedan</span></div>
+    <div class="tab normal active">${me}<span>Voxford — A cappella group from Zagreb, Croatia</span></div>
+    <div class="tab normal">${generic('#ff0033', true)}<span>Voxford — YouTube</span></div>
+    <div class="tab normal">${me}<span>Konferencije i poslovni događaji · Voxford</span></div>`;
+}
+
+function render() {
+  const key = new URLSearchParams(location.search).get('variant') ?? 'A';
+  const i = Math.max(0, VARIANTS.findIndex((v) => v.key === key));
+  const v = VARIANTS[i];
+  document.getElementById('vname').textContent = `${v.key} — ${v.name}`;
+  document.getElementById('vnote').textContent = v.note;
+  document.getElementById('label').textContent = `${v.key} (${v.name})`;
+  document.getElementById('fav').href = favSrc(v, matchMedia('(prefers-color-scheme: dark)').matches);
+
+  document.getElementById('all').innerHTML = VARIANTS.map((x) =>
+    `<a href="?variant=${x.key}" ${x === v ? 'aria-current="true"' : ''}>${x.key}
+      <img src="${favSrc(x, true)}" width="16" height="16" alt=""><img src="${favSrc(x, true)}" width="32" height="32" alt=""></a>`).join('');
+
+  document.getElementById('strip-light').innerHTML = strip(v, false);
+  document.getElementById('strip-dark').innerHTML = strip(v, true);
+
+  const bgs = [['#ffffff', '#222', false, 'bijela'], ['#dee1e6', '#222', false, 'svijetli Chrome'], ['#35363a', '#eee', true, 'tamni Chrome'], ['#0a0910', '#eee', true, 'naša pozadina']];
+  document.getElementById('sizes').innerHTML = bgs.map(([bg, fg, dark, label]) => {
+    const s = favSrc(v, dark);
+    return `<div class="swatch" style="background:${bg};color:${fg}">
+      <img src="${s}" width="16" height="16" alt=""><img src="${s}" width="32" height="32" alt=""><img src="${s}" width="48" height="48" alt="">
+      <canvas class="zoom" data-src="${s}" width="16" height="16"></canvas>
+      <small>${label}</small></div>`;
+  }).join('');
+  // the 4× zoom shows the real 16 px raster, not a re-render at 64
+  document.querySelectorAll('canvas.zoom').forEach((c) => {
+    const img = new Image(); img.onload = () => { const x = c.getContext('2d'); x.clearRect(0, 0, 16, 16); x.drawImage(img, 0, 0, 16, 16); }; img.src = c.dataset.src;
+  });
+
+  const others = (round) => [['#34c759', 'Poruke'], ['#0a84ff', 'Safari'], ['#ff9f0a', 'Bilješke'], ['#ff2d55', 'Glazba'], ['#5e5ce6', 'Kalendar'], ['#30b0c7', 'Vrijeme'], ['#8e8e93', 'Postavke']]
+    .map(([c, n]) => `<div class="app"><i class="fake" style="background:${c}"></i>${n}</div>`);
+  const mine = `<div class="app"><img src="${tileSrc(v)}" alt="">Voxford</div>`;
+  const ios = others(); ios.splice(5, 0, mine);
+  const and = others(); and.splice(5, 0, mine);
+  document.getElementById('ios').innerHTML = ios.join('');
+  document.getElementById('android').innerHTML = and.join('');
+  return i;
+}
+
+function go(step) {
+  const i = render();
+  const next = VARIANTS[(i + step + VARIANTS.length) % VARIANTS.length].key;
+  history.replaceState(null, '', `?variant=${next}`);
+  render();
+}
+document.getElementById('prev').onclick = () => go(-1);
+document.getElementById('next').onclick = () => go(1);
+addEventListener('keydown', (e) => {
+  if (e.target.closest('input, textarea, [contenteditable]')) return;
+  if (e.key === 'ArrowLeft') go(-1);
+  if (e.key === 'ArrowRight') go(1);
+});
+addEventListener('popstate', render);
+render();
+</script>
+</body>
+</html>
