@@ -26,8 +26,7 @@
     "more": "More videos",
     "closing": "Want this live at your event?",
     "recorded": "Recorded",
-    "captionLine": "[A cappella: five voices, no instruments]",
-    "captionLabel": "English"
+    "captionLine": "[A cappella performance, five voices, no instruments]"
   },
   "card": {
     "play": "Play {title}"

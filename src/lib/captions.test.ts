@@ -4,15 +4,17 @@ import { captionPath, captionVtt } from './captions';
 
 describe('captions', () => {
   it('is a valid one-cue WebVTT file', () => {
-    const vtt = captionVtt('[A cappella]');
-    expect(vtt.startsWith('WEBVTT\n\n')).toBe(true);
-    expect(vtt).toMatch(/^00:00:00\.000 --> \d{2}:\d{2}:\d{2}\.\d{3}\n\[A cappella\]\n$/m);
+    expect(captionVtt('[A cappella]')).toBe('WEBVTT\n\n00:00:00.000 --> 01:00:00.000\n[A cappella]\n');
   });
 
-  it('has a line in both languages, on a path per language', () => {
-    for (const lang of ['en', 'hr'] as const) {
-      expect(getStrings(lang).videos.watch.captionLine.length).toBeGreaterThan(5);
-      expect(captionPath(lang)).toBe(`/captions/${lang}.vtt`);
-    }
+  it('escapes the characters WebVTT cue text reserves', () => {
+    expect(captionVtt('Rock & <roll>')).toContain('\nRock &amp; &lt;roll>\n');
+  });
+
+  it('carries Josip\'s line (#84, option b) in both languages, on a path per language', () => {
+    expect(getStrings('en').videos.watch.captionLine).toBe('[A cappella performance, five voices, no instruments]');
+    expect(getStrings('hr').videos.watch.captionLine).toBe('[A cappella izvedba, pet glasova, bez instrumenata]');
+    expect(captionPath('en')).toBe('/captions/en.vtt');
+    expect(captionPath('hr')).toBe('/captions/hr.vtt');
   });
 });

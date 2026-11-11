@@ -11,5 +11,7 @@ export function captionPath(lang: Locale): string {
 
 /** One cue from the start to past the end of any clip (the longest is under a minute). */
 export function captionVtt(line: string): string {
-  return `WEBVTT\n\n00:00:00.000 --> 01:00:00.000\n${line}\n`;
+  // Cue text is markup in WebVTT: `&` and `<` must be escaped.
+  const text = line.replaceAll('&', '&amp;').replaceAll('<', '&lt;');
+  return `WEBVTT\n\n00:00:00.000 --> 01:00:00.000\n${text}\n`;
 }

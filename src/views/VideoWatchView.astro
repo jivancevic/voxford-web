@@ -73,7 +73,7 @@ const others = (await getCollection('videos')).filter((v) => v.id !== video.id).
         aria-label={format(t.videos.watch.playerLabel, { title })}
       >
         {sources.map((s) => <source src={s.src} type={s.type} />)}
-        <track kind="captions" src={captionPath(lang)} srclang={lang} label={t.videos.watch.captionLabel} />
+        <track kind="captions" src={captionPath(lang)} srclang={lang} label={LOCALE_META[lang].label} />
         <p>
           {t.videos.watch.noVideo} <a href={h264.src}>{title}</a>
         </p>
