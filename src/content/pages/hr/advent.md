@@ -1,5 +1,5 @@
 ---
-title: "Adventski i ljetni koncerti za gradove i turističke zajednice"
+title: "Adventski i ljetni koncerti za gradove i TZ"
 description: "Voxford održava adventske, ljetne i festivalske koncerte za gradove i turističke zajednice diljem Hrvatske i regije, a cappella ili uz klavir i cajon."
 heading: "Advent i koncerti"
 source: "brand/biografija.md, brand/u-medijima.md, posao/klijenti/reference.md, posao/rideri/rideri.md"

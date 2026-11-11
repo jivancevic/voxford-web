@@ -43,8 +43,9 @@ const others = (await getCollection('videos')).filter((v) => v.id !== video.id).
 <BaseLayout
   lang={lang}
   alternates={alternates}
-  title={title}
+  title={format(t.videos.watch.tabTitle, { title })}
   description={description}
+  ogImage={{ path: `/og/${video.id}.jpg`, alt: format(t.videos.watch.posterAlt, { title }) }}
   jsonLd={[
     breadcrumbsFor(site, 'videos', lang, [{ name: title, path }]),
     videoObjectJsonLd(site, {

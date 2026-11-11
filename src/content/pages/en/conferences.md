@@ -1,6 +1,6 @@
 ---
-title: "Live music for conferences and corporate events in Zagreb"
-description: "Voxford, a cappella group from Zagreb, Croatia: live music for conferences, galas and award nights in Zagreb, Croatia and the region. No stage build."
+title: "Music for conferences & corporate events in Zagreb"
+description: "Voxford, a cappella group from Zagreb, Croatia: live music for conferences, gala dinners and award nights in Zagreb and the region. Five voices, no stage build."
 heading: "Conferences & corporate events"
 source: "brand/biografija.md, posao/ponuda/ponuda.md, posao/rideri/rideri.md, posao/klijenti/reference.md, brand/u-medijima.md, repertoar/repertoar.md"
 ---

@@ -1,6 +1,6 @@
 ---
 title: "Packages: POP-UP, CLASSIC and GOLD"
-description: "Book Voxford as POP-UP (up to {popUpMax} min), CLASSIC ({classicMin} to {classicMax} min a cappella) or GOLD ({goldMin} to {goldMax} min, piano and cajón)."
+description: "Book Voxford as POP-UP (up to {popUpMax} min), CLASSIC ({classicMin} to {classicMax} min a cappella) or GOLD ({goldMin} to {goldMax} min with piano and cajón), with our sound engineer or yours."
 heading: "Packages"
 source: "posao/ponuda/ponuda.md, CONTEXT.md › Paket, posao/rideri/rideri.md"
 ---
