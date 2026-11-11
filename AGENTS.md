@@ -18,7 +18,7 @@ Tickets B–E run in parallel worktrees on top of ticket A. Each owns its files 
 
 | Seam | Files | Owner | Others may |
 |---|---|---|---|
-| Design tokens | `src/styles/tokens.css` (the only place colours, type, spacing live), `src/styles/global.css` (pill, label, light line, base) | A | read only; a missing token is a PR note, not a local hex |
+| Design tokens | `src/styles/tokens.css` (the only place colours, type, spacing live), `src/styles/global.css` (pill, label, light line, `.tap-target`, base) | A | read only; a missing token is a PR note, not a local hex |
 | Layout shell | `src/layouts/BaseLayout.astro`, `src/components/{SiteHeader,SiteFooter,LanguageSwitch,Crest,Pill,Photo,JsonLd,PagePlaceholder}.astro` | A | use; pass `jsonLd`, `noindex`, `ogPhoto` (or `ogImage`, a ready 1200×630 path) through props |
 | Route table | `src/i18n/routes.ts` (paths per language, nav order), `src/pages/**` wrappers, `public/_redirects` (retired pages → 301) | A | read only; wrappers stay one line |
 | Icons and manifest | `src/assets/brand/crest-shield.svg` (the crest's shield, traced; the only source), `scripts/icons.mjs` → `public/{favicon.svg,favicon.ico,apple-touch-icon.png,icon-192.png,icon-512.png}`; `src/pages/site.webmanifest.ts`; watch-page share cards `src/pages/og/[video].jpg.ts` | A | never edit the PNG/ICO by hand: change the source or `tokens.css`, run `node scripts/icons.mjs`, commit what it writes |
@@ -52,6 +52,7 @@ Shared rules for B–E:
 - **Staubach (`.display`, `.numeral`) only for Latin-only words and numbers**: it has no Č Ć Ž Đ, and Š renders as S. Headlines that may carry Croatian letters use the headline face (h1–h3 default).
 - **No stretched buttons**: use `Pill` or `InquiryCTA` (content-width, ≥48px tall, ~28px side padding, aspect ≤ 3:1); never `width: 100%` on a button.
 - **One pill per block, arrow links for the rest** (Josip, #40): the block's primary action is a `Pill`/`InquiryCTA`; a secondary link ("All questions", "Compare the packages", Map) is `.arrow-link` from `global.css` (`--out` for another site), never a second pill or a default underlined link. Links inside running prose stay plain.
+- **44px to tap on phones** (#80): a small standalone link (an email, a back link, a card title, "Open on YouTube") gets `class="tap-target"` from `global.css`, an invisible touch-only `::after` that grows the hit area to 44px without moving anything; a link that already uses `::after` needs its own. Stacked lists use `min-block-size: 2.75rem` under `@media (pointer: coarse)`, written *after* the base rule: a media query adds no specificity, so a block placed before a same-specificity base rule silently loses (#81's review caught one).
 - **All text in static HTML**; motion only enhances what is already in the DOM.
 - `npm test` must stay green: `src/i18n/parity.test.ts` fails when a key or page entry exists in one language only, `routes.test.ts` when a route has no wrapper, `contrast.test.ts` when a token pair drops below its ratio.
 
