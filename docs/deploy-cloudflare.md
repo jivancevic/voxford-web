@@ -100,7 +100,7 @@ By hand: dashboard › voxford-web › Deployments › the last good version ›
 - **Email** (production since #65): with the `EMAIL` binding and `INQUIRY_FROM` set, a submission that passes Turnstile is emailed from `inquiry@voxfordofficial.com` to `voxford.official@gmail.com`, with Reply-To the visitor's name and address.
 - **mailto fallback**: the form hands the written-out inquiry to the visitor's own mail app, addressed to `voxford.official@gmail.com`. Nothing is sent from the Worker. It is what a submission without a Turnstile token gets (no JavaScript, widget blocked), what every preview version gets (previews have no `EMAIL` binding and are not on the widget), and, with an error message, what a failed check, a rate-limited attempt or a failed send get.
 
-Order inside the Worker: validation (422), honeypot (pretend success), no token → mailto, rate limit (429), Siteverify (403, fail closed), send (502 on failure). Single-line fields have control characters folded to a space before they reach the subject, so nothing a visitor types can add a header.
+Order inside the Worker: honeypot (pretend success, even when the rest is invalid), validation (422), no email transport or no token → mailto, rate limit (429), Siteverify (403, fail closed), send (502 on failure). Single-line fields have control characters folded to a space before they reach the subject, so nothing a visitor types can add a header.
 
 Names only here; values never go in a file or a PR.
 

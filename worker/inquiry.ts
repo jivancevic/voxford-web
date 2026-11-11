@@ -8,7 +8,7 @@ import { expectedHostnames, verifyTurnstile } from './turnstile';
 //
 //   honeypot filled            → pretend success, send nothing
 //   invalid                    → 422 with a code per field (JSON); a plain POST goes to the mail app
-//   no email transport yet     → the mailto: fallback (spec: until the domain exists)
+//   no email transport         → the mailto: fallback (previews, local dev)
 //   no Turnstile token         → the mailto: fallback (no JS, or the widget was blocked):
 //                                the visitor's own mail app sends it, so nothing here can be abused
 //   over the rate limit        → 429 + mailto, before siteverify, nothing sent
