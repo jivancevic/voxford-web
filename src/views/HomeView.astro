@@ -370,13 +370,15 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
   /* Not a stacking context on wide screens (no z-index, transform or mask
      here), so the headline can sit between the planes. */
   .hero__scene {
+    /* The stage's real height: never under its min-block-size (34rem). */
+    --stage-real: max(var(--stage-h), 34rem);
     --lead-end: calc(max(var(--gutter), (100% - var(--content-max)) / 2) + var(--lead-w) + var(--space-6));
     /* The headline's foot: its top padding plus two display lines (leading 1). */
     --title-end: calc(clamp(var(--space-6), 7svh, var(--space-9)) + 2 * var(--text-display));
     --fig-w: min(
       calc((100% - var(--lead-end) - var(--gutter)) / 0.7667),
-      calc(var(--stage-h) * 1.45),
-      calc((var(--stage-h) * 0.945 - var(--title-end) - var(--space-3)) * 2.113)
+      calc(var(--stage-real) * 1.45),
+      calc((var(--stage-real) * 0.945 - var(--title-end) - var(--space-3)) * 2.113)
     );
     position: absolute;
     inset: 0;
@@ -420,7 +422,7 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
   .hero__scene :global(.hero__front) {
     inset: auto;
     inset-inline-end: calc(var(--gutter) - var(--fig-w) * 0.0222);
-    inset-block-end: calc(var(--stage-h) * 0.055);
+    inset-block-end: calc(var(--stage-real) * 0.055);
     inline-size: var(--fig-w);
     block-size: auto;
     aspect-ratio: 3 / 2;
