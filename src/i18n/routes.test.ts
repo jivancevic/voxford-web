@@ -1,10 +1,23 @@
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { LOCALES } from './locales';
 import { PAGE_KEYS, ROUTES, alternatesFor, pageForPath, pathFor } from './routes';
 
 const pagesDir = fileURLToPath(new URL('../pages/', import.meta.url));
+const redirectsFile = fileURLToPath(new URL('../../public/_redirects', import.meta.url));
+
+/** `public/_redirects` rules (Workers static assets): source, target, status. */
+function readRedirects(): { from: string; to: string; status: string }[] {
+  return readFileSync(redirectsFile, 'utf8')
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line && !line.startsWith('#'))
+    .map((line) => {
+      const [from = '', to = '', status = ''] = line.split(/\s+/);
+      return { from, to, status };
+    });
+}
 
 describe('route table', () => {
   it('has a page wrapper for every page in every language', () => {
@@ -54,5 +67,27 @@ describe('route table', () => {
     expect(pageForPath('/hr/o-nama/')).toEqual({ page: 'about', lang: 'hr' });
     expect(pageForPath('/en/about')).toEqual({ page: 'about', lang: 'en' });
     expect(pageForPath('/en/nope/')).toBeUndefined();
+  });
+});
+
+describe('public/_redirects (retired pages)', () => {
+  it('moves the retired Private celebrations page to Home, with and without the slash (#52)', () => {
+    const rules = readRedirects().map(({ from, to }) => `${from} ${to}`);
+    expect(rules).toEqual(
+      expect.arrayContaining([
+        '/en/private-celebrations /en/',
+        '/en/private-celebrations/ /en/',
+        '/hr/privatne-proslave /hr/',
+        '/hr/privatne-proslave/ /hr/',
+      ]),
+    );
+  });
+
+  it('redirects only paths that are no longer pages, only to pages, always with a 301', () => {
+    for (const { from, to, status } of readRedirects()) {
+      expect(pageForPath(from), `${from} is still a page`).toBeUndefined();
+      expect(pageForPath(to), `${to} is not a page`).toBeDefined();
+      expect(status, from).toBe('301');
+    }
   });
 });

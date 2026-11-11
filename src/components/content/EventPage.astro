@@ -1,5 +1,6 @@
 ---
-// The shared body of the event pages (Weddings, Private celebrations): hero
+// The body of an event page (today only Weddings; Private celebrations was
+// retired in #52): hero
 // with the inquiry prefilled for the event type, facts, programme, a photo
 // band, prose, packages, FAQ, videos and the end screen, plus their JSON-LD
 // (BreadcrumbList, one Service with an Offer per package and no price, FAQPage).
@@ -30,7 +31,7 @@ import Prose from './Prose.astro';
 
 interface Props {
   lang: Locale;
-  page: 'weddings' | 'private';
+  page: 'weddings';
   type: EventType;
   heroPhoto: PhotoKey;
   bandPhoto: PhotoKey;

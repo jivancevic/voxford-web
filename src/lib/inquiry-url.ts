@@ -1,5 +1,5 @@
 // The inquiry prefill contract (docs/spec.md › Audience, action, language):
-//   /{lang}/inquiry/?type=conference|wedding|advent|concert|private|other
+//   /{lang}/inquiry/?type=conference|wedding|advent|concert|other
 //                   &date=YYYY-MM-DD&city=<text>&package=pop-up|classic|gold
 // Pages build links with inquiryUrl(); the form (ticket D) reads them back with
 // parseInquiryPrefill(). Both sides go through this file, so they cannot drift.

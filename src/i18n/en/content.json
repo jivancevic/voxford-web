@@ -278,47 +278,6 @@
     ],
     "serviceType": "Advent and summer concerts for cities and tourist boards"
   },
-  "private": {
-    "lead": "{disambiguation}. At a private celebration we walk in as a surprise of up to {popUpMax} minutes or give the guests a full concert.",
-    "facts": [
-      {
-        "term": "Surprise",
-        "detail": "POP-UP, up to {popUpMax} minutes"
-      },
-      {
-        "term": "Concert",
-        "detail": "CLASSIC, {classicMin} to {classicMax} minutes, or GOLD with piano and cajón"
-      },
-      {
-        "term": "Where",
-        "detail": "Zagreb, the rest of Croatia and the region"
-      },
-      {
-        "term": "Privacy",
-        "detail": "We never publish the names of private clients"
-      }
-    ],
-    "programmeHeading": "How it can go",
-    "programmeIntro": "Three ways to have us at a private celebration.",
-    "moments": [
-      {
-        "title": "The surprise",
-        "package": "pop-up",
-        "body": "We walk in unannounced, sing for the person you are celebrating and leave the party to carry on. Up to {popUpMax} minutes."
-      },
-      {
-        "title": "A concert for the guests",
-        "package": "classic",
-        "body": "{classicMin} to {classicMax} minutes of a cappella, with a set list built around the people in the room."
-      },
-      {
-        "title": "The full concert",
-        "package": "gold",
-        "body": "{goldMin} to {goldMax} minutes with piano and cajón: a full concert for your guests."
-      }
-    ],
-    "serviceType": "Live music for private celebrations"
-  },
   "about": {
     "lead": "{disambiguation}. We are five singers from different parts of Croatia, based in Zagreb, mixing modern a cappella with the sound of Dalmatian klapa.",
     "membersHeading": "The five",

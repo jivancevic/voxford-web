@@ -37,7 +37,7 @@ The cost of the crew's trip from Zagreb and back, always separate from the packa
 _Avoid_: "travel included"
 
 **Event type**:
-The occasion an inquiry is for: conference, wedding, advent, concert, private, other. Conferences and corporate events are the site's primary audience.
+The occasion an inquiry is for: conference, wedding, advent, concert, other. Conferences and corporate events are the site's primary audience.
 
 **Reference** (HR **referenca**):
 An organisation Voxford performed for or worked with (a company, a city or tourist board, an institution, a festival, a stage it was invited onto, an artist who invited them), shown by name and logo, or by name when no clean official logo exists. Private clients are never references.

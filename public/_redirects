@@ -1,0 +1,10 @@
+# Cloudflare Workers static assets redirects. Retired pages only: each source
+# is no longer a page in src/i18n/routes.ts, each target is one, every status
+# is 301 (routes.test.ts checks all three). Both slash forms, because with
+# html_handling "auto-trailing-slash" a missing page gets no slash redirect.
+
+# Private celebrations, retired 2026-11-11 (#52): not generally offered.
+/en/private-celebrations   /en/  301
+/en/private-celebrations/  /en/  301
+/hr/privatne-proslave      /hr/  301
+/hr/privatne-proslave/     /hr/  301

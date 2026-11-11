@@ -17,7 +17,6 @@
     "conferences": "Konferencije i tvrtke",
     "weddings": "Vjenčanja",
     "advent": "Advent i koncerti",
-    "private": "Privatne proslave",
     "about": "O nama",
     "packages": "Paketi",
     "faq": "Česta pitanja",
@@ -48,7 +47,7 @@
     "note": "Ova stranica je u izradi."
   },
   "llms": {
-    "summary": "Pet pjevača, od {year}., nastupaju na konferencijama i poslovnim događajima, vjenčanjima, adventskim i ljetnim koncertima te privatnim proslavama u Zagrebu, diljem Hrvatske i regije.",
+    "summary": "Pet pjevača, od {year}., nastupaju na konferencijama i poslovnim događajima, vjenčanjima te adventskim i ljetnim koncertima u Zagrebu, diljem Hrvatske i regije.",
     "members": "Članovi (raspored na pozornici)",
     "packages": "Paketi",
     "stages": "Pozornice",

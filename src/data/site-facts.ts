@@ -199,6 +199,6 @@ export const STAGES = [
 /** Where they perform: Croatia and the region (spec: no doorway pages, covered by areaServed). */
 export const AREA_SERVED = ['Croatia', 'Slovenia', 'Austria'] as const;
 
-export type EventType = 'conference' | 'wedding' | 'advent' | 'concert' | 'private' | 'other';
-export const EVENT_TYPES: readonly EventType[] = ['conference', 'wedding', 'advent', 'concert', 'private', 'other'];
+export type EventType = 'conference' | 'wedding' | 'advent' | 'concert' | 'other';
+export const EVENT_TYPES: readonly EventType[] = ['conference', 'wedding', 'advent', 'concert', 'other'];
 export const PACKAGE_KEYS: readonly PackageKey[] = PACKAGES.map((p) => p.key);
