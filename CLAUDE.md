@@ -16,7 +16,7 @@ npm test           # unit tests: inquiry contract, routes, EN/HR parity, JSON-LD
 npm run test:dist  # checks the built HTML in dist/ (head, hreflang reciprocity, JSON-LD, sitemap) and that its media is served with byte ranges
 ```
 
-Tier A site with tests where they pay: the two dynamic paths (inquiry, reels sync: tickets D, E), the EN/HR parity check and the built-HTML checks. No feature suite for static pages, on purpose.
+Tier A site with tests where they pay: the two dynamic paths (inquiry, reels sync), the EN/HR parity check and the built-HTML checks. No feature suite for static pages, on purpose.
 
 ## Stack
 
@@ -44,6 +44,7 @@ Tier A site with tests where they pay: the two dynamic paths (inquiry, reels syn
 | Tickets A–G | `docs/tickets.md` |
 | Domain glossary | `CONTEXT.md` |
 | Seams, ownership, shipping facts | `AGENTS.md` |
+| CSS, layout, voice and typography rules | `CODING_STANDARDS.md` |
 | Decisions | `docs/adr/` |
 | Deploy, rollback, setup | `docs/deploy-cloudflare.md` |
 | Research (SEO/GEO, inspiration, domain) | `docs/research/` |
