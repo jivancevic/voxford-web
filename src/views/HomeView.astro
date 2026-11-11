@@ -675,9 +675,9 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
   }
 
   /* The section's control: a pill under the heading (#77), off every portrait.
-     Primary at rest; while the music plays it steps back to the ghost pill so
-     the singers carry the act. Pill is a child component, so its root takes
-     the class but not this view's scope: anchor the selector on .chord. */
+     Primary at rest; while the music plays the script swaps it to the ghost
+     pill so the singers carry the act. Pill is a child component, so its root
+     takes the class but not this view's scope: anchor the selector on .chord. */
   .chord :global(.chord__play) {
     position: relative;
     z-index: 2;
@@ -687,13 +687,6 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
 
   .chord :global(.chord__play[hidden]) {
     display: none;
-  }
-
-  .chord[data-chord-state='playing'] :global(.chord__play) {
-    background:
-      linear-gradient(var(--color-bg), var(--color-bg)) padding-box,
-      var(--gradient-light) border-box;
-    color: var(--color-text);
   }
 
   .chord__icon {
