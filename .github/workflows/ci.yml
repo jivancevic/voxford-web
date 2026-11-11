@@ -61,6 +61,19 @@ jobs:
       - run: npm run build
       - name: Built site passes the HTML checks
         run: npm run test:dist
+      # The layout sweep (tests/layout, #102): every page at the edge viewports in Chromium.
+      - name: Install Chromium for the layout sweep
+        run: npx playwright install --with-deps chromium
+      - name: Built site passes the layout sweep
+        run: npm run test:layout
+      - name: Upload the layout sweep's screenshots and summary
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: layout-sweep
+          path: test-results/layout/
+          if-no-files-found: ignore
+          retention-days: 14
       - name: Worker bundles
         run: npx wrangler deploy --dry-run --outdir .wrangler/dry-run
 

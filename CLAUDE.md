@@ -14,9 +14,10 @@ npm run lint       # ESLint
 npm run check      # astro check (TS + .astro) and the Worker's tsc
 npm test           # unit tests: inquiry contract, routes, EN/HR parity, JSON-LD, sitemap, token contrast, Worker
 npm run test:dist  # checks the built HTML in dist/ (head, hreflang reciprocity, JSON-LD, sitemap) and that its media is served with byte ranges
+npm run test:layout # Playwright sweep of dist/ at edge viewports (overflow, overlap, stretched pills, 44px taps, pinned stages); failures in test-results/layout/
 ```
 
-Tier A site with tests where they pay: the two dynamic paths (inquiry, reels sync: tickets D, E), the EN/HR parity check and the built-HTML checks. No feature suite for static pages, on purpose.
+Tier A site with tests where they pay: the two dynamic paths (inquiry, reels sync: tickets D, E), the EN/HR parity check, the built-HTML checks and the layout sweep. No feature suite for static pages, on purpose.
 
 ## Stack
 

@@ -505,4 +505,13 @@ const MENU_PROFILES: readonly ProfileKey[] = ['instagram', 'tiktok', 'youtube'];
       display: none;
     }
   }
+
+  /* A wide touch screen (a tablet on its side) gets the inline nav: a short
+     link ("FAQ") is 44px wide there, its text centred (#102). */
+  @media (pointer: coarse) {
+    .header__link {
+      justify-content: center;
+      min-inline-size: 2.75rem;
+    }
+  }
 </style>

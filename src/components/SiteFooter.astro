@@ -182,12 +182,17 @@ const footerPages = await withoutEmptyConcerts(FOOTER_PAGES);
     }
   }
 
-  /* Touch screens: 44px per link, so stacked links are not 36px apart (#80).
+  /* Touch screens: 44px per link, so stacked links are not 36px apart (#80),
+     and 44px wide, so a short one ("FAQ") is too (#102); the text stays left.
      After the base rules above: a media query adds no specificity. */
   @media (pointer: coarse) {
     .footer__list a,
     .footer .footer__credit {
       min-block-size: 2.75rem;
+    }
+
+    .footer__list a {
+      min-inline-size: 2.75rem;
     }
   }
 

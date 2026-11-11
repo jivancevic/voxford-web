@@ -3,6 +3,7 @@
 .astro/
 .wrangler/
 coverage/
+test-results/
 *.tsbuildinfo
 
 # dependencies
