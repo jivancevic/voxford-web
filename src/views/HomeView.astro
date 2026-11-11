@@ -158,7 +158,7 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
                       alt=""
                       formats={['avif', 'webp']}
                       widths={[200, 320, 480, 640]}
-                      sizes="(width < 48rem) 32vw, (width < 64rem) and (orientation: portrait) 12rem, min(15rem, 17vw)"
+                      sizes="(width < 64rem) and (orientation: portrait) min(30vw, 12rem), (width < 48rem) 19vw, min(15rem, 17vw)"
                       loading="lazy"
                       decoding="async"
                     />
@@ -826,12 +826,13 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
     color: var(--color-text-muted);
   }
 
-  /* Three over two, the way we stand in our videos (#77), on phones and on
-     tablets held upright: the stage order folded, 1st, 3rd and 5th at the
-     back, 2nd and 4th in front, each centred between two of the back row. Six
-     columns, every card spans two, no card covers another. This layout never
-     pins (see the pin's media query), so the stage is as tall as what it holds. */
-  @media (width < 48rem), (width < 64rem) and (orientation: portrait) {
+  /* Three over two, the way we stand in our videos (#77), on phones and
+     tablets held upright (a phone on its side keeps the single row): the
+     stage order folded, 1st, 3rd and 5th at the back, 2nd and 4th in front,
+     each centred between two of the back row. Six columns, every card spans
+     two, no card covers another. This layout never pins (see the pin's media
+     query), so the stage is as tall as what it holds. */
+  @media (width < 64rem) and (orientation: portrait) {
     .chord__stage {
       min-block-size: 0;
     }
