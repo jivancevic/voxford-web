@@ -571,18 +571,18 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
     display: grid;
     grid-template-rows: auto 1fr auto;
     gap: var(--space-5);
-    min-block-size: var(--stage-h);
     padding-block: var(--space-6) var(--space-5);
     overflow: clip;
     isolation: isolate;
   }
 
   /* Pinned only on windows wide and tall enough for head, portraits and foot;
-     below that (every phone and tablet) the act scrolls by like any other. The voices
-     follow the music, not the scroll, so the pin only holds the stage while it
-     plays. The stage has a minimum height, never a fixed one: when 100svh comes
-     out smaller than the content (iOS once reported the phone's width), the
-     stage grows instead of the portraits spilling over the foot (#77). Below
+     below that (phones, most tablets) the act scrolls by like any other, as
+     tall as what it holds. The voices follow the music, not the scroll, so the
+     pin only holds the stage while it plays. Only the pinned stage takes a
+     height from the viewport, and only as a minimum: when 100svh comes out
+     smaller than the content (iOS once reported the phone's width), the stage
+     grows instead of the portraits spilling over the foot (#77). Below
      46rem of height (most laptops with browser chrome) the portraits would
      shrink to a strip, so the act flows there too. */
   @media (width >= 64rem) and (height >= 46rem) {
@@ -593,6 +593,7 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
     :global(.sc-motion) .chord__stage {
       position: sticky;
       top: var(--header-h);
+      min-block-size: var(--stage-h);
     }
 
     /* Pinned: the portraits take what is left of the stage. */
@@ -831,12 +832,8 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
      stage order folded, 1st, 3rd and 5th at the back, 2nd and 4th in front,
      each centred between two of the back row. Six columns, every card spans
      two, no card covers another. This layout never pins (see the pin's media
-     query), so the stage is as tall as what it holds. */
+     query). */
   @media (width < 64rem) and (orientation: portrait) {
-    .chord__stage {
-      min-block-size: 0;
-    }
-
     .chord__voices {
       grid-template-columns: repeat(6, minmax(0, 1fr));
       gap: var(--space-4) var(--space-3);
@@ -880,6 +877,13 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
 
     .voice__frame :global(img) {
       object-position: 50% 15%;
+    }
+  }
+
+  /* A small phone on its side keeps the single row, at the phone height it had before #77. */
+  @media (width < 48rem) and (orientation: landscape) {
+    .voice__frame {
+      block-size: clamp(11rem, 40svh, 22rem);
     }
   }
 
