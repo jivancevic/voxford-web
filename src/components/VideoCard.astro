@@ -3,11 +3,14 @@
 // page, with the title and length as text. With JavaScript, the poster turns
 // into a muted loop while the card is in view (src/scripts/video-loops.ts);
 // without it, or under reduced motion or Save-Data, the poster stays.
+// `play="inline"` (the home rail, #33): pressing play swaps the poster for the
+// whole video with sound, in place (src/scripts/video-inline.ts); the title
+// still links to the watch page, and without JavaScript so does the poster.
 // Owner: ticket E. Used by VideoRail, the Videos page and the watch pages.
 import type { CollectionEntry } from 'astro:content';
 import { Picture } from 'astro:assets';
 import { NUMBERS } from '@/data/site-facts';
-import type { Locale } from '@/i18n';
+import { format, getStrings, type Locale } from '@/i18n';
 import { videoPathFor } from '@/i18n/routes';
 import { formatDuration, videoSources } from '@/lib/media';
 
@@ -22,46 +25,93 @@ interface Props {
   headingLevel?: 2 | 3;
   /** Above the fold (likely LCP): load the poster eagerly with high priority. */
   priority?: boolean;
+  /** `page` (default): the card links to the watch page. `inline`: play the video in the card. */
+  play?: 'page' | 'inline';
 }
 
-const { lang, video, number, sizes = '(min-width: 64rem) 15rem, 45vw', headingLevel = 3, priority = false } = Astro.props;
+const {
+  lang,
+  video,
+  number,
+  sizes = '(min-width: 64rem) 15rem, 45vw',
+  headingLevel = 3,
+  priority = false,
+  play = 'page',
+} = Astro.props;
+const t = getStrings(lang);
 const title = video.data.title[lang];
 const duration = formatDuration(video.data.duration);
 const loop = JSON.stringify(videoSources(video.data.media, 'loop'));
+const full = play === 'inline' ? JSON.stringify(videoSources(video.data.media, 'full')) : undefined;
+const watch = videoPathFor(video.id, lang);
 // The most-watched video carries its number: a big number is never alone.
 const fact = video.data.viewsFact ? NUMBERS[video.data.viewsFact] : undefined;
 const views = fact ? `${fact.display} ${NUMBERS.views.label[lang]}` : undefined;
 const Heading = `h${headingLevel}` as const;
 ---
 
-<article class="video-card">
-  <a class="video-card__link" href={videoPathFor(video.id, lang)}>
-    <div class="video-card__frame" data-loop={loop}>
-      <Picture
-        src={video.data.poster}
-        alt=""
-        formats={['avif', 'webp']}
-        widths={[270, 405, 540, 720]}
-        sizes={sizes}
-        loading={priority ? 'eager' : 'lazy'}
-        fetchpriority={priority ? 'high' : 'auto'}
-        decoding="async"
-      />
-      <span class="video-card__play" aria-hidden="true"></span>
-    </div>
-    <div class="video-card__text">
-      {number !== undefined && <span class="video-card__number numeral" aria-hidden="true">{String(number).padStart(2, '0')}</span>}
-      <Heading class="video-card__title">{title}</Heading>
-      <p class="label video-card__meta">
-        <time datetime={video.data.duration}>{duration}</time>
-        {views && <span class="video-card__views">{views}</span>}
-      </p>
-    </div>
-  </a>
-</article>
+{
+  play === 'inline' ? (
+    <article class="video-card video-card--inline">
+      <div class="video-card__frame" data-loop={loop} data-full={full} data-label={format(t.videos.watch.playerLabel, { title })}>
+        <a class="video-card__poster" href={watch} tabindex="-1" aria-hidden="true">
+          <Picture
+            src={video.data.poster}
+            alt=""
+            formats={['avif', 'webp']}
+            widths={[270, 405, 540, 720]}
+            sizes={sizes}
+            loading={priority ? 'eager' : 'lazy'}
+            fetchpriority={priority ? 'high' : 'auto'}
+            decoding="async"
+          />
+        </a>
+        <span class="video-card__play" aria-hidden="true"></span>
+        <button class="video-card__button" type="button" aria-label={format(t.videos.card.play, { title })} hidden></button>
+      </div>
+      <div class="video-card__text">
+        {number !== undefined && <span class="video-card__number numeral" aria-hidden="true">{String(number).padStart(2, '0')}</span>}
+        <Heading class="video-card__title">
+          <a href={watch}>{title}</a>
+        </Heading>
+        <p class="label video-card__meta">
+          <time datetime={video.data.duration}>{duration}</time>
+          {views && <span class="video-card__views">{views}</span>}
+        </p>
+      </div>
+    </article>
+  ) : (
+    <article class="video-card">
+      <a class="video-card__link" href={watch}>
+        <div class="video-card__frame" data-loop={loop}>
+          <Picture
+            src={video.data.poster}
+            alt=""
+            formats={['avif', 'webp']}
+            widths={[270, 405, 540, 720]}
+            sizes={sizes}
+            loading={priority ? 'eager' : 'lazy'}
+            fetchpriority={priority ? 'high' : 'auto'}
+            decoding="async"
+          />
+          <span class="video-card__play" aria-hidden="true"></span>
+        </div>
+        <div class="video-card__text">
+          {number !== undefined && <span class="video-card__number numeral" aria-hidden="true">{String(number).padStart(2, '0')}</span>}
+          <Heading class="video-card__title">{title}</Heading>
+          <p class="label video-card__meta">
+            <time datetime={video.data.duration}>{duration}</time>
+            {views && <span class="video-card__views">{views}</span>}
+          </p>
+        </div>
+      </a>
+    </article>
+  )
+}
 
 <script>
   import '@/scripts/video-loops';
+  import '@/scripts/video-inline';
 </script>
 
 <style>
@@ -114,8 +164,10 @@ const Heading = `h${headingLevel}` as const;
     pointer-events: none;
   }
 
+  /* Decoration: clicks pass through to the link or button underneath. */
   .video-card__play {
     position: absolute;
+    pointer-events: none;
     inset-inline-start: var(--space-4);
     inset-block-end: var(--space-4);
     z-index: 1;
@@ -140,9 +192,83 @@ const Heading = `h${headingLevel}` as const;
   }
 
   .video-card__link:hover .video-card__play,
-  .video-card__link:focus-visible .video-card__play {
+  .video-card__link:focus-visible .video-card__play,
+  .video-card__frame:hover .video-card__play,
+  .video-card__frame:has(.video-card__button:focus-visible) .video-card__play {
     box-shadow: var(--glow-pink), var(--glow-blue);
   }
+
+  /* Inline: no link wraps the card, so the card itself spaces frame and text. */
+  .video-card--inline {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  /* Inline: the poster (a link without JS) and, with JS, a button over the
+     whole frame; the play mark sits under the button and lights with it. */
+  .video-card__poster {
+    position: absolute;
+    inset: 0;
+  }
+
+  .video-card__button {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    padding: 0;
+    border: 0;
+    border-radius: inherit;
+    background: none;
+    cursor: pointer;
+  }
+
+  .video-card__button[hidden] {
+    display: none;
+  }
+
+  /* The frame clips its children, so the focus ring goes on the frame itself: for
+     the button, the player, and the poster link once a failed video falls back to it. */
+  .video-card__button:focus-visible,
+  .video-card__poster:focus-visible,
+  .video-card__frame :global(video:focus-visible) {
+    outline: none;
+  }
+
+  /* Inset: a rail that scrolls sideways clips anything outside the frame. */
+  .video-card__frame:has(:is(.video-card__button, .video-card__poster, video):focus-visible) {
+    outline: 2px solid var(--color-focus);
+    outline-offset: -2px;
+  }
+
+  /* Playing: native controls take the frame; the mark and the shade step aside. */
+  /* A muted loop is decoration: clicks go to the link or button under it. */
+  .video-card__frame:not(:global(.is-full)) :global(video) {
+    pointer-events: none;
+  }
+
+  .video-card__frame:global(.is-full)::after,
+  .video-card__frame:global(.is-full) .video-card__play {
+    display: none;
+  }
+
+  .video-card__frame:global(.is-full) :global(video) {
+    z-index: 3;
+    border-radius: inherit;
+    background: var(--color-bg-raised);
+    opacity: 1;
+  }
+
+  .video-card__title a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .video-card__title a:hover {
+    text-decoration: underline;
+    text-decoration-thickness: from-font;
+    text-underline-offset: 0.18em;
+  }
+
 
   .video-card__link:focus-visible {
     outline: none;

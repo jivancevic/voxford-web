@@ -1,5 +1,6 @@
 {
   "name": "Tvornica kulture",
   "kind": "venue",
-  "order": 290
+  "order": 290,
+  "photo": "stageTvornica"
 }

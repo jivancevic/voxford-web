@@ -31,6 +31,12 @@ import portraitDavid from '@/assets/photos/home/portrait-david.jpg';
 import portraitDora from '@/assets/photos/home/portrait-dora.jpg';
 import portraitJosip from '@/assets/photos/home/portrait-josip.jpg';
 import portraitVita from '@/assets/photos/home/portrait-vita.jpg';
+// Stages and artists (ReferencesWall, #33): our own photos. The files carry no
+// photographer in their metadata; credits are Josip's (2026-11-11). The two
+// Tvornica frames have no known author yet, so they show no credit.
+import stageArena from '@/assets/photos/stages/arena-zagreb-2025.jpg';
+import stageKutlic from '@/assets/photos/stages/marko-kutlic-2023.jpg';
+import stageTvornica from '@/assets/photos/stages/tvornica-kulture-2023.jpg';
 import type { MemberKey } from '@/data/site-facts';
 
 export interface Photo {
@@ -40,6 +46,8 @@ export interface Photo {
   label?: Record<Locale, string>;
   /** Photographer or agency, when known. */
   credit?: string;
+  /** `object-position` when the photo is cropped hard (e.g. a portrait in a wide tile); default centre. */
+  focus?: string;
   /** Where in the KB / Drive media kit it came from. */
   source: string;
 }
@@ -126,6 +134,36 @@ export const PHOTOS = {
     },
     credit: 'Mirta Cindrić',
     source: 'Media kit › 2025 Photoshoot Mirta',
+  },
+  stageArenaZagreb: {
+    src: stageArena,
+    alt: {
+      en: 'Voxford taking a bow on the stage of Arena Zagreb under two blue spotlights',
+      hr: 'Voxford se klanja na pozornici Arene Zagreb pod dva plava reflektora',
+    },
+    label: { en: 'WITH DALMATINO · 2025', hr: 'S DALMATINOM · 2025' },
+    credit: 'Jurica Cvitanić',
+    // Portrait 4:5 in a wide tile: keep the bow, low in the frame, in view.
+    focus: '50% 78%',
+    source: 'From Josip, 2026-11-11 (WhatsApp Image 2026-11-11 at 00.22.39 (1).jpeg): the bow at Dalmatino\'s Arena Zagreb concert',
+  },
+  stageTvornica: {
+    src: stageTvornica,
+    alt: {
+      en: 'The five singers of Voxford at microphones on the stage of Tvornica kulture, in blue light',
+      hr: 'Petorka Voxforda za mikrofonima na pozornici Tvornice kulture, u plavom svjetlu',
+    },
+    label: { en: 'WITH MARKO KUTLIĆ · 2023', hr: 'S MARKOM KUTLIĆEM · 2023' },
+    source: 'Drive › Photo › 2023 Tvornica Marko Kutlić › PHOTO-2023-11-28-10-21-06.jpg',
+  },
+  stageKutlic: {
+    src: stageKutlic,
+    alt: {
+      en: 'Marko Kutlić singing at the front of the stage, Voxford at their microphones behind him',
+      hr: 'Marko Kutlić pjeva na rubu pozornice, a Voxford za mikrofonima iza njega',
+    },
+    label: { en: 'TVORNICA KULTURE · 2023', hr: 'TVORNICA KULTURE · 2023' },
+    source: 'Drive › Photo › 2023 Tvornica Marko Kutlić › PHOTO-2023-11-28-10-21-06 (7).jpg',
   },
   selfieFive: {
     src: selfieFive,

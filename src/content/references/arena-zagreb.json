@@ -1,5 +1,6 @@
 {
   "name": "Arena Zagreb",
   "kind": "venue",
-  "order": 250
+  "order": 250,
+  "photo": "stageArenaZagreb"
 }

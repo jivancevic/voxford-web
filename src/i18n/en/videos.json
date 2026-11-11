@@ -25,6 +25,9 @@
     "closing": "Want this live at your event?",
     "recorded": "Recorded"
   },
+  "card": {
+    "play": "Play {title}"
+  },
   "reel": {
     "play": "Play reel: {caption}",
     "playUntitled": "Play reel from {date}",

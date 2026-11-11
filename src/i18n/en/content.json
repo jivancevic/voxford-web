@@ -49,8 +49,8 @@
         "engineer": "Yours or ours"
       },
       "gold": {
-        "type": "Full evening concert",
-        "fits": "Seven performers: five voices with piano and cajón, as the main music of the evening.",
+        "type": "Full concert",
+        "fits": "Seven performers: five voices with piano and cajón, as the musical centrepiece of the event.",
         "instruments": "Piano and cajón",
         "engineer": "Yours or ours"
       }
@@ -218,7 +218,7 @@
     "serviceType": "Live music for weddings"
   },
   "advent": {
-    "lead": "{disambiguation}. Cities and tourist boards book us for Advent stages, summer concerts and festivals: a full evening with piano and cajón, or a short a cappella set to open the programme.",
+    "lead": "{disambiguation}. Cities and tourist boards book us for Advent stages, summer concerts and festivals: a full concert with piano and cajón, or a short a cappella set to open the programme.",
     "facts": [
       {
         "term": "Format",
@@ -312,9 +312,9 @@
         "body": "{classicMin} to {classicMax} minutes of a cappella, with a set list built around the people in the room."
       },
       {
-        "title": "The evening",
+        "title": "The full concert",
         "package": "gold",
-        "body": "{goldMin} to {goldMax} minutes with piano and cajón, for a celebration that should last all evening."
+        "body": "{goldMin} to {goldMax} minutes with piano and cajón: a full concert for your guests."
       }
     ],
     "serviceType": "Live music for private celebrations"
@@ -329,8 +329,7 @@
       "Kursalon Hübner": "With Tonči Huljić's crossover project Mediterraneo",
       "Križanke": "With Tonči Huljić's crossover project Mediterraneo",
       "Arena Zagreb": "Surprise guests at Dalmatino's concert",
-      "Tvornica kulture": "Guests of Marko Kutlić, and later of Jasna Zlokić",
-      "Lisinski": "At Danijela Martinović's concert"
+      "Tvornica kulture": "Guests of Marko Kutlić, and later of Jasna Zlokić"
     },
     "pressHeading": "In the press",
     "pressIntro": "Articles and interviews about us, newest first. Headlines are in Croatian, as published.",

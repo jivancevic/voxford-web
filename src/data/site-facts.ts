@@ -182,13 +182,12 @@ export const RIDER = {
   parkingSpaces: number;
 };
 
-/** Notable stages (KB brand/biografija.md; Lisinski per spec › Information architecture). */
+/** Notable stages (KB brand/biografija.md). Not Lisinski: Voxford never sang there (Josip, 2026-11-10, #33). */
 export const STAGES = [
   { name: 'Kursalon Hübner', city: { en: 'Vienna', hr: 'Beč' } },
   { name: 'Križanke', city: { en: 'Ljubljana', hr: 'Ljubljana' } },
   { name: 'Arena Zagreb', city: { en: 'Zagreb', hr: 'Zagreb' } },
   { name: 'Tvornica kulture', city: { en: 'Zagreb', hr: 'Zagreb' } },
-  { name: 'Lisinski', city: { en: 'Zagreb', hr: 'Zagreb' } },
 ] as const;
 
 /** Where they perform: Croatia and the region (spec: no doorway pages, covered by areaServed). */

@@ -19,6 +19,7 @@ function enhance(frame: HTMLElement) {
     frame.querySelector('.reel__thumb')?.remove();
     button.remove();
     frame.append(video);
+    video.tabIndex = 0; // Safari does not focus <video controls> by default
     video.focus();
     video.play().catch(() => {
       /* the visitor can press play on the controls */

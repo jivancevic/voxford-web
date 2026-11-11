@@ -63,6 +63,17 @@ const playLabel = caption ? format(t.videos.reel.play, { caption }) : format(t.v
     object-fit: cover;
   }
 
+  /* The frame clips its children, so a focused player gets its ring on the frame,
+     inset because the rail around it scrolls sideways and clips anything outside. */
+  .reel__frame :global(video:focus-visible) {
+    outline: none;
+  }
+
+  .reel__frame:has(video:focus-visible) {
+    outline: 2px solid var(--color-focus);
+    outline-offset: -2px;
+  }
+
   .reel__play {
     position: absolute;
     inset: 0;

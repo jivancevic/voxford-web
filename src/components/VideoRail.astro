@@ -4,6 +4,8 @@
 // page); `reels` = the latest reels from the daily sync (read at build time,
 // src/lib/reels.ts). Reads its own data, so callers pass no data. Renders
 // nothing while there is nothing to show (no reels when the feed is down).
+// `inline` (the home page, #33): top videos play in their card instead of
+// opening the watch page, and cards grow a little under the pointer.
 import { getCollection } from 'astro:content';
 import ReelCard from '@/components/ReelCard.astro';
 import VideoCard from '@/components/VideoCard.astro';
@@ -17,10 +19,12 @@ export interface Props {
   limit?: number;
   /** Override the section heading; `false` renders no heading. */
   heading?: string | false;
+  /** Play top videos in place and grow cards on hover (reels always play in place). */
+  inline?: boolean;
   class?: string;
 }
 
-const { lang, source = 'top', limit, heading, class: className } = Astro.props;
+const { lang, source = 'top', limit, heading, inline = false, class: className } = Astro.props;
 const t = getStrings(lang);
 const top = source === 'top' ? (await getCollection('videos')).sort((a, b) => a.data.order - b.data.order).slice(0, limit) : [];
 const reels = source === 'reels' ? (await loadReels(Astro.site)).slice(0, limit) : [];
@@ -35,6 +39,7 @@ const headingId = `video-rail-${source}`;
     <section
       class:list={['video-rail', className]}
       data-source={source}
+      data-inline={inline ? '' : undefined}
       aria-labelledby={title ? headingId : undefined}
     >
       {title && (
@@ -45,7 +50,13 @@ const headingId = `video-rail-${source}`;
       <ul class="video-rail__list" role="list">
         {top.map((video, i) => (
           <li>
-            <VideoCard lang={lang} video={video} number={i + 1} sizes="(min-width: 64rem) 15rem, 60vw" />
+            <VideoCard
+              lang={lang}
+              video={video}
+              number={i + 1}
+              sizes="(min-width: 64rem) 15rem, 60vw"
+              play={inline ? 'inline' : 'page'}
+            />
           </li>
         ))}
         {reels.map((reel) => (
@@ -87,5 +98,25 @@ const headingId = `video-rail-${source}`;
   .video-rail__list > li {
     scroll-snap-align: start;
     max-inline-size: none;
+  }
+
+  /* Hover growth: the list scrolls sideways, which clips both axes, so an
+     inline rail keeps a margin of room around the cards for the grown frame. */
+  .video-rail[data-inline] .video-rail__list {
+    --grow-room: var(--space-4);
+    padding: var(--grow-room) var(--grow-room) var(--space-3);
+    margin-inline: calc(-1 * var(--grow-room));
+    margin-block-start: calc(-1 * var(--grow-room));
+    scroll-padding-inline: var(--grow-room);
+  }
+
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .video-rail[data-inline] :global(:is(.video-card__frame, .reel__frame)) {
+      transition: transform var(--duration-base) var(--ease-out);
+    }
+
+    .video-rail[data-inline] li:is(:hover, :focus-within) :global(:is(.video-card__frame, .reel__frame)) {
+      transform: scale(1.05);
+    }
   }
 </style>

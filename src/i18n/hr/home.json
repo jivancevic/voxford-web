@@ -21,16 +21,21 @@
     "credit": "Portreti: {credit}"
   },
   "proof": {
-    "heading": "Otkriveni na mobitelu, rezervirani za pozornicu",
+    "heading": "Našli ste nas na mobitelu, rezervirajte nas za pozornicu.",
     "body": "Petorka ima {followers} pratitelja na mrežama i {views} pregleda. Samo Carol of the Bells ima {carol}.",
     "watch": "Pogledajte Carol of the Bells"
   },
+  "concerts": {
+    "heading": "Poslušajte nas uživo",
+    "lead": "Naši idući javni koncerti.",
+    "all": "Svi nadolazeći koncerti"
+  },
   "rooms": {
-    "heading": "Glazba za konferencije i poslovne događaje u Zagrebu",
-    "body": "Otvaramo konferencije, pjevamo na gala večerima dodjele nagrada i vraćamo se s kratkim nastupima između predavanja. Ne treba graditi pozornicu: pet pjevača za mikrofonima, od nastupa do {shortest} minuta do cijelog koncerta. Za najduži nastup sami donosimo klavir i cajon.",
-    "conferencesLink": "Konferencije i poslovni događaji",
+    "heading": "Od konferencija do koncerata.",
+    "body": "Otvaramo Vašu konferenciju ili gala večer državnim himnama, pjevamo na najposebniji dan Vašeg života i zabavljamo turiste i građane na gradskim pozornicama. Svaku prigodu činimo posebnom i nezaboravnom. Sve je krajnje jednostavno: pet pjevača i pet mikrofona, od nastupa do {shortest} minuta do cijelog koncerta. Za najduži nastup sami donosimo klavir i cajon.",
+    "conferencesLink": "Konferencije i poslovni događaji u Zagrebu",
     "listLabel": "Zovu nas i za",
-    "weddings": "Obred, iznenađenje za mladence ili cijela večer.",
+    "weddings": "Obred ili iznenađenje za mladence.",
     "advent": "Adventske pozornice i ljetni koncerti za gradove i turističke zajednice.",
     "private": "Kratko iznenađenje za Vaše goste ili cijeli koncert."
   },

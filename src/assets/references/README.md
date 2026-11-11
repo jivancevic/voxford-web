@@ -35,12 +35,14 @@ Unisport Hrvatska (no Zaklada UniSport Srce), `efzg.svg` got a `viewBox`, PNG me
 | `tz-podgora.png` | https://tz-podgora.hr/images/logo.png | https://tz-podgora.hr/ |
 
 Shown as text, not a logo (no clean official file): Arena Zagreb (domain gone, only a small JPEG-like
-PNG on a white box), Lisinski (only a small logo on a white box or the 50th-anniversary mark), Kursalon
+PNG on a white box), Kursalon
 Hübner (site unreachable), Križanke / Ljubljana Festival (logo carries a sponsor strip on an opaque
 background), Tvornica kulture (only the "25 godina" anniversary mark), Bruketa&Žinić&Grey (the
 agency's current logo reads "BRUKETA&", not the name it had in 2024). Events without an organisation's
 logo (Hrvatske svjetske igre, Memorijal Boris Hanžeković, Advent Jastrebarsko) are text. Artists and
-stages are always text, on their own lines, so a stage never reads as a client.
+stages are never logos: they are tiles of their own, with our own photo from that stage or with
+that artist where we have one (`photo` in the entry, a key in `src/data/photos.ts`), so a stage never
+reads as a client.
 Disney is text: disney.com serves its wordmark only as a 122 px PNG, and Commons is not the
 organisation's own source.
 TZ Grada Paga is text (ticket F): its logo (`aslova.png`) is a white script on a lace disc, which

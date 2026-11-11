@@ -49,8 +49,8 @@
         "engineer": "Vaš ili naš"
       },
       "gold": {
-        "type": "Cjelovečernji koncert",
-        "fits": "Sedam izvođača: pet glasova uz klavir i cajon, kao središnji glazbeni događaj večeri.",
+        "type": "Cjeloviti koncert",
+        "fits": "Sedam izvođača: pet glasova uz klavir i cajon, kao središnji glazbeni dio događaja.",
         "instruments": "Klavir i cajon",
         "engineer": "Vaš ili naš"
       }
@@ -218,7 +218,7 @@
     "serviceType": "Glazba uživo za vjenčanja"
   },
   "advent": {
-    "lead": "{disambiguation}. Gradovi i turističke zajednice zovu nas na adventske pozornice, ljetne koncerte i festivale: za cijelu večer uz klavir i cajon ili za kratki a cappella nastup na otvorenju programa.",
+    "lead": "{disambiguation}. Gradovi i turističke zajednice zovu nas na adventske pozornice, ljetne koncerte i festivale: za cjeloviti koncert uz klavir i cajon ili za kratki a cappella nastup na otvorenju programa.",
     "facts": [
       {
         "term": "Format",
@@ -312,9 +312,9 @@
         "body": "Od {classicMin} do {classicMax} minuta a cappelle, sa setlistom složenom za ljude u prostoriji."
       },
       {
-        "title": "Cijela večer",
+        "title": "Cjeloviti koncert",
         "package": "gold",
-        "body": "Od {goldMin} do {goldMax} minuta uz klavir i cajon, za slavlje koje traje cijelu večer."
+        "body": "Od {goldMin} do {goldMax} minuta uz klavir i cajon: cjeloviti koncert za Vaše goste."
       }
     ],
     "serviceType": "Glazba uživo za privatne proslave"
@@ -329,8 +329,7 @@
       "Kursalon Hübner": "U crossover projektu Mediterraneo Tončija Huljića",
       "Križanke": "U crossover projektu Mediterraneo Tončija Huljića",
       "Arena Zagreb": "Gosti iznenađenja na koncertu Dalmatina",
-      "Tvornica kulture": "Gosti Marka Kutlića, a poslije i Jasne Zlokić",
-      "Lisinski": "Na koncertu Danijele Martinović"
+      "Tvornica kulture": "Gosti Marka Kutlića, a poslije i Jasne Zlokić"
     },
     "pressHeading": "U medijima",
     "pressIntro": "Članci i intervjui o nama, najnoviji prvi.",
