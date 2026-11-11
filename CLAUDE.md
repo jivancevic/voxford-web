@@ -17,7 +17,7 @@ npm run test:dist  # checks the built HTML in dist/ (head, hreflang reciprocity,
 npm run test:layout # Playwright sweep of dist/ at edge viewports (overflow, overlap, stretched pills, 44px taps, pinned stages); failures in test-results/layout/
 ```
 
-Tier A site with tests where they pay: the two dynamic paths (inquiry, reels sync: tickets D, E), the EN/HR parity check, the built-HTML checks and the layout sweep. No feature suite for static pages, on purpose.
+Tier A site with tests where they pay: the two dynamic paths (inquiry, reels sync), the EN/HR parity check, the built-HTML checks and the layout sweep. No feature suite for static pages, on purpose.
 
 ## Stack
 
@@ -42,9 +42,10 @@ Tier A site with tests where they pay: the two dynamic paths (inquiry, reels syn
 | Topic | File |
 |---|---|
 | What v1 is, decisions | `docs/spec.md` |
-| Tickets A–G | `docs/tickets.md` |
+| Tickets A-G | `docs/tickets.md` |
 | Domain glossary | `CONTEXT.md` |
 | Seams, ownership, shipping facts | `AGENTS.md` |
+| CSS, layout, voice and typography rules | `CODING_STANDARDS.md` |
 | Decisions | `docs/adr/` |
 | Deploy, rollback, setup | `docs/deploy-cloudflare.md` |
 | Research (SEO/GEO, inspiration, domain) | `docs/research/` |

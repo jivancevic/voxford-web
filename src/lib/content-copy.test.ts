@@ -91,4 +91,73 @@ describe('content copy (ticket C)', () => {
   it('never mentions La Nuit des Chœurs: it did not happen (Josip, #40)', () => {
     for (const file of files) expect(read(file), file).not.toMatch(/Nuit des|Ch(œ|oe)urs/i);
   });
+
+  describe('Voxford speaks as "we" (Josip, #35)', () => {
+    // "<file> <key>" (or "<file> body" for a markdown body) → reason. CODING_STANDARDS.md exempts entity
+    // statements, noun labels and questions from the client's side; add one here only with a reason.
+    const WE_ALLOW: Record<string, string> = {
+      'src/i18n/hr/content.json about.membersHeading': 'noun label (a heading over the five members), exempt in CODING_STANDARDS.md',
+    };
+
+    // Sentence-initial subjects that mean Voxford, and "Voxford ... they" within one sentence.
+    // Precision over recall: a bare "It" is not matched ("It depends on the package" is about the package),
+    // so "it" meaning Voxford is left to review. "their" about singers ("each singer ... their voice") is fine.
+    const THIRD_PERSON = [
+      /^(?:They|The group|The ensemble|The band|Skupina|Petorka|Ansambl|Oni)\b/i,
+      /\bVoxford\b[^.!?]*\b(?:they|their|them)\b/i,
+    ];
+
+    const sentences = (text: string) =>
+      text
+        .split('\n')
+        .flatMap((line) => line.split(/(?<=[.!?:])\s+/))
+        .map((s) => s.replace(/^[\s#>*_"'-]+/, '').trim())
+        .filter(Boolean);
+
+    /** [location, text] for every copy string: md bodies and every string value in the i18n json. */
+    const strings = (): [string, string][] => {
+      const out: [string, string][] = [];
+      const collect = (file: string, v: unknown, path: string) => {
+        if (typeof v === 'string') out.push([`${file} ${path}`, v]);
+        else if (Array.isArray(v)) v.forEach((x, i) => collect(file, x, `${path}[${i}]`));
+        else if (v && typeof v === 'object') for (const [k, x] of Object.entries(v)) collect(file, x, path ? `${path}.${k}` : k);
+      };
+      for (const l of LOCALES) {
+        for (const f of readdirSync(root(`../i18n/${l}/`)).filter((n) => n.endsWith('.json'))) {
+          collect(`src/i18n/${l}/${f}`, JSON.parse(read(`../i18n/${l}/${f}`)), '');
+        }
+      }
+      const md = LOCALES.flatMap((l) => [...list(`../content/faq/${l}/`, '.md'), ...list(`../content/pages/${l}/`, '.md')]);
+      for (const f of md) out.push([`${f.replace('../', 'src/')} body`, read(f).replace(/^---\n[\s\S]*?\n---\n/, '')]);
+      return out;
+    };
+
+    it('no sentence has "they" or "the group" (or the HR equivalents) as Voxford', () => {
+      const out: string[] = [];
+      for (const [where, text] of strings()) {
+        if (where in WE_ALLOW) continue;
+        for (const s of sentences(text)) {
+          if (THIRD_PERSON.some((re) => re.test(s))) {
+            out.push(`${where}: "${s.slice(0, 90)}": Voxford speaks as "we" / "mi, naša petorka" (CODING_STANDARDS.md, #35). Rewrite, or add the key to WE_ALLOW with a reason.`);
+          }
+        }
+      }
+      expect(out).toEqual([]);
+    });
+
+    it('allow list carries a reason per entry', () => {
+      for (const [k, v] of Object.entries(WE_ALLOW)) expect(v.length, k).toBeGreaterThan(10);
+    });
+
+    it('catches the #38 shape and leaves singer and guest wording alone (self-check)', () => {
+      const hit = (s: string) => THIRD_PERSON.some((re) => re.test(s));
+      expect(hit('They bring their own sound engineer.')).toBe(true);
+      expect(hit('Voxford sings in Zagreb and they travel by van.')).toBe(true);
+      expect(hit('The group has five singers.')).toBe(true);
+      expect(hit('Skupina nastupa u Zagrebu.')).toBe(true);
+      expect(hit('We bring our own sound engineer.')).toBe(false);
+      expect(hit('Press play and each singer lights up when their voice comes in.')).toBe(false);
+      expect(hit('Your guests will love it.')).toBe(false);
+    });
+  });
 });
