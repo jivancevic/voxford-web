@@ -33,6 +33,15 @@ for tile in 460x900+300+230 380x900+640+230 420x960+940+230 360x970+1180+230 380
   magick "$work/crop.png" -crop "$tile" +repage "$work/tile$i.png"
   "$work/matte" "$work/tile$i.png" "$work/tmask$i.png"
 done
+# A second, tighter tile for Vita (2), Ante (3) and Dora (4): on it Vision keeps
+# Vita's middle and Ante's left side, which the wide tiles half lose, and leaves
+# out the banner block the wide tile takes around Dora's microphone.
+magick "$work/crop.png" -crop 330x560+690+380 +repage "$work/tile2b.png"
+"$work/matte" "$work/tile2b.png" "$work/tmask2b.png"
+magick "$work/crop.png" -crop 330x760+975+330 +repage "$work/tile3b.png"
+"$work/matte" "$work/tile3b.png" "$work/tmask3b.png"
+magick "$work/crop.png" -crop 300x700+1215+400 +repage "$work/tile4b.png"
+"$work/matte" "$work/tile4b.png" "$work/tmask4b.png"
 # The audience below the stage line, in four overlapping tiles.
 for x in 0 400 800 1200; do
   magick "$work/crop.png" -crop "600x570+$x+630" +repage "$work/btile$x.png"

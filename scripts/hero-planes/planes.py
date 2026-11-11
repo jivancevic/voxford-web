@@ -29,6 +29,20 @@ for i, tx, ty, x0, x1, f0, f1 in singers:
     full = np.zeros((H, W), np.float32)
     h, w = m.shape
     full[ty:ty + h, tx:tx + w] = m[: H - ty, : W - tx]
+    for bi, bx, by in ((2, 690, 380), (3, 975, 330), (4, 1215, 400)):
+        if i == bi:
+            mb = np.asarray(Image.open(f'{d}/tmask{i}b.png').convert('L'), np.float32) / 255
+            hb, wb = mb.shape
+            if i == 4:
+                # Dora's wide tile takes a block of the sponsor banner around her
+                # hand and microphone; the tight one alone is clean.
+                full[:] = 0
+            full[by:by + hb, bx:bx + wb] = np.maximum(full[by:by + hb, bx:bx + wb], mb)
+    # Close the narrow gaps a microphone stand cuts through a singer: the
+    # stand stands in front of them, so it belongs to this plane.
+    bin_ = Image.fromarray(((full > 0.3) * 255).astype(np.uint8))
+    closed = np.asarray(bin_.filter(ImageFilter.MaxFilter(25)).filter(ImageFilter.MinFilter(25)), np.float32) / 255
+    full = np.maximum(full, closed)
     col = np.zeros((1, W), np.float32)
     col[0, x0:x1] = 1
     full *= col * ramp(f0, f1)
@@ -39,12 +53,6 @@ lum = np.asarray(crop.convert('L'), np.float32) / 255
 drape = np.zeros((H, W), np.float32)
 drape[500:800, 1395:1480] = np.clip((lum[500:800, 1395:1480] - 0.42) / 0.18, 0, 1)
 subject = np.maximum(subject, drape * ramp(1090, 1150))
-# A sharp patch of the gold sponsor banner sits in singer 4's tile matte beside
-# her microphone; drop its yellow pixels.
-box = (slice(455, 545), slice(1235, 1310))
-rgbf = np.asarray(crop, np.float32)[box]
-gold = (rgbf[..., 0] - rgbf[..., 2] > 50) & (rgbf[..., 0] > 100)
-subject[box][gold] = 0
 
 # Clean the matte: drop faint noise, keep soft edges. Vision's outlines are
 # crisp; its faint values sit inside dark clothes and on the microphones, so a
@@ -58,6 +66,38 @@ pad.paste(hard, (1, 1))
 ImageDraw.floodfill(pad, (0, 0), 128)
 holes = (np.asarray(pad, np.uint8)[1:-1, 1:-1] == 0).astype(np.float32)
 subject = np.maximum(subject, holes)
+
+# Hand fixes, after the hole fill so it cannot close them again.
+# Vita's tight tile takes in the gold foundation logo beside her hip.
+box = (slice(600, 820), slice(860, 990))
+rgbf = np.asarray(crop, np.float32)[box]
+gold = (rgbf[..., 0] - rgbf[..., 2] > 50) & (rgbf[..., 1] > 80)
+subject[box][gold] = 0
+# ...and a stand and a dark audience head on either side of her.
+subject[560:760, 945:990] = 0
+subject[620:800, 700:742] = 0
+# Vision takes a block of the sponsor banner (navy ground, logo, lettering)
+# around Dora's hand and microphone. Inside that block keep only the
+# microphone and her hand, drawn by hand on the 1800x1200 crop.
+keep = Image.new('L', (W, H), 0)
+draw = ImageDraw.Draw(keep)
+draw.line([(1250, 542), (1332, 488)], fill=255, width=15)
+draw.polygon([(1270, 506), (1300, 499), (1303, 522), (1299, 536), (1301, 582), (1270, 582), (1266, 546)], fill=255)
+keep = np.asarray(keep.filter(ImageFilter.GaussianBlur(1)), np.float32) / 255
+box = (slice(478, 582), slice(1246, 1322))
+subject[box] = np.minimum(subject[box], keep[box])
+# The lettering runs on under her chin, left of her hair: drop its navy
+# ground and pale or yellow letters there; her hair is darker than all three.
+box = (slice(518, 550), slice(1299, 1346))
+r, g, b = (np.asarray(crop, np.float32)[box][..., k] for k in range(3))
+lo, hi = np.minimum(np.minimum(r, g), b), np.maximum(np.maximum(r, g), b)
+subject[box][(b > r) | ((lo > 140) & (hi - lo < 70)) | ((r - b > 40) & (g > 100) & (np.abs(r - g) < 50))] = 0
+# Above that, beside her chin, one yellow letter and its navy ground.
+box = (slice(486, 518), slice(1318, 1340))
+r, g, b = (np.asarray(crop, np.float32)[box][..., k] for k in range(3))
+subject[box][(b > r) | ((r - b > 40) & (g > 100) & (np.abs(r - g) < 50))] = 0
+# The tight tile takes in an audience head beside Dora's legs; the front row has it.
+subject[860:1150, 1440:1490] = 0
 subject = np.asarray(Image.fromarray((subject * 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(1.2)), np.float32) / 255
 
 # Front: the audience. Vision finds the lit heads on the left; the dark band

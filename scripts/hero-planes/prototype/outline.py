@@ -20,7 +20,7 @@ fade = np.ones((H, W), np.float32)
 for x0, x1, f0 in cols:
     fade[:, x0:x1] = np.clip((f0 - 30 - ys) / 90, 0, 1)
 smooth = F(L(filled).filter(ImageFilter.GaussianBlur(1.5)))
-for name, r, blur, a in (('ring', 7, 1.2, 1.0), ('rim', 4, 10, 0.75)):
+for name, r, blur, a in (('ring', 7, 1.2, 1.0), ('rim', 4, 10, 0.55)):
     dil = F(L(filled).filter(ImageFilter.MaxFilter(2 * r + 1)).filter(ImageFilter.GaussianBlur(blur)))
     ring = np.clip(dil - smooth, 0, 1) * fade * a
     rgba = np.zeros((H, W, 4), np.uint8); rgba[..., :3] = 255; rgba[..., 3] = (ring * 255).astype(np.uint8)
