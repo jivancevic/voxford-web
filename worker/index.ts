@@ -1,4 +1,5 @@
 import type { Env } from './env';
+import { handleRangedAsset, RANGED_ASSET } from './asset-ranges';
 import { handleHealthz } from './healthz';
 import { handleInquiry } from './inquiry';
 import { handleRootRedirect } from './lang-redirect';
@@ -17,6 +18,7 @@ export default {
     if (pathname === '/healthz' || pathname === '/healthz/') return handleHealthz(env);
     if (pathname === '/api/inquiry' || pathname === '/api/inquiry/') return handleInquiry(request, env, ctx);
     if (pathname.startsWith(MEDIA_PREFIX)) return handleMedia(request, env, ctx);
+    if (RANGED_ASSET.test(pathname)) return handleRangedAsset(request, env);
     if (pathname.startsWith('/api/')) {
       return Response.json({ ok: false, error: 'not_found' }, { status: 404 });
     }
