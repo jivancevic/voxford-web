@@ -13,7 +13,14 @@ const assets = {
     if (request.headers.get('If-None-Match') === ETAG) return new Response(null, { status: 304, headers: { ETag: ETAG } });
     return new Response(FILE, {
       status: 200,
-      headers: { 'Content-Type': 'audio/webm', 'Cache-Control': 'public, max-age=31536000, immutable', ETag: ETAG },
+      headers: {
+        'Content-Type': 'audio/webm',
+        'Cache-Control': 'public, max-age=31536000, immutable',
+        ETag: ETAG,
+        'Last-Modified': 'Tue, 10 Nov 2026 12:00:00 GMT',
+        'Referrer-Policy': 'strict-origin-when-cross-origin',
+        'X-Content-Type-Options': 'nosniff',
+      },
     });
   }),
 };
@@ -48,6 +55,9 @@ describe('GET /_astro/*.webm|m4a', () => {
     expect(res.headers.get('Content-Type')).toBe('audio/webm');
     expect(res.headers.get('Cache-Control')).toBe('public, max-age=31536000, immutable');
     expect(res.headers.get('ETag')).toBe(ETAG);
+    // the _headers policy the asset server applied carries over
+    expect(res.headers.get('Referrer-Policy')).toBe('strict-origin-when-cross-origin');
+    expect(res.headers.get('X-Content-Type-Options')).toBe('nosniff');
     expect(await res.text()).toBe('2345');
   });
 
@@ -63,12 +73,16 @@ describe('GET /_astro/*.webm|m4a', () => {
     const res = await get({ Range: 'bytes=10-' });
     expect(res.status).toBe(416);
     expect(res.headers.get('Content-Range')).toBe('bytes */10');
+    expect(res.headers.get('Cache-Control')).toBeNull();
+    expect(res.headers.get('Content-Type')).toBeNull();
   });
 
   it('serves the whole file for a malformed range or a stale If-Range', async () => {
     expect((await get({ Range: 'bytes=0-1,4-5' })).status).toBe(200);
     expect((await get({ Range: 'bytes=2-5', 'If-Range': '"old"' })).status).toBe(200);
     expect((await get({ Range: 'bytes=2-5', 'If-Range': ETAG })).status).toBe(206);
+    expect((await get({ Range: 'bytes=2-5', 'If-Range': `W/${ETAG}` })).status).toBe(200);
+    expect((await get({ Range: 'bytes=2-5', 'If-Range': 'Tue, 10 Nov 2026 12:00:00 GMT' })).status).toBe(206);
   });
 
   it('passes a 304 through and keeps HEAD bodiless', async () => {
@@ -77,6 +91,10 @@ describe('GET /_astro/*.webm|m4a', () => {
     expect(head.status).toBe(206);
     expect(head.headers.get('Content-Length')).toBe('4');
     expect(await head.text()).toBe('');
+    const wholeHead = await get(undefined, 'HEAD');
+    expect(wholeHead.status).toBe(200);
+    expect(wholeHead.headers.get('Accept-Ranges')).toBe('bytes');
+    expect(await wholeHead.text()).toBe('');
   });
 
   it('asks the asset server for the whole file', async () => {

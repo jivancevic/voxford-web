@@ -13,8 +13,16 @@ import { contentRange, parseRange } from './media';
 /** Static-build paths that are served with byte ranges. Keep in step with `run_worker_first` in wrangler.jsonc. */
 export const RANGED_ASSET = /^\/_astro\/[^/]+\.(?:webm|m4a)$/;
 
-/** Headers of the asset response that describe the file, kept on a 206. */
-const KEPT = ['Content-Type', 'Cache-Control', 'ETag', 'Last-Modified'];
+/** Headers that describe the whole body; a 206 sets its own. Everything else (the `_headers` policy) carries over. */
+const WHOLE_BODY = ['Content-Length', 'Content-Encoding', 'Transfer-Encoding'];
+
+/** RFC 9110 › If-Range: only a strong validator that matches exactly lets the range apply. */
+function ifRangeHolds(ifRange: string | null, asset: Response): boolean {
+  if (ifRange === null) return true;
+  if (ifRange.startsWith('W/')) return false;
+  if (ifRange.startsWith('"')) return ifRange === asset.headers.get('ETag');
+  return ifRange === asset.headers.get('Last-Modified');
+}
 
 export async function handleRangedAsset(request: Request, env: Env): Promise<Response> {
   if (request.method !== 'GET' && request.method !== 'HEAD') return env.ASSETS.fetch(request);
@@ -27,11 +35,8 @@ export async function handleRangedAsset(request: Request, env: Env): Promise<Res
   if (asset.status !== 200) return asset; // 304, 404: as the asset server said
 
   const range = parseRange(request.headers.get('Range'));
-  // If-Range: the range only applies while the file is still the one the client holds.
-  const ifRange = request.headers.get('If-Range');
-  const stale = ifRange !== null && ifRange !== asset.headers.get('ETag') && ifRange !== asset.headers.get('Last-Modified');
-
-  if (!range || stale) {
+  if (!range || !ifRangeHolds(request.headers.get('If-Range'), asset)) {
+    if (request.method === 'HEAD') await asset.body?.cancel();
     const whole = new Response(request.method === 'HEAD' ? null : asset.body, asset);
     whole.headers.set('Accept-Ranges', 'bytes');
     return whole;
@@ -39,16 +44,13 @@ export async function handleRangedAsset(request: Request, env: Env): Promise<Res
 
   const bytes = new Uint8Array(await asset.arrayBuffer());
   const size = bytes.byteLength;
-  const out = new Headers({ 'Accept-Ranges': 'bytes', 'X-Content-Type-Options': 'nosniff' });
-  for (const name of KEPT) {
-    const value = asset.headers.get(name);
-    if (value) out.set(name, value);
-  }
   const { start, end } = contentRange(range, size);
   if (start > end || start >= size) {
-    out.set('Content-Range', `bytes */${size}`);
-    return new Response(null, { status: 416, headers: out });
+    return new Response(null, { status: 416, headers: { 'Content-Range': `bytes */${size}` } });
   }
+  const out = new Headers(asset.headers);
+  for (const name of WHOLE_BODY) out.delete(name);
+  out.set('Accept-Ranges', 'bytes');
   out.set('Content-Range', `bytes ${start}-${end}/${size}`);
   out.set('Content-Length', String(end - start + 1));
   return new Response(request.method === 'HEAD' ? null : bytes.slice(start, end + 1), { status: 206, headers: out });
