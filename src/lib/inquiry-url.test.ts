@@ -47,6 +47,7 @@ describe('parseInquiryPrefill', () => {
   });
 
   it('drops the retired private type (#52), so old links open with no type', () => {
+    expect(parseInquiryPrefill('type=private')).toEqual({});
     expect(parseInquiryPrefill('type=private&city=Zagreb')).toEqual({ city: 'Zagreb' });
   });
 
