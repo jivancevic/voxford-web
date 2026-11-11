@@ -33,8 +33,9 @@ import portraitDora from '@/assets/photos/home/portrait-dora.jpg';
 import portraitJosip from '@/assets/photos/home/portrait-josip.jpg';
 import portraitVita from '@/assets/photos/home/portrait-vita.jpg';
 // Stages and artists (ReferencesWall, #33): our own photos. The files carry no
-// photographer in their metadata; credits are Josip's (2026-11-11). The two
-// Tvornica frames have no known author yet, so they show no credit.
+// photographer in their metadata; credits are Josip's (2026-11-11), the
+// arenaDalmatino one Dora's (#98). The two Tvornica frames have no known
+// author yet, so they show no credit.
 import stageArena from '@/assets/photos/stages/arena-zagreb-2025.jpg';
 import stageKutlic from '@/assets/photos/stages/marko-kutlic-2023.jpg';
 import stageTvornica from '@/assets/photos/stages/tvornica-kulture-2023.jpg';
@@ -90,7 +91,9 @@ export const PHOTOS = {
       hr: 'Petorka Voxforda za mikrofonima na velikoj koncertnoj pozornici, u plavom svjetlu',
     },
     label: { en: 'ARENA ZAGREB · 2025', hr: 'ARENA ZAGREB · 2025' },
-    source: "Josip, 2026-11-11 (#40): WhatsApp photo from Dalmatino's concert at Arena Zagreb, 2025; his own, no credit",
+    // Credit: Dora, 2026-11-11 (#98): Jurica Cvitanić took it, like the bow in stageArenaZagreb.
+    credit: 'Jurica Cvitanić',
+    source: "Josip, 2026-11-11 (#40): WhatsApp photo from Dalmatino's concert at Arena Zagreb, 2025",
   },
   crikvenicaPiano: {
     src: crikvenicaPiano,
@@ -154,7 +157,8 @@ export const PHOTOS = {
       en: 'The five singers of Voxford at microphones on the stage of Tvornica kulture, in blue light',
       hr: 'Petorka Voxforda za mikrofonima na pozornici Tvornice kulture, u plavom svjetlu',
     },
-    label: { en: 'WITH MARKO KUTLIĆ · 2023', hr: 'S MARKOM KUTLIĆEM · 2023' },
+    // Not "with Marko Kutlić": he has his own tile under "On stage with" (Dora, #98).
+    label: { en: 'ZAGREB · 2023', hr: 'ZAGREB · 2023' },
     source: 'Drive › Photo › 2023 Tvornica Marko Kutlić › PHOTO-2023-11-28-10-21-06.jpg',
   },
   stageKutlic: {
