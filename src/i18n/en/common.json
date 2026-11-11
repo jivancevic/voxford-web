@@ -32,11 +32,12 @@
     "inquiry": "Send an inquiry"
   },
   "footer": {
-    "tagline": "A cappella group from Zagreb, Croatia. Five voices, no instruments.",
+    "tagline": "A cappella sensation from Croatia.",
     "contactLabel": "Bookings",
     "managementLabel": "Management",
     "followLabel": "Follow",
-    "travel": "We perform across Croatia and the region; travel costs are separate."
+    "travel": "We perform across Croatia and the region; travel costs are separate.",
+    "credit": "Designed and built by"
   },
   "notFound": {
     "title": "Page not found",

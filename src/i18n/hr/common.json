@@ -32,11 +32,12 @@
     "inquiry": "Pošalji upit"
   },
   "footer": {
-    "tagline": "A cappella skupina iz Zagreba. Pet glasova, bez instrumenata.",
+    "tagline": "A cappella senzacija iz Hrvatske.",
     "contactLabel": "Booking",
     "managementLabel": "Menadžment",
     "followLabel": "Pratite nas",
-    "travel": "Nastupamo diljem Hrvatske i regije; putni troškovi su zasebni."
+    "travel": "Nastupamo diljem Hrvatske i regije; putni troškovi su zasebni.",
+    "credit": "Dizajnirao i izradio"
   },
   "notFound": {
     "title": "Stranica nije pronađena",
