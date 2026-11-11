@@ -1,7 +1,8 @@
 // The layout sweep (issue #102): every page of the built site at the
 // viewports where layout bugs reached review (short windows, phones on their
 // side, tablets), with reduced motion and with it, and the home's pinned
-// stages forced small. Fails on the six rules in probe.ts; small text and
+// stages forced small. Fails on the six rules (1 to 5 in probe.ts, page errors
+// here); small text and
 // empty gaps are only printed. Run: `npm run build && npm run test:layout`.
 // A failing case leaves a half-scale screenshot and summary.json in
 // test-results/layout/.
@@ -10,7 +11,7 @@ import { existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { type Browser, type BrowserContext, chromium, type Page } from 'playwright';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { type Case, CASES, KNOWN, PIN_POSITIONS, type Route, routes, STAGES } from './matrix';
+import { type Case, CASES, KNOWN, type KnownFailure, PIN_POSITIONS, type Route, routes, STAGES } from './matrix';
 import { type Finding, preparePage, probeLayout, probeStage, probeTaps, stageGeometry } from './probe';
 import { type DistServer, serveDist } from './server';
 
@@ -121,6 +122,7 @@ function format(r: Result, c: Case): string {
 
 const ROUTES = routes(dist);
 
+
 describe.concurrent.each(CASES)('$name', (c) => {
   it.each(ROUTES.filter((r) => !c.only || c.only.includes(r.name)))('$name', async (route) => {
     const context = await open(c);
@@ -158,5 +160,16 @@ describe.concurrent.each(CASES)('$name', (c) => {
       }
     }
     expect(result.fails, format(result, c)).toEqual([]);
+  });
+});
+
+// A KNOWN entry whose case ran but which matched nothing is stale (fixed, or a
+// renamed route or case): it must go, or it would hide a future failure.
+describe('KNOWN', () => {
+  it('has no stale entries', () => {
+    const ran = (k: KnownFailure) => results.some((r) => r.route === k.route && r.case === k.case);
+    const hit = (k: KnownFailure) =>
+      results.some((r) => r.route === k.route && r.case === k.case && r.known.some((f) => f.rule === k.rule && f.el.includes(k.el)));
+    expect(KNOWN.filter((k) => ran(k) && !hit(k))).toEqual([]);
   });
 });

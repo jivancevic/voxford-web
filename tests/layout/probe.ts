@@ -62,14 +62,17 @@ export function probeLayout(): ProbeResult {
   const text = (el: Element) => (el.textContent ?? '').replace(/\s+/g, ' ').trim().slice(0, 30);
 
   // 1 · Horizontal overflow: the document, or an element past the viewport's sides with no clipping ancestor.
+  // `main { overflow-x: clip }` (global.css) is a page-wide safety net, not a
+  // clip a block chose: content it cuts at the viewport's edge still fails.
+  // Decoration (aria-hidden, no text) may bleed past it on purpose.
   if (de.scrollWidth > vw + 1) fails.push({ rule: 'overflow-x', el: 'html', detail: `scrollWidth ${de.scrollWidth} > ${vw}` });
   const wide: Element[] = [];
   for (const el of document.querySelectorAll('body *')) {
     const r = el.getBoundingClientRect();
     if (r.width < 1 || r.height < 1 || (r.left >= -1 && r.right <= vw + 1)) continue;
-    if (wide.some((w) => w.contains(el)) || !visible(el)) continue;
+    if (wide.some((w) => w.contains(el)) || !visible(el) || el.closest('[aria-hidden="true"]')) continue;
     let clipped = false;
-    for (let a = el.parentElement; a && a !== de; a = a.parentElement) {
+    for (let a = el.parentElement; a && a !== de && a !== document.body && a.tagName !== 'MAIN'; a = a.parentElement) {
       if (clips(a)) {
         clipped = true;
         break;
@@ -142,6 +145,7 @@ export function probeLayout(): ProbeResult {
   // 2 · Text overlap between two elements, more than 3px both ways. A display
   // numeral (line-height under 1) sitting on its own label is exempt.
   const tight = (el: Element) => {
+    if (!el.closest('.numeral, .display')) return false;
     const cs = getComputedStyle(el);
     const lh = parseFloat(cs.lineHeight);
     return Number.isFinite(lh) && lh < parseFloat(cs.fontSize);
@@ -180,6 +184,10 @@ export function probeLayout(): ProbeResult {
     if (!visible(el)) continue;
     const r = el.getBoundingClientRect();
     if (r.height < 1) continue;
+    // The one exception: a single action at the bottom of a sheet (a dialog).
+    const sheet = el.closest('dialog, [role="dialog"], [aria-modal="true"]');
+    if (sheet && sheet.querySelectorAll('.pill, button:not([aria-label]), a[class*="cta"]').length === 1 && sheet.getBoundingClientRect().bottom - r.bottom < 120)
+      continue;
     if (r.width / r.height > 3.2 && r.width > vw * 0.7)
       fails.push({ rule: 'stretched-button', el: path(el), detail: `${px(r.width)}×${px(r.height)} in a ${vw}px viewport` });
   }
@@ -230,7 +238,7 @@ export function probeTaps(): Finding[] {
     'a[href], button, summary, input:not([type="hidden"]), select, textarea, [role="button"], [tabindex="0"]',
   );
   for (const el of targets) {
-    if (!el.checkVisibility({ opacityProperty: true, visibilityProperty: true })) continue;
+    if (!el.checkVisibility({ opacityProperty: true, visibilityProperty: true, contentVisibilityAuto: true })) continue;
     // Out of the tab order and hidden from assistive tech: a honeypot, not a target.
     if (el.tabIndex < 0 && el.closest('[aria-hidden="true"], [inert]')) continue;
     let target: HTMLElement = el;
@@ -299,6 +307,13 @@ export function probeStage(args: { spec: StageSpec; label: string }): Finding[] 
   const header = document.querySelector('.header');
   const top = header ? Math.max(0, header.getBoundingClientRect().bottom) : 0;
   const px = (n: number) => Math.round(n);
+  const desc = (el: Element) =>
+    `${el.tagName.toLowerCase()}${el.id ? `#${el.id}` : ''}${el.classList.length ? `.${[...el.classList].slice(0, 2).join('.')}` : ''}`;
+  const path = (el: Element) => {
+    const parts: string[] = [];
+    for (let a: Element | null = el, i = 0; a && a !== document.body && i < 3; a = a.parentElement, i++) parts.unshift(desc(a));
+    return parts.join('>');
+  };
   // What a part shows: its lines of text (line boxes, not the padding around
   // them) and its images and controls; the element's own box when it has neither.
   const content = (el: Element) => {
@@ -326,7 +341,7 @@ export function probeStage(args: { spec: StageSpec; label: string }): Finding[] 
   };
   for (const sel of spec.parts) {
     for (const el of document.querySelectorAll(sel)) {
-      if (!el.checkVisibility({ opacityProperty: true, visibilityProperty: true })) continue;
+      if (!el.checkVisibility({ opacityProperty: true, visibilityProperty: true, contentVisibilityAuto: true })) continue;
       const r = content(el);
       if (r.width < 1 || r.height < 1) continue;
       const out: string[] = [];
@@ -334,16 +349,16 @@ export function probeStage(args: { spec: StageSpec; label: string }): Finding[] 
         out.push(`leaves the stage (${px(r.top)}..${px(r.bottom)} in ${px(s.top)}..${px(s.bottom)})`);
       if (sticky && (r.top < top - 1 || r.bottom > innerHeight + 1))
         out.push(`leaves the viewport (${px(r.top)}..${px(r.bottom)} in ${px(top)}..${innerHeight})`);
-      if (out.length) fails.push({ rule: 'stage', el: sel, detail: `${label}: ${out.join(', ')}` });
+      if (out.length) fails.push({ rule: 'stage', el: path(el), detail: `${label}: ${out.join(', ')}` });
     }
   }
   const room = innerHeight - (header ? header.getBoundingClientRect().height : 0);
   for (const sel of spec.fit ?? []) {
     const el = document.querySelector(sel);
-    if (!el || !el.checkVisibility({ opacityProperty: true, visibilityProperty: true })) continue;
+    if (!el || !el.checkVisibility({ opacityProperty: true, visibilityProperty: true, contentVisibilityAuto: true })) continue;
     const r = content(el);
     if (r.height > room + 1)
-      fails.push({ rule: 'stage', el: sel, detail: `${label}: ${px(r.height)}px tall, taller than the ${px(room)}px under the header` });
+      fails.push({ rule: 'stage', el: path(el), detail: `${label}: ${px(r.height)}px tall, taller than the ${px(room)}px under the header` });
   }
   return fails;
 }

@@ -48,7 +48,7 @@ export const VIEWPORTS: Viewport[] = [
 ];
 
 const size = (v: Viewport) => `${v.width}x${v.height}`;
-const find = (w: number, h: number) => VIEWPORTS.find((v) => v.width === w && v.height === h)!;
+const viewportOf = (w: number, h: number) => VIEWPORTS.find((v) => v.width === w && v.height === h)!;
 
 /** The watch page: the first video built in both languages. */
 function watchSlug(dist: string): string {
@@ -76,7 +76,7 @@ export function routes(dist: string): Route[] {
 
 export const CASES: Case[] = [
   ...VIEWPORTS.map((viewport): Case => ({ name: `${size(viewport)}-reduce`, viewport, reducedMotion: 'reduce' })),
-  ...[find(390, 844), find(1440, 900)].flatMap((viewport): Case[] => [
+  ...[viewportOf(390, 844), viewportOf(1440, 900)].flatMap((viewport): Case[] => [
     { name: `${size(viewport)}-motion`, viewport, reducedMotion: 'no-preference' },
     ...(['reduce', 'no-preference'] as const).map(
       (reducedMotion): Case => ({
@@ -105,6 +105,15 @@ export const PIN_POSITIONS = [0, 0.25, 0.5, 0.75];
  * Real failures on main that are declared, each with its issue: the sweep
  * prints them but does not fail on them. Remove the entry with the fix.
  */
-export const KNOWN: { route: string; case: string; rule: string; el: string; issue: number }[] = [
+export interface KnownFailure {
+  route: string;
+  case: string;
+  rule: string;
+  /** A substring of the failing element's tag.class path. */
+  el: string;
+  issue: number;
+}
+
+export const KNOWN: KnownFailure[] = [
   { route: 'hr-home', case: '360x780-reduce', rule: 'stretched-button', el: '.proof__copy>a.pill', issue: 107 },
 ];
