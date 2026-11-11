@@ -283,7 +283,7 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
       <p class="encore__body">{h.encore.body}</p>
       <InquiryCTA lang={lang} />
       <p class="encore__mail">
-        {mailBefore}<a href={`mailto:${GROUP.email}`}>{GROUP.email}</a>{mailAfter}
+        {mailBefore}<a class="tap-target" href={`mailto:${GROUP.email}`}>{GROUP.email}</a>{mailAfter}
       </p>
     </div>
   </section>

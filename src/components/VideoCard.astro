@@ -72,7 +72,7 @@ const Heading = `h${headingLevel}` as const;
       <div class="video-card__text">
         {number !== undefined && <span class="video-card__number numeral" aria-hidden="true">{String(number).padStart(2, '0')}</span>}
         <Heading class="video-card__title">
-          <a href={watch}>{title}</a>
+          <a class="tap-target" href={watch}>{title}</a>
         </Heading>
         <p class="label video-card__meta">
           <time datetime={video.data.duration}>{duration}</time>

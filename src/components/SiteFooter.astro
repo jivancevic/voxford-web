@@ -27,7 +27,7 @@ const footerPages = await withoutEmptyConcerts(FOOTER_PAGES);
 
     <div class="footer__col">
       <h2 class="label">{t.common.footer.contactLabel}</h2>
-      <p><a href={`mailto:${GROUP.email}`}>{GROUP.email}</a></p>
+      <p><a class="tap-target" href={`mailto:${GROUP.email}`}>{GROUP.email}</a></p>
       <h2 class="label">{t.common.footer.managementLabel}</h2>
       <p>{GROUP.manager.name}, {GROUP.manager.company}</p>
     </div>
@@ -126,6 +126,22 @@ const footerPages = await withoutEmptyConcerts(FOOTER_PAGES);
     display: inline-flex;
     align-items: center;
     min-block-size: 2.25rem;
+  }
+
+  /* Touch screens: 44px per link, so stacked links are not 36px apart (#80). */
+  @media (pointer: coarse) {
+    .footer__list a,
+    .footer .footer__credit {
+      min-block-size: 2.75rem;
+    }
+  }
+
+  /* Tablet portrait: two by two. auto-fit alone wraps the four blocks 3 + 1,
+     which leaves the page list alone under the tallest column (#80). */
+  @media (40rem <= width < 62.5rem) {
+    .footer__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
 
   .footer__legal {
