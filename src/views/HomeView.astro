@@ -58,12 +58,25 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
           class="hero__plane hero__far"
           formats={['avif', 'webp']}
           widths={[480, 800]}
-          sizes="(width < 48rem) 135vw, max(100vw, 150svh)"
+          sizes="(width < 48rem) 135vw, (orientation: portrait) 135vw, max(100vw, 150svh)"
           loading="eager"
           fetchpriority="high"
           decoding="async"
         />
         <div class="hero__haze" aria-hidden="true"></div>
+        {/* A soft back-light around the five (#67, #74), under the singers. */}
+        <Picture
+          src={HERO_PLANES.rim}
+          alt=""
+          class="hero__plane hero__rim"
+          fallbackFormat="webp"
+          formats={['avif', 'webp']}
+          widths={[640, 960, 1280]}
+          sizes="(width < 48rem) 135vw, (orientation: portrait) 135vw, max(100vw, 150svh)"
+          loading="eager"
+          fetchpriority="low"
+          decoding="async"
+        />
         <Picture
           src={HERO_PLANES.subject}
           alt={HERO_PLANES.alt[lang]}
@@ -71,7 +84,7 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
           fallbackFormat="webp"
           formats={['avif', 'webp']}
           widths={[640, 960, 1280, 1800]}
-          sizes="(width < 48rem) 135vw, max(100vw, 150svh)"
+          sizes="(width < 48rem) 135vw, (orientation: portrait) 135vw, max(100vw, 150svh)"
           loading="eager"
           decoding="async"
         />
@@ -82,7 +95,7 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
           fallbackFormat="webp"
           formats={['avif', 'webp']}
           widths={[600, 1000]}
-          sizes="(width < 48rem) 135vw, max(100vw, 150svh)"
+          sizes="(width < 48rem) 135vw, (orientation: portrait) 135vw, max(100vw, 150svh)"
           loading="eager"
           decoding="async"
         />
@@ -300,7 +313,11 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
 
   /* ---------- 1 · Hero ---------- */
 
+  /* The headline is at most 12% of the window's height: on a short window a
+     full-size one left singers 1 and 2's heads no room above the lead (#74). */
   .hero {
+    --title-pad: clamp(var(--space-6), 7svh, var(--space-9));
+    --title-size: min(var(--text-display), 12svh);
     position: relative;
     background: var(--color-bg);
   }
@@ -314,6 +331,8 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
     min-block-size: 34rem;
     overflow: clip;
     isolation: isolate;
+    /* For the scene's width in a block offset (cqi), see .hero__scene. */
+    container-type: inline-size;
   }
 
   /* Pin only where the whole stage fits under the header; on a short window
@@ -344,10 +363,21 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
      stage on wide screens and is art-directed to the singers on phones. */
   /* Not a stacking context (no z-index, transform or mask here), so the
      headline can sit between the planes. */
+  /* On a short wide window the frame, 100% wide, is far taller than the stage
+     and bottom-anchored, which lifted singers 1 and 2's heads behind the
+     headline (#74). Their heads start at y 395 of 1200 (0.33 of the frame), so
+     the frame drops until they clear the headline's foot (its top padding plus
+     two lines at --title-size, leading 1). Elsewhere it keeps the -12% bottom offset. The
+     frame's height comes from cqi, the stage's width: a % in a block offset
+     would read the stage's height. */
   .hero__scene {
     --scene-w: max(100%, calc(var(--stage-h) * 1.5));
+    --scene-h: calc(max(100cqi, var(--stage-h) * 1.5) / 1.5);
     position: absolute;
-    inset-block-end: -12%;
+    inset-block-start: max(
+      calc(112% - var(--scene-h)),
+      calc(var(--title-pad) + 2 * var(--title-size) + var(--space-4) - 0.33 * var(--scene-h))
+    );
     inset-inline-start: 50%;
     inline-size: var(--scene-w);
     aspect-ratio: 3 / 2;
@@ -355,6 +385,7 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
   }
 
   .hero__scene :global(.hero__far),
+  .hero__scene :global(.hero__rim),
   .hero__scene :global(.hero__subject) {
     mask-image: linear-gradient(to bottom, transparent, var(--color-bg) 18%);
   }
@@ -385,6 +416,8 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
     mask-image: radial-gradient(60% 45% at 62% 18%, var(--color-bg), transparent 70%);
   }
 
+  /* The rim comes first in the markup, so it sits under the singers. */
+  .hero__scene :global(.hero__rim),
   .hero__scene :global(.hero__subject) {
     z-index: 3;
     transform-origin: 60% 85%;
@@ -399,8 +432,9 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
     position: relative;
     z-index: 2;
     grid-row: 1;
-    padding-block-start: clamp(var(--space-6), 7svh, var(--space-9));
+    padding-block-start: var(--title-pad);
     max-inline-size: 14ch;
+    font-size: var(--title-size);
     margin-inline: max(var(--gutter), calc((100% - var(--content-max)) / 2));
     text-wrap: balance;
   }
@@ -433,6 +467,14 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
     color: var(--color-text-on-photo);
   }
 
+  /* A short landscape window: two lines of lead, not three, so it starts below
+     singers 1 and 2's chins (#74). Phones and upright screens keep the flow. */
+  @media (width >= 48rem) and (orientation: landscape) and (height < 46rem) {
+    .hero__lead {
+      max-inline-size: 56ch;
+    }
+  }
+
   .hero__actions {
     display: flex;
     flex-wrap: wrap;
@@ -455,6 +497,7 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
     transform: scale(calc(1.06 - 0.05 * var(--sc-p, 0))) translateY(calc(var(--sc-p, 0) * -1.5%));
   }
 
+  :global(.sc-motion) .hero__scene :global(.hero__rim),
   :global(.sc-motion) .hero__scene :global(.hero__subject) {
     transform: translateY(calc(var(--sc-p, 0) * -5%)) scale(calc(1 + 0.06 * var(--sc-p, 0)));
   }
@@ -463,10 +506,11 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
     transform: translateY(calc(var(--sc-p, 0) * 16%)) scale(calc(1.02 + 0.14 * var(--sc-p, 0)));
   }
 
-  /* Phones: no pin. Headline, then the singers across the width (the planes
-     still part as the hero scrolls by), then the lead and the date widget on
-     plain ground. The script reads the stage as a flow act here. */
-  @media (width < 48rem) {
+  /* Phones and upright screens (a tablet held portrait: the pinned stage there
+     cut singer 5 off, #74): no pin. Headline, then the singers across the width
+     (the planes still part as the hero scrolls by), then the lead and the date
+     widget on plain ground. The script reads the stage as a flow act here. */
+  @media (width < 48rem), (orientation: portrait) {
     :global(.sc-motion) .hero {
       block-size: auto;
     }
@@ -493,6 +537,7 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
     }
 
     .hero__scene :global(.hero__far),
+    .hero__scene :global(.hero__rim),
     .hero__scene :global(.hero__subject),
     .hero__scene :global(.hero__front) {
       mask-image: linear-gradient(to bottom, transparent, var(--color-bg) 18%, var(--color-bg) 78%, transparent);
@@ -512,7 +557,7 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
        when the face loads (CLS). */
     .hero__title {
       font-size: min(var(--text-display), 12.5vw);
-      block-size: calc(2lh + clamp(var(--space-6), 7svh, var(--space-9)));
+      block-size: calc(2lh + var(--title-pad));
     }
 
     .hero__lead {
