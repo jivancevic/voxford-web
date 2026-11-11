@@ -3,16 +3,28 @@
 // of the caption and a link to the post. Without JavaScript the thumbnail links
 // to Instagram; with it, a play button swaps the thumbnail for the reel itself,
 // played from R2 with sound on the visitor's tap (src/scripts/reel-play.ts).
+// The sync stores Instagram's 720x1280 JPEG; the build resizes it to the card
+// (#95). A thumbnail that does not answer the probe keeps that file; as with
+// the YouTube thumbnails, one that fails in the seconds between the probe and
+// the download still fails the build (prod stays on the last deploy).
 // Owner: ticket E.
+import { getImage } from 'astro:assets';
 import { format, getStrings, LOCALE_META, type Locale } from '@/i18n';
 import { captionExcerpt, type Reel } from '@/lib/reels';
+import { probeImage } from '@/lib/youtube';
 
 interface Props {
   lang: Locale;
   reel: Reel;
+  /** CSS `sizes` of the card's slot (VideoRail derives it from the row). */
+  sizes: string;
 }
 
-const { lang, reel } = Astro.props;
+const { lang, reel, sizes } = Astro.props;
+const thumbUrl = new URL(reel.thumbnail, Astro.site).href;
+const thumb = (await probeImage(thumbUrl))
+  ? await getImage({ src: thumbUrl, inferSize: true, widths: [270, 405, 540], sizes, format: 'webp' }).catch(() => undefined)
+  : undefined;
 const t = getStrings(lang);
 const caption = captionExcerpt(reel.caption);
 const date = new Date(reel.timestamp);
@@ -23,7 +35,13 @@ const playLabel = caption ? format(t.videos.reel.play, { caption }) : format(t.v
 <article class="reel">
   <div class="reel__frame" data-reel={reel.video}>
     <a class="reel__thumb" href={reel.permalink} rel="noopener" tabindex="-1" aria-hidden="true">
-      <img src={reel.thumbnail} alt="" width="540" height="960" loading="lazy" decoding="async" />
+      {
+        thumb ? (
+          <img src={thumb.src} srcset={thumb.srcSet.attribute} sizes={sizes} alt="" width="540" height="960" loading="lazy" decoding="async" />
+        ) : (
+          <img src={reel.thumbnail} alt="" width="540" height="960" loading="lazy" decoding="async" />
+        )
+      }
     </a>
     <button class="reel__play" type="button" aria-label={playLabel} hidden></button>
   </div>
