@@ -139,7 +139,7 @@ Sending only to a verified address in the account is free on every plan, so the 
 npx wrangler email sending enable voxfordofficial.com
 npx wrangler email routing addresses create voxford.official@gmail.com   # then click the link in that inbox
 npx wrangler email sending list                                         # voxfordofficial.com is listed
-npx wrangler turnstile widget update <sitekey> --domain voxfordofficial.com --domain voxford-web.josip-ivancevic00.workers.dev --mode invisible
+npx wrangler turnstile widget update <sitekey> --domain voxfordofficial.com --mode invisible
 ```
 
 Then, in a PR, add to `wrangler.jsonc`:
