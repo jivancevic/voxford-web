@@ -51,7 +51,8 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
   <!-- 1 · Curiosity: the hall from the pit, in depth planes (parallax on a sticky stage) -->
   <section id="hero" class="hero" data-sc-act="pin" style="--span: 1.7" aria-labelledby="home-title">
     <div class="hero__stage" data-sc-stage>
-      {/* sizes: on phones and upright screens the scene is 127% of the stage (--scene-w below). */}
+      {/* sizes: on phones and upright screens the scene is 127% of the stage (--scene-w below) and the
+           planes scale up to 1.06 as it scrolls, so 135vw. The 1080w step serves 400–420 px phones (#84). */}
       <div class="hero__scene">
         <Picture
           src={HERO_PLANES.far}
@@ -59,7 +60,7 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
           class="hero__plane hero__far"
           formats={['avif', 'webp']}
           widths={[480, 800]}
-          sizes="(width < 48rem) 127vw, (orientation: portrait) 127vw, max(100vw, 150svh)"
+          sizes="(width < 48rem) 135vw, (orientation: portrait) 135vw, max(100vw, 150svh)"
           loading="eager"
           fetchpriority="high"
           decoding="async"
@@ -73,7 +74,7 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
           fallbackFormat="webp"
           formats={['avif', 'webp']}
           widths={[640, 960, 1080, 1280]}
-          sizes="(width < 48rem) 127vw, (orientation: portrait) 127vw, max(100vw, 150svh)"
+          sizes="(width < 48rem) 135vw, (orientation: portrait) 135vw, max(100vw, 150svh)"
           loading="eager"
           fetchpriority="low"
           decoding="async"
@@ -85,7 +86,7 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
           fallbackFormat="webp"
           formats={['avif', 'webp']}
           widths={[640, 960, 1080, 1280, 1800]}
-          sizes="(width < 48rem) 127vw, (orientation: portrait) 127vw, max(100vw, 150svh)"
+          sizes="(width < 48rem) 135vw, (orientation: portrait) 135vw, max(100vw, 150svh)"
           loading="eager"
           decoding="async"
         />
@@ -96,7 +97,7 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
           fallbackFormat="webp"
           formats={['avif', 'webp']}
           widths={[600, 1000]}
-          sizes="(width < 48rem) 127vw, (orientation: portrait) 127vw, max(100vw, 150svh)"
+          sizes="(width < 48rem) 135vw, (orientation: portrait) 135vw, max(100vw, 150svh)"
           loading="eager"
           decoding="async"
         />
