@@ -39,8 +39,10 @@ const otherRooms = (['weddings', 'advent', 'private'] as const).map((key) => ({
   name: t.common.nav[key],
   line: h.rooms[key],
 }));
-// The next public concerts (#33); the block hides when nothing is upcoming.
-const nextConcerts = (await getUpcomingConcerts()).slice(0, 3);
+// The next public concerts (#33) in one sideways row (#53): up to eight, a
+// season's worth; the rest are on the concerts page. The block hides when
+// nothing is upcoming.
+const nextConcerts = (await getUpcomingConcerts()).slice(0, 8);
 const portraitCredit = [...new Set(Object.values(PORTRAITS).map((p) => p.credit))].join(', ');
 const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
 ---
@@ -217,9 +219,9 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
           <h2 id="live-title">{h.concerts.heading}</h2>
           <p class="live__lead">{h.concerts.lead}</p>
         </div>
-        <ConcertList lang={lang} concerts={nextConcerts} level="h3" />
-        <a class="live__all" href={pathFor('concerts', lang)}>
-          {h.concerts.all}<span aria-hidden="true">&nbsp;→</span>
+        <ConcertList lang={lang} concerts={nextConcerts} level="h3" layout="row" labelledby="live-title" />
+        <a class="live__all arrow-link" href={pathFor('concerts', lang)}>
+          {h.concerts.all}
         </a>
       </section>
     )
@@ -1026,11 +1028,11 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
 
   /* ---------- 4b · Live ---------- */
 
+  /* The head, then the tickets in one row that bleeds right (ConcertList layout="row"), then the link. */
   .live {
     display: grid;
-    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-    gap: var(--space-5) var(--space-8);
-    align-items: start;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-5);
     padding-block: 0 var(--section-gap);
   }
 
@@ -1044,22 +1046,7 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
   }
 
   .live__all {
-    grid-column: 2;
     justify-self: start;
-    display: inline-flex;
-    align-items: center;
-    min-block-size: var(--pill-height);
-    font-weight: 600;
-  }
-
-  @media (width < 60rem) {
-    .live {
-      grid-template-columns: minmax(0, 1fr);
-    }
-
-    .live__all {
-      grid-column: 1;
-    }
   }
 
   /* ---------- 5 · Rooms (the house lights up) ---------- */
