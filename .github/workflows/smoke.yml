@@ -7,8 +7,15 @@ name: smoke
 # version answering with the previous commit.
 #
 # The URL comes from the repository variable PRODUCTION_URL (Settings ›
-# Variables), so ticket G changes it without a code change. Until it is set the
+# Variables), https://voxfordofficial.com since ticket G. Until it is set the
 # job says so and passes: there is nothing deployed to check yet.
+#
+# Once the merge is live, the indexnow job tells Bing, Yandex and the other
+# IndexNow engines which pages changed (spec › SEO/GEO: IndexNow ping on deploy).
+# A push sends the sitemap URLs whose lastmod is the merged commit's date or
+# later; a manual run (Actions › smoke › Run workflow) sends every URL, e.g.
+# after the domain changed. The key is public by design: IndexNow checks it
+# against public/<key>.txt on the site (src/lib/indexnow.test.ts keeps the two equal).
 on:
   push:
     branches: [main]
@@ -56,3 +63,56 @@ jobs:
             fi
             sleep 15
           done
+
+  # A job of its own so that it can never turn the post-merge check red: a failed
+  # ping is a warning, the deploy is fine either way (AGENTS.md › How work ships:
+  # red smoke means roll back).
+  indexnow:
+    needs: healthz
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    continue-on-error: true
+    steps:
+      - name: IndexNow ping for the changed pages
+        env:
+          BASE: ${{ vars.PRODUCTION_URL }}
+          INDEXNOW_KEY: 29fbaef9d1904408f2349ae2145951a6
+          # The merged commit's date; empty on a manual run, which sends every URL.
+          SINCE: ${{ github.event_name == 'push' && github.event.head_commit.timestamp || '' }}
+        run: |
+          case "$BASE" in
+            ""|*.workers.dev*) echo "Not the production domain ($BASE): nothing to ping."; exit 0 ;;
+          esac
+          if ! curl --silent --show-error --fail --max-time 20 "$BASE/sitemap.xml" > sitemap.xml; then
+            echo "::warning::Could not read $BASE/sitemap.xml: no IndexNow ping. The deploy is fine."
+            exit 0
+          fi
+          # lastmod is the last commit date in the committer's time zone, SINCE the
+          # merge time in the merger's, so they can differ by a day around midnight:
+          # take one day of margin rather than miss a changed page.
+          python3 - <<'PY' > urls.json
+          import datetime, json, os, re
+          since = os.environ["SINCE"][:10]
+          if since:
+              since = (datetime.date.fromisoformat(since) - datetime.timedelta(days=1)).isoformat()
+          xml = open("sitemap.xml", encoding="utf-8").read()
+          urls = []
+          for block in re.findall(r"<url>(.*?)</url>", xml, re.S):
+              loc = re.search(r"<loc>(.*?)</loc>", block)
+              lastmod = re.search(r"<lastmod>(.*?)</lastmod>", block)
+              if loc and (not since or (lastmod and lastmod.group(1)[:10] >= since)):
+                  urls.append(loc.group(1))
+          print(json.dumps(urls))
+          PY
+          count=$(jq length urls.json)
+          if [ "$count" = 0 ]; then echo "No page changed since $SINCE: nothing to ping."; exit 0; fi
+          host=${BASE#https://}; host=${host%%/*}
+          jq -n --arg host "$host" --arg key "$INDEXNOW_KEY" --arg loc "$BASE/$INDEXNOW_KEY.txt" \
+            --slurpfile urls urls.json '{host: $host, key: $key, keyLocation: $loc, urlList: $urls[0]}' > body.json
+          code=$(curl --silent --show-error --max-time 30 --output response.txt --write-out '%{http_code}' \
+            -H 'Content-Type: application/json; charset=utf-8' --data @body.json https://api.indexnow.org/indexnow || true)
+          echo "IndexNow: HTTP ${code:-none} for $count URL(s)"; jq -r '.urlList[]' body.json
+          case "$code" in
+            200|202) ;;
+            *) echo "::warning::IndexNow answered HTTP ${code:-none}: $(head -c 300 response.txt 2>/dev/null). The deploy is fine; search engines learn of the change on their next crawl." ;;
+          esac

@@ -5,8 +5,14 @@
   "name": "voxford-web",
   "main": "worker/index.ts",
   "compatibility_date": "2026-11-01",
-  "workers_dev": true,
+  // Production is the custom domain below (ticket G). The workers.dev URL is off so it
+  // cannot compete with the domain in search; version and preview URLs stay on (they are
+  // a separate setting) and Cloudflare marks them noindex.
+  "workers_dev": false,
   "preview_urls": true,
+  // The apex is a Workers Custom Domain: deploy creates its DNS record and certificate.
+  // www → apex is a 301 Redirect Rule on the zone, not the Worker (docs/deploy-cloudflare.md › Domain).
+  "routes": [{ "pattern": "voxfordofficial.com", "custom_domain": true }],
   // Workers Builds runs `wrangler preview` on non-main branches, which needs this block.
   // Previews inherit no bindings: they read the same media bucket (they never write it;
   // the reels cron only runs in production).
@@ -28,5 +34,4 @@
   // Top videos and synced reels (ticket E), served by the Worker at /media/*.
   // `wrangler dev` uses a local bucket; fill it with scripts/upload-media.sh --local.
   "r2_buckets": [{ "binding": "MEDIA", "bucket_name": "voxford-media" }]
-  // Ticket G adds "routes" for the domain.
 }
