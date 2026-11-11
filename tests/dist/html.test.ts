@@ -77,9 +77,9 @@ describe('built pages', () => {
 });
 
 describe('profiles', () => {
-  const profiles = [PROFILES.deezer, PROFILES.appleMusic];
+  const profiles = [PROFILES.deezer, PROFILES.appleMusic, PROFILES.musicBrainz, PROFILES.discogs, PROFILES.wikidata];
 
-  it.each(pages.map((p) => [p.path, p] as const))('%s lists Deezer and Apple Music in sameAs and the footer', (_path, page) => {
+  it.each(pages.map((p) => [p.path, p] as const))('%s lists the music services and databases in sameAs and the footer', (_path, page) => {
     const data = JSON.parse(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/.exec(page.html)![1]!) as {
       '@graph': { '@type': string; sameAs?: string[] }[];
     };
