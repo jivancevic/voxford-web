@@ -113,7 +113,7 @@ Names only here; values never go in a file or a PR.
 | `INQUIRY_FROM` | Worker var | `wrangler.jsonc` `vars` | `inquiry@voxfordofficial.com` |
 | `INQUIRY_LIMIT` | rate limit binding | `wrangler.jsonc` `ratelimits` | 5 emailed attempts per 60 s per visitor IP and Cloudflare location, counted before Siteverify; invalid and tokenless submissions do not count. Approximate by design; Turnstile is the real gate. |
 
-Locally: `cp .dev.vars.example .dev.vars` gives Cloudflare's always-pass test secret and an empty `INQUIRY_FROM`, so `npm run preview` runs the mailto path. To try the email path, put `INQUIRY_FROM=inquiry@voxfordofficial.com` in a separate env file and run `npx wrangler dev --env-file <that file>`: `wrangler dev` simulates the send (no mail leaves the machine) and prints where it saved the message; post with `cf-turnstile-response=XXXX.DUMMY.TOKEN.XXXX`.
+Locally: `cp .dev.vars.example .dev.vars` gives Cloudflare's always-pass test secret and an empty `INQUIRY_FROM`, so `npm run preview` runs the mailto path. To try the email path, put `INQUIRY_FROM=inquiry@voxfordofficial.com` in a separate env file and run `npx wrangler dev --env-file .dev.vars --env-file <that file>` (with `--env-file`, wrangler no longer reads `.dev.vars` by itself; later files win): `wrangler dev` simulates the send (no mail leaves the machine) and prints where it saved the message; post with `cf-turnstile-response=XXXX.DUMMY.TOKEN.XXXX`.
 
 ### Why Email Routing, not Email Sending
 
