@@ -106,7 +106,8 @@ export function feedUrl(override = process.env.YOUTUBE_FEED_URL): string | undef
 /** Does this URL answer with an image right now? */
 export type Probe = (url: string) => Promise<boolean>;
 
-const probeImage: Probe = async (url) => {
+/** HEAD with a 5 s timeout; also used for the reel thumbnails (ReelCard). */
+export const probeImage: Probe = async (url) => {
   try {
     const res = await fetch(url, { method: 'HEAD', signal: AbortSignal.timeout(5000) });
     return res.ok && (res.headers.get('content-type') ?? '').startsWith('image/');

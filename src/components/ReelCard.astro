@@ -4,11 +4,14 @@
 // to Instagram; with it, a play button swaps the thumbnail for the reel itself,
 // played from R2 with sound on the visitor's tap (src/scripts/reel-play.ts).
 // The sync stores Instagram's 720x1280 JPEG; the build resizes it to the card
-// (#95) and falls back to that file when it cannot.
+// (#95). A thumbnail that does not answer the probe keeps that file; as with
+// the YouTube thumbnails, one that fails in the seconds between the probe and
+// the download still fails the build (prod stays on the last deploy).
 // Owner: ticket E.
 import { getImage } from 'astro:assets';
 import { format, getStrings, LOCALE_META, type Locale } from '@/i18n';
 import { captionExcerpt, type Reel } from '@/lib/reels';
+import { probeImage } from '@/lib/youtube';
 
 interface Props {
   lang: Locale;
@@ -18,13 +21,10 @@ interface Props {
 }
 
 const { lang, reel, sizes } = Astro.props;
-const thumb = await getImage({
-  src: new URL(reel.thumbnail, Astro.site).href,
-  inferSize: true,
-  widths: [270, 405, 540],
-  sizes,
-  format: 'webp',
-}).catch(() => undefined);
+const thumbUrl = new URL(reel.thumbnail, Astro.site).href;
+const thumb = (await probeImage(thumbUrl))
+  ? await getImage({ src: thumbUrl, inferSize: true, widths: [270, 405, 540], sizes, format: 'webp' }).catch(() => undefined)
+  : undefined;
 const t = getStrings(lang);
 const caption = captionExcerpt(reel.caption);
 const date = new Date(reel.timestamp);
