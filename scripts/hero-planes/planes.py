@@ -156,6 +156,13 @@ for x in (0, 400, 800, 1200):
     aud[630:630 + h, x:x + w] = np.maximum(aud[630:630 + h, x:x + w], m[: H - 630, : W - x])
 aud *= ramp_down(690, 770)
 band = ramp_down(890, 1010)
+# Below each singer's cut line the front takes over at once, from the same
+# photo: between that line and the band the defocused far plane showed through,
+# and the tables and glasses there read as fog (#74). Left of singer 1 there is
+# only audience.
+for _, _, _, x0, x1, f0, f1 in singers:
+    band[:, x0:x1] = np.maximum(band[:, x0:x1], ramp_down(f0, f1 + 20))
+band[:, :300] = np.maximum(band[:, :300], ramp_down(750, 830))
 front = np.maximum(aud, band) * (1 - subject)
 front = np.asarray(Image.fromarray((front * 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(2)), np.float32) / 255
 

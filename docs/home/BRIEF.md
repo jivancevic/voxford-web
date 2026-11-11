@@ -150,7 +150,8 @@ kolektiff", the file's mandatory credit, confirmed for #31:
   singer's cut line. Edge rule: the rim may never outline a jagged or straight-cut edge, a
   banner or audience fragment, a stand ending in mid-air, or the frame edge.
 - **front:** the audience: Vision's matte where it finds the lit heads, plus a band below the
-  stage line, minus the singers.
+  stage line, minus the singers. Below each singer's cut line the band takes over at once,
+  so the defocused far plane never shows between the singers and the audience (#74).
 - **far:** the whole crop at 1600 px with the singers inpainted out (no ghost halo), blurred,
   dimmed to 78% and desaturated by a quarter.
 - **Composition:** one 3:2 frame covers the stage, bottom-anchored 12% below it. Wherever that
