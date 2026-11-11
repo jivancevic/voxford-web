@@ -26,22 +26,22 @@ Each file below has one origin ticket (`docs/tickets.md`); the column only says 
 | | `src/views/{Conferences,Weddings,Advent,About,Packages,Faq,Concerts}View.astro` | C | — |
 | | `src/views/InquiryView.astro` | D | — |
 | | `src/views/{Videos,VideoWatch}View.astro` | E | — |
-| UI strings | `src/i18n/{en,hr}/<ns>.json`: `common` A, `home` B, `content` C, `inquiry` D, `videos` E (also the references wall) | per namespace | add keys only in your own namespace, in both languages |
-| Page copy | `src/content/pages/{en,hr}/<pageKey>.md` (title, description, heading, source, body) | the page's owner | edit only your pages' entries; title ≤ 50 (the " · Voxford" suffix makes ≤ 60, Voxford said once), description 100–160 with facts filled in, unique per language: `tests/dist/meta.test.ts` checks the built pages |
-| Collections | `src/content.config.ts`: `pages` A, `faq` C, `concerts` C, `videos` E, `references` E | A declares | add fields to your own collection's schema only |
+| UI strings | `src/i18n/{en,hr}/<ns>.json`: `common`, `home`, `content` (Conferences, Weddings, Advent, About, Packages, FAQ, Concerts), `inquiry`, `videos` (also the references wall) | per namespace | add keys in the namespace of the page you change, in both languages |
+| Page copy | `src/content/pages/{en,hr}/<pageKey>.md` (title, description, heading, source, body) | the page's owner | edit only the entries of the pages you change; title ≤ 50 (the " · Voxford" suffix makes ≤ 60, Voxford said once), description 100–160 with facts filled in, unique per language: `tests/dist/meta.test.ts` checks the built pages |
+| Collections | `src/content.config.ts`: `pages`, `faq`, `concerts`, `videos`, `references` | the layout shell declares | add fields to the schema of the collection you change only |
 | Site facts | `src/data/site-facts.ts` (numbers, profiles, members, packages, stages) | A | read only; a wrong fact is fixed from the KB in its own PR |
 | Photos | `src/data/photos.ts` + `src/assets/photos/` | A | add new keys and files; never change an existing key's meaning |
 | JSON-LD | `src/lib/jsonld.ts` builders, rendered through `BaseLayout`'s `jsonLd` prop | A | call the builders; a missing builder is a PR note |
-| Inquiry contract | `src/lib/inquiry-url.ts` (`inquiryUrl`, `parseInquiryPrefill`) | A | D reads it in the form; nobody changes the contract |
-| `InquiryCTA` | `src/components/InquiryCTA.astro`, props `{ lang, prefill?, label?, variant?: 'primary' \| 'ghost', class? }` | D fills the look | B, C place it; props are fixed |
-| `AvailabilityCheck` | `src/components/AvailabilityCheck.astro`, props `{ lang, type?: EventType, class? }`: the date + city widget, a GET form to `/{lang}/inquiry/` in the prefill contract | D | B places it in the hero; others may place it; props are fixed |
-| `ReferencesWall` | `src/components/ReferencesWall.astro`, props `{ lang, limit?, heading?: string \| false, class? }`, reads `references` itself; venues and artists are tiles, with our own photo where the entry names one (`photo`, a key in `photos.ts`) | E fills it | B, C place it; props are fixed |
-| `VideoRail` | `src/components/VideoRail.astro`, props `{ lang, source?: 'top' \| 'reels', limit?, heading?: string \| false, inline?: boolean, class? }`, reads its data itself; `inline` (the home) plays top videos in their card and grows cards on hover | E fills it | B, C place it; props are fixed |
+| Inquiry contract | `src/lib/inquiry-url.ts` (`inquiryUrl`, `parseInquiryPrefill`) | A | the inquiry form reads it; nobody changes the contract |
+| `InquiryCTA` | `src/components/InquiryCTA.astro`, props `{ lang, prefill?, label?, variant?: 'primary' \| 'ghost', class? }` | the inquiry page styles it | the home and content pages place it; props are fixed |
+| `AvailabilityCheck` | `src/components/AvailabilityCheck.astro`, props `{ lang, type?: EventType, class? }`: the date + city widget, a GET form to `/{lang}/inquiry/` in the prefill contract | the inquiry page | the home hero places it; others may place it; props are fixed |
+| `ReferencesWall` | `src/components/ReferencesWall.astro`, props `{ lang, limit?, heading?: string \| false, class? }`, reads `references` itself; venues and artists are tiles, with our own photo where the entry names one (`photo`, a key in `photos.ts`) | the videos pages fill it | the home and content pages place it; props are fixed |
+| `VideoRail` | `src/components/VideoRail.astro`, props `{ lang, source?: 'top' \| 'reels', limit?, heading?: string \| false, inline?: boolean, class? }`, reads its data itself; `inline` (the home) plays top videos in their card and grows cards on hover | the videos pages fill it | the home and content pages place it; props are fixed |
 | Worker | `worker/index.ts` (router) and `worker/healthz.ts`, `worker/lang-redirect.ts` | A | — |
 | | `worker/inquiry.ts` (`handleInquiry`) | D | — |
 | | `worker/reels.ts` (`syncReels`) | E | — |
-| | `worker/env.ts` | A | D and E add bindings under their own comment |
-| | `wrangler.jsonc` | A | E adds `r2_buckets`; G adds `routes`; D adds `send_email`, `vars` (`INQUIRY_FROM`) and `ratelimits` (#65) |
+| | `worker/env.ts` | A | add bindings under the comment of the feature that needs them (inquiry, reels) |
+| | `wrangler.jsonc` | A | reels add `r2_buckets`; the domain adds `routes`; the inquiry adds `send_email`, `vars` (`INQUIRY_FROM`) and `ratelimits` (#65) |
 
 Shared rules:
 

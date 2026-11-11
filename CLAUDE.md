@@ -41,7 +41,7 @@ Tier A site with tests where they pay: the two dynamic paths (inquiry, reels syn
 | Topic | File |
 |---|---|
 | What v1 is, decisions | `docs/spec.md` |
-| Tickets A–G | `docs/tickets.md` |
+| Tickets A-G | `docs/tickets.md` |
 | Domain glossary | `CONTEXT.md` |
 | Seams, ownership, shipping facts | `AGENTS.md` |
 | CSS, layout, voice and typography rules | `CODING_STANDARDS.md` |

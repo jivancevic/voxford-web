@@ -13,10 +13,10 @@ CSS, layout, voice and typography rules for `voxford-web`. Read before writing o
 
 ## Buttons and links
 
-- **Use `Pill` or `InquiryCTA` for buttons**: content-width, at least 48px tall, about 28px side padding, aspect at most 3:1. `width: 100%` on a button stays out (stretched buttons are bad UX, Josip said it twice).
+- **Use `Pill` or `InquiryCTA` for buttons**: content-width, at least 48px tall, about 28px side padding, aspect at most 3:1. `width: 100%` on a button stays out (a wide low button reads as bad UX).
 - **One pill per block, arrow links for the rest** (#40). The block's primary action is a `Pill`/`InquiryCTA`; a secondary link ("All questions", "Compare the packages", Map) is `.arrow-link` from `global.css` (`--out` for another site), not a second pill or a default underlined link. Links inside running prose stay plain.
 
 ## Voice and typography
 
 - **Voxford speaks as "we"** (Josip, #35). In FAQ answers, page copy and UI strings (`src/content/`, `src/i18n/`) Voxford is "we", "our", "the five of us" / "mi", "nas petero"; no sentence about us has "the group", "skupina" or "petorka" as its subject, and none says "they" or "it". Questions from the client's side ("How do we book Voxford?") stay. Noun labels are fine (headings, lineup labels, alt text, the footer tagline). Entity statements keep Voxford as the subject: the `{disambiguation}` lead openers, page titles, meta and default descriptions (the default one is also the `MusicGroup` JSON-LD description), `llms.txt`, `VideoObject` descriptions, the "Who is Voxford?" opening line.
-- **Staubach (`.display`, `.numeral`) only for Latin-only words and numbers.** It has no Č Ć Ž Đ, and Š renders as S. Headlines that may carry Croatian letters use the headline face (h1–h3 default).
+- **Staubach (`.display`, `.numeral`) only for Latin-only words and numbers.** It has no Č Ć Ž Đ, and Š renders as S. Headlines that may carry Croatian letters use the headline face (h1-h3 default).
