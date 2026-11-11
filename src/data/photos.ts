@@ -33,8 +33,9 @@ import portraitDora from '@/assets/photos/home/portrait-dora.jpg';
 import portraitJosip from '@/assets/photos/home/portrait-josip.jpg';
 import portraitVita from '@/assets/photos/home/portrait-vita.jpg';
 // Stages and artists (ReferencesWall, #33): our own photos. The files carry no
-// photographer in their metadata; credits are Josip's (2026-11-11). The two
-// Tvornica frames have no known author yet, so they show no credit.
+// photographer in their metadata; credits are Josip's (2026-11-11), the
+// arenaDalmatino one Dora's (#98). The two Tvornica frames have no known
+// author yet, so they show no credit.
 import stageArena from '@/assets/photos/stages/arena-zagreb-2025.jpg';
 import stageKutlic from '@/assets/photos/stages/marko-kutlic-2023.jpg';
 import stageTvornica from '@/assets/photos/stages/tvornica-kulture-2023.jpg';
