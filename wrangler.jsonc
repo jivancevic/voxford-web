@@ -33,5 +33,12 @@
   "observability": { "enabled": true },
   // Top videos and synced reels (ticket E), served by the Worker at /media/*.
   // `wrangler dev` uses a local bucket; fill it with scripts/upload-media.sh --local.
-  "r2_buckets": [{ "binding": "MEDIA", "bucket_name": "voxford-media" }]
+  "r2_buckets": [{ "binding": "MEDIA", "bucket_name": "voxford-media" }],
+  // Inquiry email (#65, docs/deploy-cloudflare.md › Inquiry). The zone runs Email Routing and
+  // the group's Gmail is a verified destination, so a send to it is free on any plan; the
+  // binding can reach no other address. Previews get none of this: their form uses mailto.
+  "send_email": [{ "name": "EMAIL", "destination_address": "voxford.official@gmail.com" }],
+  "vars": { "INQUIRY_FROM": "inquiry@voxfordofficial.com" },
+  // At most 5 emailed attempts a minute per visitor IP and Cloudflare location (worker/inquiry.ts).
+  "ratelimits": [{ "name": "INQUIRY_LIMIT", "namespace_id": "6501", "simple": { "limit": 5, "period": 60 } }]
 }

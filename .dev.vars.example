@@ -7,6 +7,7 @@ COMMIT_SHA=
 TURNSTILE_SECRET=1x0000000000000000000000000000000AA
 # Hostnames siteverify may report; empty = the request's own host. example.com only with the test secret.
 TURNSTILE_HOSTNAMES=example.com
-# Sender on the domain onboarded to Email Sending (needs `send_email` in wrangler.jsonc).
-# Empty = no email transport: the form hands the inquiry to the visitor's mail app (mailto:).
+# Sender for the `send_email` binding in wrangler.jsonc. Empty here = no email transport
+# locally: the form hands the inquiry to the visitor's mail app (mailto:). Production sets
+# inquiry@voxfordofficial.com in wrangler.jsonc; to simulate a send, see docs/deploy-cloudflare.md › Inquiry.
 INQUIRY_FROM=

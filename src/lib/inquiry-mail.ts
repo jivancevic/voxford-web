@@ -1,5 +1,5 @@
-// The inquiry as an email: the same subject and text for the Worker's Email
-// Sending transport and for the mailto: fallback, in the visitor's language.
+// The inquiry as an email: the same subject and text for the Worker's
+// `send_email` transport and for the mailto: fallback, in the visitor's language.
 // Every inquiry goes to the group's address (spec › Audience, action, language).
 // Imports only the `inquiry` strings (not the whole i18n tree): the page's
 // script uses this too, to write the mailto: when the Worker cannot be reached.
