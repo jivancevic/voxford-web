@@ -119,10 +119,12 @@ the stage glow a little (`--sc-p`) and holds the stage pinned while the music pl
   on its side) do not pin; the act scrolls by. The chord also pins only from 64rem wide.
 - **Pinned stage height** is a minimum (`100svh` minus the header), never a fixed height: when
   `svh` comes out too small (iOS Chrome once gave the phone's width, #77), the stage grows
-  instead of the portraits spilling over the foot.
-- **Phones and upright tablets (chord):** three over two, as we stand in our videos: the stage
-  order folded, so Josip, Ante, David at the back and Dora, Vita in front, each between two of
-  the back row. No card covers another; the act does not pin.
+  instead of the portraits spilling over the foot. Only the pinned stage reads `svh`; a chord
+  stage that scrolls by is as tall as its content.
+- **Phones and tablets held upright (chord, under 64rem):** three over two, as we stand in our
+  videos: the stage order folded, so Josip, Ante, David at the back and Dora, Vita in front,
+  each between two of the back row. No card covers another; the act does not pin. A phone on
+  its side keeps the single row.
 - **Phones:** the hero does not pin; the planes still part as it scrolls by, and the date widget
   (ticket D) sits on plain ground under the photo.
 - **Muted or silent switch:** iOS plays through the "playback" audio session where Safari has
