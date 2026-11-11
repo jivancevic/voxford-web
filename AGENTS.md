@@ -4,11 +4,11 @@ Voxford's public website: Astro (static) on Cloudflare Workers. Read `CONTEXT.md
 
 ## Framework notes
 
-- **Astro 7, static output.** Every page is prerendered HTML in `dist/`; there is no Astro adapter and no SSR. Dynamic paths (`/`, `/healthz`, `/api/*`, the reels cron) are the Worker in `worker/` (ADR 0001). Astro's docs: https://docs.astro.build. Astro 7 is newer than most training data: check `node_modules/astro/dist/types/public/config.d.ts` before using a config option from memory.
+- **Astro 7, static output.** Every page is prerendered HTML in `dist/`; there is no Astro adapter and no SSR. Dynamic paths (`/`, `/healthz`, `/api/*`, `/media/*`, the reels cron) are the Worker in `worker/` (ADR 0001), and so is the build's audio (`/_astro/*.webm`, `*.m4a`), because static assets do not answer byte ranges (`worker/asset-ranges.ts`). Astro's docs: https://docs.astro.build. Astro 7 is newer than most training data: check `node_modules/astro/dist/types/public/config.d.ts` before using a config option from memory.
 - **TypeScript 6, not 7.** `typescript-eslint` and `@astrojs/check` do not support TS 7 yet. Bump when they do.
 - **Content collections** are declared in `src/content.config.ts` (Astro 5+ location) with the `glob()` loader; Zod comes from `astro/zod` (Zod 4: `z.url()`, not `z.string().url()`).
 - **Fonts** use Astro's Fonts API (`fonts` in `astro.config.mjs`, `<Font>` in the layout) with local woff2 files in `src/assets/fonts/`.
-- **Builds inside `.claude/worktrees/<name>/` fail** with "Tsconfig not found astro/tsconfigs/strict": the worktree sits inside the main checkout, and the native resolver picks up the main checkout's `tsconfig.json` (which has no `node_modules`). Run `npm run build`, `check` and `test:dist` on a copy outside the repo, e.g. `git worktree add --detach <scratch>/copy HEAD`, symlink `node_modules`, `rsync` your `src/` into it. `npm test` and `lint` work in place. CI is not affected.
+- **Builds inside `.claude/worktrees/<name>/` fail** with "Tsconfig not found astro/tsconfigs/strict" when the main checkout has no `node_modules`: the worktree sits inside the main checkout, and the native resolver also reads the main checkout's `tsconfig.json`, whose `extends` then cannot resolve. Fix: `npm ci` in the main checkout (`~/projects/business/voxford-web`); after that `npm run build`, `check` and `test:dist` work in place (#58 ran all three in a worktree). If you cannot touch the main checkout, run them on a copy outside the repo: `git worktree add --detach <scratch>/copy HEAD`, symlink `node_modules`, `rsync` your `src/` into it. `npm test` and `lint` always work in place. CI is not affected.
 - **Scoped styles stop at a child component's root.** A class passed as `<VideoRail class="x" />` lands on the child's root element, which the parent's scoped selector `.x` never matches. Write `:global(.x)` anchored to the parent's own scope (`.proof :global(.x)`), not a bare `:global(.x)`, which would apply site-wide. Ticket F found two silent spacing bugs from this.
 - Dev: `npm run dev` (Astro, port 4321, no Worker) for pages; `npm run preview` (build + `wrangler dev`, port 8787) for the real thing, Worker included.
 
@@ -20,10 +20,10 @@ Tickets B–E run in parallel worktrees on top of ticket A. Each owns its files 
 |---|---|---|---|
 | Design tokens | `src/styles/tokens.css` (the only place colours, type, spacing live), `src/styles/global.css` (pill, label, light line, base) | A | read only; a missing token is a PR note, not a local hex |
 | Layout shell | `src/layouts/BaseLayout.astro`, `src/components/{SiteHeader,SiteFooter,LanguageSwitch,Crest,Pill,Photo,JsonLd,PagePlaceholder}.astro` | A | use; pass `jsonLd`, `noindex`, `ogPhoto` through props |
-| Route table | `src/i18n/routes.ts` (paths per language, nav order), `src/pages/**` wrappers | A | read only; wrappers stay one line |
+| Route table | `src/i18n/routes.ts` (paths per language, nav order), `src/pages/**` wrappers, `public/_redirects` (retired pages → 301) | A | read only; wrappers stay one line |
 | 404 | `src/views/NotFoundView.astro`, wrappers `src/pages/404.astro` (EN) and `src/pages/hr/404.astro`; `astro.config.mjs` moves the HR one to `dist/hr/404.html`, the file Workers assets serve for a missing `/hr/…` path | A | — |
 | Page views | `src/views/HomeView.astro` | B | — |
-| | `src/views/{Conferences,Weddings,Advent,Private,About,Packages,Faq,Concerts}View.astro` | C | — |
+| | `src/views/{Conferences,Weddings,Advent,About,Packages,Faq,Concerts}View.astro` | C | — |
 | | `src/views/InquiryView.astro` | D | — |
 | | `src/views/{Videos,VideoWatch}View.astro` | E | — |
 | UI strings | `src/i18n/{en,hr}/<ns>.json`: `common` A, `home` B, `content` C, `inquiry` D, `videos` E (also the references wall) | per namespace | add keys only in your own namespace, in both languages |
@@ -35,8 +35,8 @@ Tickets B–E run in parallel worktrees on top of ticket A. Each owns its files 
 | Inquiry contract | `src/lib/inquiry-url.ts` (`inquiryUrl`, `parseInquiryPrefill`) | A | D reads it in the form; nobody changes the contract |
 | `InquiryCTA` | `src/components/InquiryCTA.astro`, props `{ lang, prefill?, label?, variant?: 'primary' \| 'ghost', class? }` | D fills the look | B, C place it; props are fixed |
 | `AvailabilityCheck` | `src/components/AvailabilityCheck.astro`, props `{ lang, type?: EventType, class? }`: the date + city widget, a GET form to `/{lang}/inquiry/` in the prefill contract | D | B places it in the hero; others may place it; props are fixed |
-| `ReferencesWall` | `src/components/ReferencesWall.astro`, props `{ lang, limit?, heading?: string \| false, class? }`, reads `references` itself | E fills it | B, C place it; props are fixed |
-| `VideoRail` | `src/components/VideoRail.astro`, props `{ lang, source?: 'top' \| 'reels', limit?, heading?: string \| false, class? }`, reads its data itself | E fills it | B, C place it; props are fixed |
+| `ReferencesWall` | `src/components/ReferencesWall.astro`, props `{ lang, limit?, heading?: string \| false, class? }`, reads `references` itself; venues and artists are tiles, with our own photo where the entry names one (`photo`, a key in `photos.ts`) | E fills it | B, C place it; props are fixed |
+| `VideoRail` | `src/components/VideoRail.astro`, props `{ lang, source?: 'top' \| 'reels', limit?, heading?: string \| false, inline?: boolean, class? }`, reads its data itself; `inline` (the home) plays top videos in their card and grows cards on hover | E fills it | B, C place it; props are fixed |
 | Worker | `worker/index.ts` (router) and `worker/healthz.ts`, `worker/lang-redirect.ts` | A | — |
 | | `worker/inquiry.ts` (`handleInquiry`) | D | — |
 | | `worker/reels.ts` (`syncReels`) | E | — |

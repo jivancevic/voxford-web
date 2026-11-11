@@ -6,7 +6,9 @@
 // calendar" (a static .ics, src/lib/concerts.ts › icsRoute); the map search and
 // the organiser's event page are arrow links. Public concerts only (spec ›
 // Information architecture); the caller decides how many and adds the Event
-// JSON-LD.
+// JSON-LD. `layout="row"` (the home, #53) lays the tickets out in one row that
+// scrolls sideways and bleeds to the right edge of the viewport; the other
+// pages stack them.
 import type { CollectionEntry } from 'astro:content';
 import Pill from '@/components/Pill.astro';
 import { format, getStrings, inLang, LOCALE_META, type Locale } from '@/i18n';
@@ -18,9 +20,16 @@ interface Props {
   concerts: readonly CollectionEntry<'concerts'>[];
   /** Heading level of each concert name. */
   level?: 'h2' | 'h3';
+  /** `row`: one horizontal, scroll-snapped row (the home); `stack` (default): a column. */
+  layout?: 'stack' | 'row';
+  /** Row only: id of the heading that names the row, the focusable scroller's label. */
+  labelledby?: string;
 }
 
-const { lang, concerts, level = 'h2' } = Astro.props;
+const { lang, concerts, level = 'h2', layout = 'stack', labelledby } = Astro.props;
+const row = layout === 'row';
+// One ticket never overflows the row, so it gets no tab stop that scrolls nothing.
+const scrolls = row && concerts.length > 1;
 const t = getStrings(lang);
 const c = t.content.concerts;
 const Name = level;
@@ -56,7 +65,12 @@ const rows = concerts.map((entry) => {
 });
 ---
 
-<ol class="tickets" role="list">
+<ol
+  class:list={['tickets', { 'tickets--row': row }]}
+  role="list"
+  tabindex={scrolls ? 0 : undefined}
+  aria-labelledby={scrolls ? labelledby : undefined}
+>
   {
     rows.map((r) => (
       <li class="ticket">
@@ -107,6 +121,34 @@ const rows = concerts.map((entry) => {
     padding: 0;
     display: grid;
     gap: var(--space-4);
+  }
+
+  /*
+    The row (home): tickets side by side, one snap per ticket. It starts at the
+    container's left edge and bleeds to the viewport's right edge (main clips
+    overflow-x), so the cut-off ticket says there is more; the end padding lets
+    the last ticket come to rest at the container's right edge. Focusable, so
+    the arrow keys scroll it; the cards stretch to one height.
+  */
+  .tickets--row {
+    grid-auto-flow: column;
+    grid-auto-columns: min(26rem, 82vw);
+    margin-inline-end: calc(50% - 50vw);
+    padding-inline-end: calc(50vw - 50%);
+    padding-block-end: var(--space-3);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border) transparent;
+  }
+
+  .tickets--row > .ticket {
+    scroll-snap-align: start;
+  }
+
+  .tickets--row:focus-visible {
+    outline-offset: var(--space-2);
   }
 
   /*
@@ -241,24 +283,25 @@ const rows = concerts.map((entry) => {
       var(--gradient-light) border-box;
   }
 
-  /* Wide: the actions sit at the right of the body, level with the name. */
+  /* Wide: the actions sit at the right of the body, level with the name. A
+     ticket in the row keeps the narrow layout at every width. */
   @media (width >= 60rem) {
-    .ticket {
+    .tickets:not(.tickets--row) .ticket {
       --stub: 9rem;
     }
 
-    .ticket__stub {
+    .tickets:not(.tickets--row) .ticket__stub {
       padding-inline-start: var(--space-6);
     }
 
-    .ticket__body {
+    .tickets:not(.tickets--row) .ticket__body {
       grid-template-columns: minmax(0, 1fr) auto;
       align-items: start;
       gap: var(--space-6);
       padding: var(--space-6) var(--space-6) var(--space-6) var(--space-7);
     }
 
-    .ticket__actions {
+    .tickets:not(.tickets--row) .ticket__actions {
       flex-direction: column;
       align-items: flex-end;
       gap: var(--space-1);

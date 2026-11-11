@@ -58,7 +58,8 @@ export function parseRange(header: string | null): R2Range | undefined {
   return end < offset ? undefined : { offset, length: end - offset + 1 };
 }
 
-function contentRange(range: R2Range, size: number): { start: number; end: number } {
+/** The first and last byte a parsed range covers in a file of `size` bytes (start > end: unsatisfiable). */
+export function contentRange(range: R2Range, size: number): { start: number; end: number } {
   if ('suffix' in range) {
     const length = Math.min(range.suffix, size);
     return { start: size - length, end: size - 1 };

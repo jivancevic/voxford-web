@@ -73,6 +73,18 @@
     color-mix(in oklab, var(--brand-purple) 10%, transparent) 45%,
     transparent 75%
   );
+  /* Footer credit: the lit name (left) fading into muted text (right); the
+     muted end shows at rest, the lit end on hover. Every stop keeps 4.5:1 on --color-bg. */
+  /* Lavender: brand purple lifted toward --ink-100. */
+  --color-credit-lit: #c2a8d2;
+  --gradient-credit: linear-gradient(
+    90deg in oklab,
+    var(--brand-pink),
+    var(--color-credit-lit) 33%,
+    var(--color-text-muted) 50%,
+    var(--color-text-muted)
+  );
+  --color-credit-glow: color-mix(in oklab, var(--brand-pink) 50%, transparent);
   --line-thin: 1px;
 
   /* ---- Type families ---- */

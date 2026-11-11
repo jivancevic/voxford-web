@@ -66,6 +66,12 @@ export const PROFILES = {
 /** The @voxford.official YouTube channel's id (KB brand/u-medijima.md): its public uploads feed. */
 export const YOUTUBE_CHANNEL_ID = 'UC6q6MkvWEJBrDIi7jgHeWww';
 
+/** Who designed and built this site; the footer credit links here. Not a KB fact: the site's own colophon. */
+export const SITE_CREDIT = {
+  name: 'Josip Ivančević',
+  url: 'https://josipivancevic.com',
+} as const;
+
 export type ProfileKey = keyof typeof PROFILES;
 
 export const PROFILE_LABELS: Record<ProfileKey, string> = {
@@ -193,6 +199,6 @@ export const STAGES = [
 /** Where they perform: Croatia and the region (spec: no doorway pages, covered by areaServed). */
 export const AREA_SERVED = ['Croatia', 'Slovenia', 'Austria'] as const;
 
-export type EventType = 'conference' | 'wedding' | 'advent' | 'concert' | 'private' | 'other';
-export const EVENT_TYPES: readonly EventType[] = ['conference', 'wedding', 'advent', 'concert', 'private', 'other'];
+export type EventType = 'conference' | 'wedding' | 'advent' | 'concert' | 'other';
+export const EVENT_TYPES: readonly EventType[] = ['conference', 'wedding', 'advent', 'concert', 'other'];
 export const PACKAGE_KEYS: readonly PackageKey[] = PACKAGES.map((p) => p.key);

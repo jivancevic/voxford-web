@@ -11,7 +11,6 @@ export const PAGE_KEYS = [
   'conferences',
   'weddings',
   'advent',
-  'private',
   'about',
   'packages',
   'faq',
@@ -31,7 +30,6 @@ export const ROUTES: Record<PageKey, Record<Locale, string>> = {
   conferences: { en: 'conferences', hr: 'konferencije' },
   weddings: { en: 'weddings', hr: 'vjencanja' },
   advent: { en: 'advent-and-concerts', hr: 'advent-i-koncerti' },
-  private: { en: 'private-celebrations', hr: 'privatne-proslave' },
   about: { en: 'about', hr: 'o-nama' },
   packages: { en: 'packages', hr: 'paketi' },
   faq: { en: 'faq', hr: 'cesta-pitanja' },
@@ -72,7 +70,7 @@ export function pageForPath(pathname: string): { page: PageKey; lang: Locale } |
  * opens the booking pages, conferences first (the GEO goal), then packages
  * after a divider; the flat links follow, videos first for the fans. Concerts
  * shows under its short label (`common.navShort`) and, like in the footer,
- * only while one is upcoming. Private celebrations is footer-only.
+ * only while one is upcoming.
  */
 export const NAV_EVENTS: readonly PageKey[] = ['conferences', 'advent', 'weddings'];
 export const NAV_EVENTS_AFTER_DIVIDER: readonly PageKey[] = ['packages'];
@@ -83,7 +81,6 @@ export const FOOTER_PAGES: readonly PageKey[] = [
   'conferences',
   'weddings',
   'advent',
-  'private',
   'about',
   'packages',
   'faq',

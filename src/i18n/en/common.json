@@ -18,7 +18,6 @@
     "conferences": "Conferences & corporate",
     "weddings": "Weddings",
     "advent": "Advent & concerts",
-    "private": "Private celebrations",
     "about": "About",
     "packages": "Packages",
     "faq": "FAQ",
@@ -43,11 +42,12 @@
     "header": "Enquire"
   },
   "footer": {
-    "tagline": "A cappella group from Zagreb, Croatia. Five voices, no instruments.",
+    "tagline": "A cappella sensation from Croatia.",
     "contactLabel": "Bookings",
     "managementLabel": "Management",
     "followLabel": "Follow",
-    "travel": "We perform across Croatia and the region; travel costs are separate."
+    "travel": "We perform across Croatia and the region; travel costs are separate.",
+    "credit": "Designed by"
   },
   "notFound": {
     "title": "Page not found",
@@ -58,7 +58,7 @@
     "note": "This page is being written."
   },
   "llms": {
-    "summary": "Five singers, founded in {year}, booked for conferences and corporate events, weddings, Advent and summer concerts and private celebrations in Zagreb, across Croatia and the region.",
+    "summary": "Five singers, founded in {year}, booked for conferences and corporate events, weddings, and Advent and summer concerts in Zagreb, across Croatia and the region.",
     "members": "Members (stage order)",
     "packages": "Packages",
     "stages": "Notable stages",

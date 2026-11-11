@@ -83,7 +83,8 @@ describe('JSON-LD shapes', () => {
 
   it('a page that sells has one Service, its packages as price-less Offers', () => {
     const selling = pages.filter((p) => graphOf(p).some((n) => n['@type'] === 'Service'));
-    expect(selling.length).toBeGreaterThanOrEqual(10);
+    // Conferences, Weddings, Advent and Packages, in both languages (Private celebrations retired, #52).
+    expect(selling.length).toBeGreaterThanOrEqual(8);
     // Weddings offers only POP-UP, the surprise; its ceremony is no package (Josip, #40).
     const weddings = new Set(['/en/weddings/', '/hr/vjencanja/']);
     for (const page of selling) {

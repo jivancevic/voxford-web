@@ -58,7 +58,6 @@
     "wedding": "Wedding",
     "advent": "Advent or a city event",
     "concert": "Concert or festival",
-    "private": "Private celebration",
     "other": "Something else"
   },
   "guests": {

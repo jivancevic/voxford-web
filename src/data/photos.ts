@@ -180,7 +180,10 @@ export const PHOTOS = {
       en: 'Voxford with Jasna Zlokić, Jakov Jozinović and the band on the green-lit stage of Tvornica kulture, the audience in the foreground',
       hr: 'Voxford s Jasnom Zlokić, Jakovom Jozinovićem i bendom na pozornici Tvornice kulture u zelenom svjetlu, u prvom planu publika',
     },
-    label: { en: 'TVORNICA KULTURE · ZAGREB · 2026', hr: 'TVORNICA KULTURE · ZAGREB · 2026' },
+    // Names the context, not the tile: the ReferencesWall tile already says Jasna Zlokić. Jozinović
+    // sang that night (KB posao/klijenti/reference.md › Jakov Jozinović; brand/u-medijima.md, RTV HB).
+    // The no-break space keeps the venue on one line when the label wraps on a phone.
+    label: { en: 'WITH JAKOV JOZINOVIĆ · TVORNICA\u00a0KULTURE · 2026', hr: 'S JAKOVOM JOZINOVIĆEM · TVORNICA\u00a0KULTURE · 2026' },
     source: 'Josip, WhatsApp 2026-11-11 (his own photo, no credit), #41',
   },
 } as const satisfies Record<string, Photo>;
