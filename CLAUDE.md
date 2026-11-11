@@ -13,7 +13,7 @@ npm run build      # static build into dist/
 npm run lint       # ESLint
 npm run check      # astro check (TS + .astro) and the Worker's tsc
 npm test           # unit tests: inquiry contract, routes, EN/HR parity, JSON-LD, sitemap, token contrast, Worker
-npm run test:dist  # checks the built HTML in dist/ (head, hreflang reciprocity, JSON-LD, sitemap)
+npm run test:dist  # checks the built HTML in dist/ (head, hreflang reciprocity, JSON-LD, sitemap) and that its media is served with byte ranges
 ```
 
 Tier A site with tests where they pay: the two dynamic paths (inquiry, reels sync: tickets D, E), the EN/HR parity check and the built-HTML checks. No feature suite for static pages, on purpose.
@@ -21,7 +21,7 @@ Tier A site with tests where they pay: the two dynamic paths (inquiry, reels syn
 ## Stack
 
 - **Astro 7** static output, TypeScript strict (TS 6), content collections, Astro i18n routing (`/en/`, `/hr/`, prefix on both)
-- **Cloudflare Workers** with static assets; the Worker in `worker/` handles `/`, `/healthz`, `/api/*`, the reels cron
+- **Cloudflare Workers** with static assets; the Worker in `worker/` handles `/`, `/healthz`, `/api/*`, `/media/*` (R2 videos), `/_astro/*.webm|m4a` (byte ranges), the reels cron
 - Vanilla CSS with tokens (`src/styles/tokens.css`); no CSS framework, no client framework runtime
 - Vitest, ESLint (typescript-eslint, eslint-plugin-astro)
 
