@@ -148,19 +148,22 @@ kolektiff", the file's mandatory credit, confirmed for #31:
   run on one tile per singer, kept to that singer's column and faded out where the audience
   covers them; on the whole frame Vision misses the singer in the dark on the left. Singers 2–4
   get a second, tighter tile (#67). A round close per singer takes in the stands, a steep ramp
-  makes faint values solid, and enclosed holes are filled. Drawn fixes drop banner letters,
+  makes faint values solid, enclosed holes are filled, and everything inside a 10 px close of
+  the outline is solid (no grey ghost inside a body). Drawn fixes drop banner letters,
   the gold logo and audience bits; each box they cut is recorded for the rim. The fourth
   singer's white drape is added by luminance (Vision leaves it out).
 - **rim:** a soft white back-light under the singers (#67, #74), moving with them. It is
   drawn from a smoothed silhouette (the filled matte opened by a radius-8 octagon, blurred and
   re-thresholded), never from the raw matte, because a bright rim shows every stair-step,
   stand and cut. It stays off every straight edge that is not a singer's outline (the hand
-  cuts, column bounds, frame edges, the top of singer 4's tile) and fades out above each
-  singer's cut line. Edge rule: the rim may never outline a jagged or straight-cut edge, a
+  cuts, column bounds, frame edges, the top of singer 4's tile), out of narrow gaps (within
+  60 px of two singers, or filled by a 24 px close: lit from both sides they read as a tunnel)
+  and fades out above each singer's cut line. Edge rule: the rim may never outline a jagged or straight-cut edge, a
   banner or audience fragment, a stand ending in mid-air, or the frame edge.
 - **front:** the audience: Vision's matte where it finds the lit heads, plus a band below the
   stage line, minus the singers. Below each singer's cut line the band takes over at once,
-  so the defocused far plane never shows between the singers and the audience (#74).
+  so the defocused far plane never shows between the singers and the audience (#74); left of
+  the first singer, where there is only audience, it takes over from the same height.
 - **far:** the whole crop at 1600 px with the singers inpainted out (no ghost halo), blurred,
   dimmed to 78% and desaturated by a quarter.
 - **Composition:** one 3:2 frame covers the stage, bottom-anchored 12% below it. Wherever that
