@@ -57,7 +57,7 @@ Canonical numbers (Josip, 2026-11-10): **800K+ followers** across networks, **30
 - `llms.txt` as a cheap extra, built from the same site-facts as the JSON-LD (no proven effect; not a pillar).
 - Sitemap with `lastmod` and hreflang alternates; IndexNow ping on deploy; Google Search Console + Bing Webmaster Tools verified by Josip.
 - Answer-shaped copy: pages answer the literal questions people ask ("How long is the performance?", "Do you need a sound system?", "How much stage space?", "Do you travel outside Zagreb?"), with numbers and named references.
-- `*.workers.dev` / preview hosts are `noindex` until the production domain is live.
+- `*.workers.dev` / preview hosts are `noindex`; the production `workers.dev` URL is off since the domain went live (ticket G).
 - **Off-site GEO checklist** (a KB doc for Josip/Jelena, written in ticket F): Google Business Profile (service-area, Zagreb, no address), Wikidata item, Bing Places, Apple Business Connect, marketplaces (FixTheMusic, GigHeaven, Cueup, Entertainers Worldwide — the a cappella HR category is empty), site link in every profile bio, the same numbers everywhere.
 
 ### Design
@@ -87,7 +87,7 @@ Canonical numbers (Josip, 2026-11-10): **800K+ followers** across networks, **30
 - **Tier A** (static marketing site) per `/kickstart`, with tests on the two dynamic paths (inquiry, reels sync) and a message/copy parity test across EN/HR.
 - **Repo:** this public repo, `jivancevic/voxford-web`, scaffolded with `/kickstart` (SCAFFOLD; read `~/.claude/skills/kickstart/SKILL.md`, `TIERS.md`, `TEMPLATES.md`): CONTEXT.md, CLAUDE.md, AGENTS.md bound to `~/.agents/STANDARDS.md`, README, ADRs, `.claude/settings.json` with worktree isolation, CI (`ci` job), `healthz`, `smoke.yml`, runbook `docs/deploy-cloudflare.md` with `wrangler rollback`, branch protection with required checks `ci` + the Cloudflare Workers Builds check, `allow_auto_merge`, the human-added allow entry `Bash(gh pr merge --auto --squash)`.
 - ADRs to write in ticket A: (1) Astro on Cloudflare Workers instead of kickstart's Next.js on Vercel — Vercel Hobby forbids commercial use, Astro ships static HTML with no JS by default, which AI crawlers need; (2) separate public repo instead of `web/` in the private KB — free CI, real branch protection and auto-merge, physical separation from contracts; cost: a fact change needs a follow-up PR here; (3) reels ingestion stays Tier A — one cron path with tests rather than a Tier B suite.
-- **Domain:** undecided (the team is choosing; recommendation `voxfordofficial.com`, mirrors @voxford.official like Pentatonix's ptxofficial.com; `.hr` rejected — expensive and too local). Build and preview on `*.workers.dev`; ticket G connects the domain when chosen.
+- **Domain:** `voxfordofficial.com` (bought by Josip at Dynadot, 2026-11-11; mirrors @voxford.official like Pentatonix's ptxofficial.com; `.hr` rejected — expensive and too local). DNS on Cloudflare, the site on it since ticket G; previews stay on `*.workers.dev`.
 
 ## Acceptance (v1 done)
 - [ ] Every page above exists in EN and HR, with reciprocal hreflang, valid JSON-LD (Rich Results Test / Schema validator clean), in the sitemap.

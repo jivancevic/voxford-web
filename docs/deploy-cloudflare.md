@@ -10,7 +10,7 @@ The site is one Worker, `voxford-web`, with the Astro build (`dist/`) as static 
 | Deploy (`main`) | `npm run deploy` or the dashboard default `npx wrangler deploy`; both report the commit | Deploy command |
 | Preview (other branches) | the dashboard default `npx wrangler preview` (needs the `previews` block in `wrangler.jsonc`) or `npx wrangler versions upload` | Non-production branch deploy command |
 
-Build variables (Workers Builds › Settings › Build › Variables): `SITE_URL` = the production origin without a trailing slash (until ticket G `https://voxford-web.josip-ivancevic00.workers.dev`), `SITE_INDEXABLE` unset until the domain is live, `NODE_VERSION` = `26`.
+Build variables (Workers Builds › Settings › Build › Variables): `SITE_URL` = the production origin without a trailing slash (`https://voxfordofficial.com` since ticket G), `SITE_INDEXABLE` = `true` (the production domain is indexable), `NODE_VERSION` = `26`.
 
 `/healthz` reports the deployed commit, which the `smoke` workflow compares with the merged commit. Workers Builds sets `WORKERS_CI_COMMIT_SHA`; `scripts/build-info.mjs` writes it into `worker/build-info.ts` before the Astro build, so the commit is in the bundle whichever deploy command runs (`COMMIT_SHA` from `npm run deploy` wins when set). Locally the file stays empty and `/healthz` says `"commit": null`.
 
@@ -19,7 +19,7 @@ Build variables (Workers Builds › Settings › Build › Variables): `SITE_URL
 1. Log wrangler in to the Cloudflare account that should own the site: `npx wrangler logout && npx wrangler login`, then `npx wrangler whoami` shows that account.
 2. Create the R2 bucket the Worker binds (`MEDIA`), or every deploy fails: `npx wrangler r2 bucket create voxford-media` (see *Media and the reels sync*).
 3. Dashboard › Workers & Pages › Create › Import a repository › `jivancevic/voxford-web`, project name `voxford-web`, production branch `main`, the commands and variables above.
-4. After the first deploy, copy the `workers.dev` URL into the build variable `SITE_URL` and into the GitHub repository variable `PRODUCTION_URL` (`gh variable set PRODUCTION_URL --repo jivancevic/voxford-web --body "https://voxford-web.josip-ivancevic00.workers.dev"`, with the scheme: `smoke` calls `$PRODUCTION_URL/healthz` as is), then redeploy.
+4. After the first deploy, copy the production origin into the build variable `SITE_URL` and into the GitHub repository variable `PRODUCTION_URL` (`gh variable set PRODUCTION_URL --repo jivancevic/voxford-web --body "https://voxfordofficial.com"`, with the scheme: `smoke` calls `$PRODUCTION_URL/healthz` as is), then redeploy. Until ticket G that was the `workers.dev` URL.
 5. Branch protection, auto-merge and the merge permission: see *Ready for auto-merge* below.
 
 ## Ready for auto-merge
@@ -108,7 +108,7 @@ Names only here; values never go in a file or a PR.
 | `TURNSTILE_SECRET` | Worker secret | `wrangler secret put` | the widget's secret key |
 | `TURNSTILE_HOSTNAMES` | Worker var, optional | `.dev.vars` locally | unset in production: the Worker accepts the host the request came to |
 | `EMAIL` | `send_email` binding | `wrangler.jsonc` | added with the domain (below) |
-| `INQUIRY_FROM` | Worker var | `wrangler.jsonc` `vars` | `inquiry@<domain>`, added with the domain |
+| `INQUIRY_FROM` | Worker var | `wrangler.jsonc` `vars` | `inquiry@voxfordofficial.com`, added with the domain |
 
 Locally: `cp .dev.vars.example .dev.vars` gives Cloudflare's always-pass test secret, so `npm run preview` runs the whole path with the mailto fallback. To try the email path locally, add a `send_email` binding to a copy of the config and `INQUIRY_FROM` to `.dev.vars`; `wrangler dev` then simulates the send and prints where it saved the message.
 
@@ -131,22 +131,22 @@ Locally: `cp .dev.vars.example .dev.vars` gives Cloudflare's always-pass test se
 
 Preview version URLs (`<version>-voxford-web.josip-ivancevic00.workers.dev`) are not on the widget, so their form always takes the mailto fallback. That is expected.
 
-### Email Sending (with ticket G, after the domain is on Cloudflare)
+### Email Sending (once the domain is on Cloudflare; not switched on yet)
 
 Sending only to a verified address in the account is free on every plan, so the binding is pinned to the group's address.
 
 ```bash
-npx wrangler email sending enable <domain>
+npx wrangler email sending enable voxfordofficial.com
 npx wrangler email routing addresses create voxford.official@gmail.com   # then click the link in that inbox
-npx wrangler email sending list                                         # <domain> is listed
-npx wrangler turnstile widget update <sitekey> --domain <domain> --domain voxford-web.josip-ivancevic00.workers.dev --mode invisible
+npx wrangler email sending list                                         # voxfordofficial.com is listed
+npx wrangler turnstile widget update <sitekey> --domain voxfordofficial.com --domain voxford-web.josip-ivancevic00.workers.dev --mode invisible
 ```
 
 Then, in a PR, add to `wrangler.jsonc`:
 
 ```jsonc
 "send_email": [{ "name": "EMAIL", "destination_address": "voxford.official@gmail.com" }],
-"vars": { "INQUIRY_FROM": "inquiry@<domain>" }
+"vars": { "INQUIRY_FROM": "inquiry@voxfordofficial.com" }
 ```
 
 After that deploy, send one inquiry from the live page and check that it arrives, with Reply-To set to the address typed in the form.
@@ -165,7 +165,7 @@ Videos never go in git. The encoded top videos and the synced reels live in the 
     scripts/upload-media.sh --remote        # → voxford-media/top/<slug>/<version>/… in production
     scripts/upload-media.sh --local         # the same into wrangler dev's local bucket
 
-A new top video: add a row to `scripts/top-videos.tsv`, add `src/content/videos/<slug>.json`, encode, upload. Keys carry a content version (`top/<slug>/<version>/`), so the Worker serves them `immutable` for a year and keeps them in the edge cache; a re-encode gets a new version and new URLs. The Cache API only works on a custom domain, not on `*.workers.dev` (ticket G).
+A new top video: add a row to `scripts/top-videos.tsv`, add `src/content/videos/<slug>.json`, encode, upload. Keys carry a content version (`top/<slug>/<version>/`), so the Worker serves them `immutable` for a year and keeps them in the edge cache; a re-encode gets a new version and new URLs. The Cache API only works on a custom domain, so it is in use since ticket G put the site on `voxfordofficial.com`.
 
 **Reels sync.** `worker/reels.ts` runs on the cron (04:17 UTC daily): it copies the newest 6 reels of voxford.official from the Instagram API (Unified login, `graph.facebook.com`, docs/adr/0004) into `reels/`, writes `reels/manifest.json` and, when the feed changed, POSTs the Workers Builds deploy hook (retried on the next run if it fails). A replaced reel's files stay in R2 for 7 days after it left the feed, and longer while the rebuild is still pending (no hook, or the hook failing), so the live page never points at a deleted file. The build reads `<SITE_URL>/media/reels/manifest.json` (`src/lib/reels.ts`); build variable `REELS_MANIFEST_URL` overrides it, `off` skips it. If anything fails the last good feed stays, and a build that cannot read the manifest renders the Videos page without the reels.
 
@@ -192,4 +192,29 @@ Secrets (Worker › Settings › Variables & Secrets), set by the wizard, never 
 
 ## Domain (ticket G)
 
-Not chosen yet. When it is: add the domain to the Cloudflare account, add `routes` with `custom_domain: true` to `wrangler.jsonc`, `www` → apex redirect, set `SITE_URL` and `SITE_INDEXABLE=true`, update `PRODUCTION_URL`, turn the zone's AI-crawler block off (Security › Bots), and submit the sitemap in Search Console and Bing Webmaster Tools.
+`voxfordofficial.com`, registered by Josip at Dynadot on 2026-11-11. DNS is on Cloudflare: the zone lives in the same account as the Worker, the registrar points at `alexa.ns.cloudflare.com` and `andy.ns.cloudflare.com`, and DNSSEC is off at the registrar.
+
+| What | How | Where it is set |
+|---|---|---|
+| `https://voxfordofficial.com` | Workers Custom Domain: Cloudflare creates the apex DNS record and the edge certificate | `routes` in `wrangler.jsonc` |
+| `www` → apex | proxied `AAAA www 100::` plus a Single Redirect, 301 to `https://voxfordofficial.com` + the same path, query kept | zone › Rules › Redirect Rules |
+| HTTPS | SSL/TLS Full (strict), Always Use HTTPS on, minimum TLS 1.2 | zone › SSL/TLS |
+| `voxford-web.josip-ivancevic00.workers.dev` | off (`workers_dev: false`), so it never competes with the domain; version and preview URLs stay on and carry `X-Robots-Tag: noindex` | `wrangler.jsonc`, `public/_headers` |
+| AI crawlers allowed | "Block AI bots" off, managed robots.txt off: the site's own `robots.txt` is the one served | zone › Security › Bots |
+| Canonical, hreflang, sitemap, `robots.txt`, `llms.txt`, JSON-LD | all from `SITE_URL`; `SITE_INDEXABLE=true` drops the `noindex` | Workers Builds build variables |
+| Post-merge check | `PRODUCTION_URL=https://voxfordofficial.com` | GitHub repository variable |
+| IndexNow | the `smoke` workflow pings `api.indexnow.org` with the changed sitemap URLs once the merge is live; *Run workflow* by hand sends every URL. Key: `public/<key>.txt`, the same key in `smoke.yml` | `.github/workflows/smoke.yml` |
+
+Check:
+
+```bash
+curl -sI https://voxfordofficial.com/en/ | grep -iE '^HTTP|robots'           # 200, no X-Robots-Tag
+curl -sI 'https://www.voxfordofficial.com/hr/?a=1' | grep -iE '^HTTP|location' # 301 → https://voxfordofficial.com/hr/?a=1
+curl -sI http://voxfordofficial.com/en/ | grep -iE '^HTTP|location'           # 301 → https://
+curl -s https://voxfordofficial.com/healthz                                    # the deployed commit
+curl -s https://voxfordofficial.com/robots.txt | tail -2                        # Sitemap: https://voxfordofficial.com/sitemap.xml
+```
+
+**Search engines (Josip).** Google Search Console: a *Domain* property for `voxfordofficial.com`, verified by a DNS TXT record on the zone's apex; then submit `https://voxfordofficial.com/sitemap.xml`. Bing Webmaster Tools: import the site from Search Console, then submit the same sitemap. The KB's `brand/geo-checklista.md` (step 10 and step 1, the profile links) has the rest.
+
+**Email.** The domain has no mail: no MX, and the site's address stays `voxford.official@gmail.com`. Two later options, both off for now: Email Sending for the inquiry form (above, *Email Sending*), and Cloudflare Email Routing if the team ever wants addresses like `booking@voxfordofficial.com` forwarded to the Gmail inbox (it adds MX and SPF records to the zone).
