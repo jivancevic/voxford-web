@@ -125,7 +125,7 @@ the stage glow a little (`--sc-p`) and holds the stage pinned while the music pl
 
 The hero headline is "Five voices. One harmony." / "Pet glasova. Jedan sklad." (Josip, #31); the
 H1 also carries the group's disambiguation line, visually hidden, so it still says who Voxford
-is. The three planes are cut from Drive `Photo › 2026 Hrvatski Akademski Sportski Savez ›
+is. The four planes are cut from Drive `Photo › 2026 Hrvatski Akademski Sportski Savez ›
 Unisport_stars_R1JC7655_JC.jpg` by `scripts/hero-planes/build.sh` (on the machine that made
 them, macOS 26 with the same ImageMagick and cwebp, a rerun reproduces the committed files byte
 for byte; Vision and the encoders may differ elsewhere). The caption credits "Jozo Cabraja /
@@ -137,11 +137,27 @@ kolektiff", the file's mandatory credit, confirmed for #31:
   show, defocused, in `far`.
 - **subject:** an Apple Vision person matte (`VNGeneratePersonSegmentationRequest`, accurate)
   run on one tile per singer, kept to that singer's column and faded out where the audience
-  covers them; on the whole frame Vision misses the singer in the dark on the left. The fourth
+  covers them; on the whole frame Vision misses the singer in the dark on the left. Singers 2–4
+  get a second, tighter tile (#67). A round close per singer takes in the stands, a steep ramp
+  makes faint values solid, and enclosed holes are filled. Drawn fixes drop banner letters,
+  the gold logo and audience bits; each box they cut is recorded for the rim. The fourth
   singer's white drape is added by luminance (Vision leaves it out).
+- **rim:** a soft white back-light under the singers (#67, #74), moving with them. It is
+  drawn from a smoothed silhouette (the filled matte opened by a radius-8 octagon, blurred and
+  re-thresholded), never from the raw matte, because a bright rim shows every stair-step,
+  stand and cut. It stays off every straight edge that is not a singer's outline (the hand
+  cuts, column bounds, frame edges, the top of singer 4's tile) and fades out above each
+  singer's cut line. Edge rule: the rim may never outline a jagged or straight-cut edge, a
+  banner or audience fragment, a stand ending in mid-air, or the frame edge.
 - **front:** the audience: Vision's matte where it finds the lit heads, plus a band below the
   stage line, minus the singers.
-- **far:** the whole crop at 1600 px, blurred, dimmed to 78% and desaturated by a quarter.
+- **far:** the whole crop at 1600 px with the singers inpainted out (no ghost halo), blurred,
+  dimmed to 78% and desaturated by a quarter.
+- **Composition:** one 3:2 frame covers the stage, bottom-anchored 12% below it. On a short
+  wide window it drops until singers 1 and 2's heads (0.33 of the frame) clear the headline,
+  which is capped at 12svh; there the lead is 56ch wide, so it starts below their chins. No
+  text crosses a face (#74). Phones and upright screens use the flow layout, so all five are
+  in frame on a portrait tablet.
 
 ## Fingerprint gate
 
