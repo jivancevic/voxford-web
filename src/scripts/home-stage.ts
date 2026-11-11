@@ -67,9 +67,14 @@ function frame(): void {
   for (const act of acts) {
     // Pinned: the stage sticks when its top reaches `stickTop` and lets go when
     // it meets the section's bottom, a travel of (section height - stage height).
+    // Otherwise p runs from the act entering the viewport to it leaving. An act
+    // already on screen at load (the phone hero) starts at 0 at the page top:
+    // the hero's planes line up into the photo at p = 0, and at p = 0.35 the
+    // front row hung lower than the singers it was cut around (#74).
+    const enter = Math.max(0, act.top - vh);
     const raw = act.sticky
       ? (y + act.stickTop - act.top) / Math.max(1, act.height - act.stageHeight)
-      : (y + vh - act.top) / Math.max(1, act.height + vh);
+      : (y - enter) / Math.max(1, act.top + act.height - enter);
     const p = Math.min(1, Math.max(0, raw));
     if (act.pinned) publishVerifyState(act, y, vh, p);
     if (Math.abs(p - act.p) < 0.0005) continue;
