@@ -157,8 +157,9 @@ mandatory credit, confirmed for #31:
 **Composition (#67).**
 - **Landscape at 48rem and up:** `far` covers the stage. `subject`, `rim` and `front` share one
   3:2 box, anchored right, so the frame's x 380–1760 runs from the end of the lead to the right
-  gutter. The box is capped at 1.45 × the stage height and lifted 8% of it, so no text crosses
-  a face, hand or microphone, and the widget crosses nobody above the knee.
+  gutter. The box is lifted 5.5% of the stage height and capped at 1.45 × it, lower still on a
+  short window so the heads stay below the headline. No text crosses a face, hand or
+  microphone, and the widget crosses nobody above the knee.
 - **Phones and every portrait screen:** the flow layout, with a 17:9 window on the frame's
   x 333–1750, y 250–1000: from just above the heads to the thighs, faded top and bottom.
 

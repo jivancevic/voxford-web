@@ -15,6 +15,18 @@ def ramp(a, b):  # 1 above a, 0 below b
 def ramp_down(a, b):  # 0 above a, 1 below b
     return 1 - ramp(a, b)
 
+def to_image(a):  # a 0..1 float array as an 8-bit greyscale image
+    return Image.fromarray((np.clip(a, 0, 1) * 255).astype(np.uint8))
+
+def to_array(img):  # an 8-bit greyscale image as a 0..1 float array
+    return np.asarray(img, np.float32) / 255
+
+def filled(mask):  # a boolean mask with every enclosed hole filled
+    pad = Image.new('L', (W + 2, H + 2), 0)
+    pad.paste(to_image(mask), (1, 1))
+    ImageDraw.floodfill(pad, (0, 0), 128)
+    return np.asarray(pad, np.uint8)[1:-1, 1:-1] != 128
+
 # Singers: tile x offset, tile y offset, column x0..x1, fade start..end
 singers = [
     (1, 300, 230, 300, 715, 750, 810),    # singer 1 (stage left)
@@ -40,8 +52,7 @@ for i, tx, ty, x0, x1, f0, f1 in singers:
             full[by:by + hb, bx:bx + wb] = np.maximum(full[by:by + hb, bx:bx + wb], mb)
     # Close the narrow gaps a microphone stand cuts through a singer: the
     # stand stands in front of them, so it belongs to this plane.
-    bin_ = Image.fromarray(((full > 0.3) * 255).astype(np.uint8))
-    closed = np.asarray(bin_.filter(ImageFilter.MaxFilter(25)).filter(ImageFilter.MinFilter(25)), np.float32) / 255
+    closed = to_array(to_image(full > 0.3).filter(ImageFilter.MaxFilter(25)).filter(ImageFilter.MinFilter(25)))
     full = np.maximum(full, closed)
     col = np.zeros((1, W), np.float32)
     col[0, x0:x1] = 1
@@ -60,12 +71,8 @@ subject = np.maximum(subject, drape * ramp(1090, 1150))
 subject = np.clip((subject - 0.04) / 0.16, 0, 1)
 # Fill what the matte still encloses (singer 4's dark trousers): a hole there
 # showed the far plane through her.
-hard = Image.fromarray(((subject > 0.5) * 255).astype(np.uint8))
-pad = Image.new('L', (W + 2, H + 2), 0)
-pad.paste(hard, (1, 1))
-ImageDraw.floodfill(pad, (0, 0), 128)
-holes = (np.asarray(pad, np.uint8)[1:-1, 1:-1] == 0).astype(np.float32)
-subject = np.maximum(subject, holes)
+hard = subject > 0.5
+subject = np.maximum(subject, (filled(hard) & ~hard).astype(np.float32))
 
 # Hand fixes, after the hole fill so it cannot close them again.
 # Singer 2's tight tile takes in the gold foundation logo beside her hip.
@@ -120,21 +127,12 @@ for name, a in (('subject', subject), ('front', front)):
 # Rim: a soft white back-light around the five, under the subject (#67). Drawn
 # from the matte with its holes filled and its specks opened away, and faded
 # out above each singer's cut line, where the front row takes over.
-def L8(a):
-    return Image.fromarray((np.clip(a, 0, 1) * 255).astype(np.uint8))
-
-def F(img):
-    return np.asarray(img, np.float32) / 255
-
-pad = Image.new('L', (W + 2, H + 2), 0)
-pad.paste(L8(subject > 0.5), (1, 1))
-ImageDraw.floodfill(pad, (0, 0), 128)
-solid = L8(np.asarray(pad, np.uint8)[1:-1, 1:-1] != 128).filter(ImageFilter.MinFilter(13)).filter(ImageFilter.MaxFilter(13))
+solid = to_image(filled(subject > 0.5)).filter(ImageFilter.MinFilter(13)).filter(ImageFilter.MaxFilter(13))
 fade = np.ones((H, W), np.float32)
 for _, _, _, x0, x1, f0, _ in singers:
     fade[:, x0:x1] = np.clip((f0 - 30 - ys) / 90, 0, 1)
-glow = F(solid.filter(ImageFilter.MaxFilter(9)).filter(ImageFilter.GaussianBlur(10)))
-rim = np.clip(glow - F(solid.filter(ImageFilter.GaussianBlur(1.5))), 0, 1) * fade * 0.55
+glow = to_array(solid.filter(ImageFilter.MaxFilter(9)).filter(ImageFilter.GaussianBlur(10)))
+rim = np.clip(glow - to_array(solid.filter(ImageFilter.GaussianBlur(1.5))), 0, 1) * fade * 0.55
 rgba = np.zeros((H, W, 4), np.uint8)
 rgba[..., :3] = 255
 rgba[..., 3] = (rim * 255).astype(np.uint8)
