@@ -154,10 +154,15 @@ const MENU_PROFILES: readonly ProfileKey[] = ['instagram', 'tiktok', 'youtube'];
   const disclosures = [...document.querySelectorAll<HTMLDetailsElement>('[data-header-disclosure]')];
   const isMenu = (d: HTMLDetailsElement) => d.hasAttribute('data-header-menu');
 
-  function close(d: HTMLDetailsElement, refocus: boolean) {
+  // Focus returns to the summary unless it already went somewhere else (a
+  // clicked field, a link outside): only focus inside the disclosure, or
+  // focus left on <body> by a click on nothing focusable, comes back.
+  function close(d: HTMLDetailsElement, refocus = true) {
     if (!d.open) return;
+    const active = document.activeElement;
+    const stray = !active || active === document.body || d.contains(active);
     d.open = false;
-    if (refocus) d.querySelector('summary')?.focus();
+    if (refocus && stray) d.querySelector('summary')?.focus();
   }
 
   for (const d of disclosures) {
@@ -165,17 +170,17 @@ const MENU_PROFILES: readonly ProfileKey[] = ['instagram', 'tiktok', 'youtube'];
       if (isMenu(d)) document.documentElement.classList.toggle('header-menu-open', d.open);
     });
     d.addEventListener('click', (e) => {
-      if (e.target instanceof Element && e.target.closest('a')) close(d, true);
+      if (e.target instanceof Element && e.target.closest('a')) close(d);
     });
   }
 
   document.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape') return;
-    for (const d of disclosures) close(d, true);
+    for (const d of disclosures) close(d);
   });
 
   document.addEventListener('click', (e) => {
-    for (const d of disclosures) if (e.target instanceof Node && !d.contains(e.target)) close(d, false);
+    for (const d of disclosures) if (e.target instanceof Node && !d.contains(e.target)) close(d);
   });
 
   // Widening to desktop hides the menu's overlay: close it so the scroll lock goes too.
