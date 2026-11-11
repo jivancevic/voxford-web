@@ -61,6 +61,23 @@ jobs:
       - run: npm run build
       - name: Built site passes the HTML checks
         run: npm run test:dist
+      # The layout sweep (tests/layout, #102): every page at the edge viewports in Chromium.
+      # The headless shell only, no `--with-deps`: the runner image ships
+      # Chrome's system libraries, and apt's font packages once hung this step
+      # for 10 minutes on a mirror outage (#108).
+      - name: Install Chromium for the layout sweep
+        timeout-minutes: 5
+        run: npx playwright install --only-shell chromium
+      - name: Built site passes the layout sweep
+        run: npm run test:layout
+      - name: Upload the layout sweep's screenshots and summary
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: layout-sweep
+          path: test-results/layout/
+          if-no-files-found: ignore
+          retention-days: 14
       - name: Worker bundles
         run: npx wrangler deploy --dry-run --outdir .wrangler/dry-run
 
