@@ -15,6 +15,8 @@ import Pill from '@/components/Pill.astro';
 import ReferencesWall from '@/components/ReferencesWall.astro';
 import VideoRail from '@/components/VideoRail.astro';
 import { HERO_PLANES, PORTRAITS } from '@/data/photos';
+import protoRing from '@/assets/photos/home/hero-proto-ring.webp';
+import protoRim from '@/assets/photos/home/hero-proto-rim.webp';
 import { GROUP, MEMBERS, NUMBERS, PACKAGES, SIGNATURE_VIDEO } from '@/data/site-facts';
 import { format, getStrings, type Locale } from '@/i18n';
 import { pathFor, type PageKey } from '@/i18n/routes';
@@ -48,6 +50,10 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
 ---
 
 <BaseLayout lang={lang} page={page} title={copy.data.title} description={copy.data.description}>
+  {/* PROTOTYPE (hero outline): ?outline=none|sticker|rim. Not for main. */}
+  <script is:inline>
+    document.documentElement.dataset.heroOutline = new URLSearchParams(location.search).get('outline') ?? 'none';
+  </script>
   <!-- 1 · Curiosity: the hall from the pit, in depth planes (parallax on a sticky stage) -->
   <section id="hero" class="hero" data-sc-act="pin" style="--span: 1.7" aria-labelledby="home-title">
     <div class="hero__stage" data-sc-stage>
@@ -58,12 +64,32 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
           class="hero__plane hero__far"
           formats={['avif', 'webp']}
           widths={[480, 800]}
-          sizes="(width < 48rem) 135vw, max(100vw, 150svh)"
+          sizes="(width < 48rem) 127vw, (orientation: portrait) 127vw, max(100vw, 150svh)"
           loading="eager"
           fetchpriority="high"
           decoding="async"
         />
         <div class="hero__haze" aria-hidden="true"></div>
+        <Picture
+          src={protoRing}
+          alt=""
+          class="hero__plane hero__subject hero__ol hero__ol--sticker"
+          fallbackFormat="webp"
+          formats={['avif', 'webp']}
+          widths={[640, 1280, 1800]}
+          sizes="(width < 48rem) 127vw, (orientation: portrait) 127vw, min(80vw, 140svh)"
+          loading="eager"
+        />
+        <Picture
+          src={protoRim}
+          alt=""
+          class="hero__plane hero__subject hero__ol hero__ol--rim"
+          fallbackFormat="webp"
+          formats={['avif', 'webp']}
+          widths={[640, 1280, 1800]}
+          sizes="(width < 48rem) 127vw, (orientation: portrait) 127vw, min(80vw, 140svh)"
+          loading="eager"
+        />
         <Picture
           src={HERO_PLANES.subject}
           alt={HERO_PLANES.alt[lang]}
@@ -71,7 +97,7 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
           fallbackFormat="webp"
           formats={['avif', 'webp']}
           widths={[640, 960, 1280, 1800]}
-          sizes="(width < 48rem) 135vw, max(100vw, 150svh)"
+          sizes="(width < 48rem) 127vw, (orientation: portrait) 127vw, min(80vw, 140svh)"
           loading="eager"
           decoding="async"
         />
@@ -82,7 +108,7 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
           fallbackFormat="webp"
           formats={['avif', 'webp']}
           widths={[600, 1000]}
-          sizes="(width < 48rem) 135vw, max(100vw, 150svh)"
+          sizes="(width < 48rem) 127vw, (orientation: portrait) 127vw, min(80vw, 140svh)"
           loading="eager"
           decoding="async"
         />
@@ -108,6 +134,34 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
       </p>
     </div>
   </section>
+
+  <nav class="proto-bar" aria-label="Prototype">
+    <button type="button" data-step="-1">←</button>
+    <span id="proto-label">none</span>
+    <button type="button" data-step="1">→</button>
+  </nav>
+  <script is:inline>
+    (() => {
+      const keys = ['none', 'sticker', 'rim'];
+      const names = { none: 'A · bez obruba', sticker: 'B · naljepnica', rim: 'C · mekani rub' };
+      const root = document.documentElement;
+      const label = document.getElementById('proto-label');
+      const show = () => { label.textContent = names[root.dataset.heroOutline] ?? root.dataset.heroOutline; };
+      const go = (step) => {
+        const i = (keys.indexOf(root.dataset.heroOutline) + step + keys.length) % keys.length;
+        root.dataset.heroOutline = keys[i];
+        const url = new URL(location.href); url.searchParams.set('outline', keys[i]); history.replaceState(null, '', url);
+        show();
+      };
+      document.querySelectorAll('.proto-bar button').forEach((b) => b.addEventListener('click', () => go(Number(b.dataset.step))));
+      addEventListener('keydown', (e) => {
+        if (e.target.closest?.('input, textarea, [contenteditable]')) return;
+        if (e.key === 'ArrowLeft') go(-1);
+        if (e.key === 'ArrowRight') go(1);
+      });
+      show();
+    })();
+  </script>
 
   <!-- 2 · Hush: authored silence before the peak (flow) -->
   <section class="hush" data-sc-act="flow">
@@ -303,6 +357,7 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
   /* ---------- 1 · Hero ---------- */
 
   .hero {
+    --lead-w: clamp(20rem, 30vw, 26rem);
     position: relative;
     background: var(--color-bg);
   }
@@ -342,18 +397,17 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
     }
   }
 
-  /* One 3:2 frame holds every plane, so they line up by stacking. It covers the
-     stage on wide screens and is art-directed to the singers on phones. */
+  /* The far plane covers the stage. The singers (subject) and the front row
+     share one 3:2 box, anchored right so the five stand clear of the lead
+    : the frame's x 380..1760 of 1800 (the five, plus a margin) spans
+     from the lead's end to the right gutter, capped by the stage height. */
   /* Not a stacking context (no z-index, transform or mask here), so the
      headline can sit between the planes. */
   .hero__scene {
-    --scene-w: max(100%, calc(var(--stage-h) * 1.5));
+    --lead-end: calc(max(var(--gutter), (100% - var(--content-max)) / 2) + var(--lead-w) + var(--space-6));
+    --fig-w: min(calc((100% - var(--lead-end) - var(--gutter)) / 0.7667), calc(var(--stage-h) * 1.45));
     position: absolute;
-    inset-block-end: -12%;
-    inset-inline-start: 50%;
-    inline-size: var(--scene-w);
-    aspect-ratio: 3 / 2;
-    margin-inline-start: calc(var(--scene-w) / -2);
+    inset: 0;
   }
 
   .hero__scene :global(.hero__far),
@@ -376,6 +430,7 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
 
   .hero__scene :global(.hero__far) {
     z-index: 0;
+    object-position: 70% 60%;
     transform-origin: 60% 40%;
   }
 
@@ -387,6 +442,16 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
     mask-image: radial-gradient(60% 45% at 62% 18%, var(--color-bg), transparent 70%);
   }
 
+  .hero__scene :global(.hero__subject),
+  .hero__scene :global(.hero__front) {
+    inset: auto;
+    inset-inline-end: calc(var(--gutter) - var(--fig-w) * 0.0222);
+    inset-block-end: calc(var(--stage-h) * 0.08 - var(--fig-w) * 0.05);
+    inline-size: var(--fig-w);
+    block-size: auto;
+    aspect-ratio: 3 / 2;
+  }
+
   .hero__scene :global(.hero__subject) {
     z-index: 3;
     transform-origin: 60% 85%;
@@ -395,6 +460,45 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
   .hero__scene :global(.hero__front) {
     z-index: 4;
     transform-origin: 50% 100%;
+    /* The box starts mid-stage; fade the front row in from the left. */
+    mask-image: linear-gradient(to right, transparent, var(--color-bg) 16%);
+  }
+
+  /* PROTOTYPE outlines */
+  .hero__scene :global(.hero__ol) {
+    display: none;
+  }
+
+  :global(html[data-hero-outline='sticker']) .hero__scene :global(.hero__ol--sticker),
+  :global(html[data-hero-outline='rim']) .hero__scene :global(.hero__ol--rim) {
+    display: block;
+  }
+
+  .proto-bar {
+    position: fixed;
+    inset-block-end: 1rem;
+    inset-inline-start: 50%;
+    z-index: 100;
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    transform: translateX(-50%);
+    font: 600 0.875rem/1 system-ui;
+    color: #000;
+    background: #ffd400;
+    border-radius: 999px;
+    box-shadow: 0 4px 16px #0008;
+  }
+
+  .proto-bar button {
+    min-block-size: 2.5rem;
+    padding-inline: 0.9rem;
+    font: inherit;
+    color: #ffd400;
+    background: #000;
+    border: 0;
+    border-radius: 999px;
   }
 
   .hero__title {
@@ -429,7 +533,7 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
   }
 
   .hero__lead {
-    max-inline-size: 38ch;
+    max-inline-size: var(--lead-w);
     font-size: var(--text-lead);
     line-height: 1.45;
     color: var(--color-text-on-photo);
@@ -468,7 +572,7 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
   /* Phones: no pin. Headline, then the singers across the width (the planes
      still part as the hero scrolls by), then the lead and the date widget on
      plain ground. The script reads the stage as a flow act here. */
-  @media (width < 48rem) {
+  @media (width < 48rem), (orientation: portrait) {
     :global(.sc-motion) .hero {
       block-size: auto;
     }
@@ -481,23 +585,35 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
       min-block-size: 0;
     }
 
+    /* A wide window on the five: the frame's x 333..1750 and y 250..1000
+       of 1800x1200, from just above the heads to the thighs, across the full
+       width. No empty backdrop above, the front row overlapping below. */
     .hero__scene {
-      --scene-w: 127%;
       position: relative;
       grid-row: 2;
       inset: auto;
-      /* Start the frame 18.5% of its width early so the five fill the screen
-         (they stand between 22% and 97% of it). */
-      margin-inline-start: calc(var(--scene-w) * -0.185);
-      margin-block: var(--space-6);
+      aspect-ratio: 1417 / 750;
+      margin-block: var(--space-5);
       /* The planes scale and shift; keep them inside the frame, off the type above and below. */
       overflow: clip;
+      mask-image: linear-gradient(to bottom, transparent, var(--color-bg) 14%, var(--color-bg) 80%, transparent);
     }
 
     .hero__scene :global(.hero__far),
     .hero__scene :global(.hero__subject),
     .hero__scene :global(.hero__front) {
-      mask-image: linear-gradient(to bottom, transparent, var(--color-bg) 18%, var(--color-bg) 78%, transparent);
+      inset: auto;
+      inset-block-start: -33.333%;
+      inset-inline-start: -23.5%;
+      inline-size: 127.03%;
+      max-inline-size: none;
+      block-size: auto;
+      aspect-ratio: 3 / 2;
+      mask-image: none;
+    }
+
+    .hero__lead {
+      max-inline-size: 38ch;
     }
 
     .hero__copy {

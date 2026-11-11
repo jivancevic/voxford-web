@@ -2,7 +2,7 @@
 the per-tile Vision mattes that scripts/hero-planes/build.sh writes into <work>."""
 import sys
 import numpy as np
-from PIL import Image, ImageFilter
+from PIL import Image, ImageDraw, ImageFilter
 
 d = sys.argv[1]
 crop = Image.open(f'{d}/crop.png').convert('RGB')
@@ -39,9 +39,25 @@ lum = np.asarray(crop.convert('L'), np.float32) / 255
 drape = np.zeros((H, W), np.float32)
 drape[500:800, 1395:1480] = np.clip((lum[500:800, 1395:1480] - 0.42) / 0.18, 0, 1)
 subject = np.maximum(subject, drape * ramp(1090, 1150))
+# A sharp patch of the gold sponsor banner sits in singer 4's tile matte beside
+# her microphone; drop its yellow pixels.
+box = (slice(455, 545), slice(1235, 1310))
+rgbf = np.asarray(crop, np.float32)[box]
+gold = (rgbf[..., 0] - rgbf[..., 2] > 50) & (rgbf[..., 0] > 100)
+subject[box][gold] = 0
 
-# Clean the matte: drop faint noise, keep soft edges.
-subject = np.clip((subject - 0.08) / 0.32, 0, 1)
+# Clean the matte: drop faint noise, keep soft edges. Vision's outlines are
+# crisp; its faint values sit inside dark clothes and on the microphones, so a
+# low, steep ramp makes those solid without growing a halo.
+subject = np.clip((subject - 0.04) / 0.16, 0, 1)
+# Fill what the matte still encloses (singer 4's dark trousers): a hole there
+# showed the far plane through her.
+hard = Image.fromarray(((subject > 0.5) * 255).astype(np.uint8))
+pad = Image.new('L', (W + 2, H + 2), 0)
+pad.paste(hard, (1, 1))
+ImageDraw.floodfill(pad, (0, 0), 128)
+holes = (np.asarray(pad, np.uint8)[1:-1, 1:-1] == 0).astype(np.float32)
+subject = np.maximum(subject, holes)
 subject = np.asarray(Image.fromarray((subject * 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(1.2)), np.float32) / 255
 
 # Front: the audience. Vision finds the lit heads on the left; the dark band
@@ -63,7 +79,24 @@ for name, a in (('subject', subject), ('front', front)):
 
 # Far: the whole frame, defocused, dimmed and a little desaturated so the
 # sponsor banners read as light, not logos.
-far = crop.resize((1600, 1067), Image.LANCZOS).filter(ImageFilter.GaussianBlur(14))
+# The singers are taken out first: blurred in place they left a soft ghost
+# around each sharp singer, which read as a cut-out halo. Their area is filled
+# from the backdrop around it (normalised blur), then the whole frame is defocused.
+hole = np.asarray(Image.fromarray((subject * 255).astype(np.uint8)).filter(ImageFilter.MaxFilter(9)).filter(ImageFilter.GaussianBlur(4)), np.float32) / 255
+src = np.asarray(crop, np.float32)
+known = hole < 0.02
+fill = src * known[:, :, None]
+def blur(a, r):
+    return np.asarray(Image.fromarray(np.clip(a, 0, 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(r)), np.float32)
+for r in (8, 16, 32, 64, 128):
+    num = blur(fill, r)
+    den = blur(known.astype(np.float32) * 255, r)[:, :, None] / 255
+    est = num / np.maximum(den, 1e-3)
+    reached = (den[:, :, 0] > 0.05) & ~known
+    fill[reached] = est[reached]
+    known = known | reached
+clean = Image.fromarray(np.clip(src * (1 - hole[:, :, None]) + fill * hole[:, :, None], 0, 255).astype(np.uint8))
+far = clean.resize((1600, 1067), Image.LANCZOS).filter(ImageFilter.GaussianBlur(14))
 arr = np.asarray(far, np.float32)
 grey = arr.mean(axis=2, keepdims=True)
 arr = (grey + (arr - grey) * 0.75) * 0.78
