@@ -42,7 +42,7 @@ Tickets B–E run in parallel worktrees on top of ticket A. Each owns its files 
 | | `worker/inquiry.ts` (`handleInquiry`) | D | — |
 | | `worker/reels.ts` (`syncReels`) | E | — |
 | | `worker/env.ts` | A | D and E add bindings under their own comment |
-| | `wrangler.jsonc` | A | E adds `r2_buckets`; G adds `routes` |
+| | `wrangler.jsonc` | A | E adds `r2_buckets`; G adds `routes`; D adds `send_email`, `vars` (`INQUIRY_FROM`) and `ratelimits` (#65) |
 
 Shared rules for B–E:
 
