@@ -91,9 +91,13 @@ subject = np.maximum(subject, drape * ramp(1090, 1150))
 # low, steep ramp makes those solid without growing a halo.
 subject = np.clip((subject - 0.04) / 0.16, 0, 1)
 # Fill what the matte still encloses (singer 4's dark trousers): a hole there
-# showed the far plane through her.
+# showed the far plane through her. Then make everything more than 2 px inside
+# the closed outline solid: half-transparent patches inside singer 1's jacket and
+# above singer 2's music stand showed the lighter far plane as a grey ghost (#74).
 hard = subject > 0.5
 subject = np.maximum(subject, (filled(hard) & ~hard).astype(np.float32))
+core = erode(filled(erode(dilate(hard, 10), 10)), 2)
+subject = np.maximum(subject, core.astype(np.float32))
 
 # Hand fixes, after the hole fill so it cannot close them again. Every box they
 # cut is listed in `cuts`: its straight sides are not the singers' outline, so
@@ -180,6 +184,22 @@ for yb, xb in cuts:
     lines[yb.start, xb] = lines[yb.stop - 1, xb] = lines[yb, xb.start] = lines[yb, xb.stop - 1] = True
 cut_edge = lines & dilate(hard, 3)
 off = blurred(dilate(cut_edge, 24).astype(np.float32), 10)
+# ...and it stays out of narrow gaps: between two singers (singers 3 and 4
+# above all), lit from both sides, it read as a tunnel, and between an arm and
+# a body (singers 1 and 2) its glow filled the gap as a grey patch (#74).
+# Worked out at a quarter scale: a point is in a gap when it is within 60 px of
+# two singers, or when a close by 24 px fills it.
+def quarter(mask):
+    return np.asarray(to_image(mask.astype(np.float32)).resize((W // 4, H // 4))) > 127
+
+def full_size(mask):
+    return np.asarray(to_image(mask.astype(np.float32)).resize((W, H), Image.BILINEAR), np.float32) / 255
+
+cols = np.arange(W)
+near = sum(dilate(quarter(body & (cols >= x0) & (cols < x1)), 15).astype(np.int32) for _, _, _, x0, x1, _, _ in singers)
+bq = quarter(body)
+gap = dilate((near >= 2) | (erode(dilate(bq, 6), 6) & ~bq), 2)
+off = np.maximum(off, blurred(full_size(gap), 12))
 # ...and fades out above each singer's cut line, where the front row takes over.
 fade = np.ones((H, W), np.float32)
 for _, _, _, x0, x1, f0, _ in singers:
