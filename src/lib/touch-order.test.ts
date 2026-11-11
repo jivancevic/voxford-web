@@ -1,4 +1,4 @@
-// Mechanical rule (AGENTS.md, #81): a `@media (pointer: coarse)` or `(hover: none)` rule
+// Mechanical rule (CODING_STANDARDS.md, #81): a `@media (pointer: coarse)` or `(hover: none)` rule
 // has the same specificity as its base rule, so written BEFORE it, the base rule wins
 // and the touch size silently never applies. Fails when a later rule outside such a media
 // query sets the same property on the same selector.
@@ -8,6 +8,13 @@ import { cssBlocks, lineOf, type CssBlock } from '../../tests/helpers/css-source
 
 const TOUCH = /\(\s*(pointer\s*:\s*coarse|hover\s*:\s*none)\s*\)/;
 const norm = (s: string) => s.replace(/\s+/g, ' ').trim();
+
+const inAnyAtRule = (rule: Rule) => {
+  for (let p = rule.parent as Container | undefined; p; p = p.parent as Container | undefined) {
+    if (p.type === 'atrule' && ['media', 'supports', 'container'].includes((p as AtRule).name)) return true;
+  }
+  return false;
+};
 
 const inTouchMedia = (rule: Rule) => {
   for (let p: Container | undefined = rule.parent; p; p = p.parent as Container | undefined) {
@@ -38,7 +45,7 @@ export function touchOrderBreaches(blocks: CssBlock[]): string[] {
       for (const decl of touch.nodes.filter((n): n is Declaration => n.type === 'decl')) {
         const later = rules.find(
           (r) =>
-            !inTouchMedia(r) &&
+            !inAnyAtRule(r) &&
             (r.source?.start?.offset ?? 0) > (touch.source?.start?.offset ?? 0) &&
             sharedSelector(r, touch) !== undefined &&
             r.nodes.some((n) => n.type === 'decl' && n.prop === decl.prop),

@@ -93,10 +93,10 @@ describe('content copy (ticket C)', () => {
   });
 
   describe('Voxford speaks as "we" (Josip, #35)', () => {
-    // "<file> <key>" (or "<file> body" for a markdown body) → reason. AGENTS.md exempts entity
+    // "<file> <key>" (or "<file> body" for a markdown body) → reason. CODING_STANDARDS.md exempts entity
     // statements, noun labels and questions from the client's side; add one here only with a reason.
     const WE_ALLOW: Record<string, string> = {
-      'src/i18n/hr/content.json about.membersHeading': 'noun label (a heading over the five members), exempt in AGENTS.md',
+      'src/i18n/hr/content.json about.membersHeading': 'noun label (a heading over the five members), exempt in CODING_STANDARDS.md',
     };
 
     // Sentence-initial subjects that mean Voxford, and "Voxford ... they" within one sentence.
@@ -138,7 +138,7 @@ describe('content copy (ticket C)', () => {
         if (where in WE_ALLOW) continue;
         for (const s of sentences(text)) {
           if (THIRD_PERSON.some((re) => re.test(s))) {
-            out.push(`${where}: "${s.slice(0, 90)}": Voxford speaks as "we" / "mi, naša petorka" (AGENTS.md, #35). Rewrite, or add the key to WE_ALLOW with a reason.`);
+            out.push(`${where}: "${s.slice(0, 90)}": Voxford speaks as "we" / "mi, naša petorka" (CODING_STANDARDS.md, #35). Rewrite, or add the key to WE_ALLOW with a reason.`);
           }
         }
       }
