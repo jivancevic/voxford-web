@@ -143,6 +143,27 @@ a {
   margin-inline: auto;
 }
 
+/*
+  A 44px hit area for a small standalone link on touch screens (#80): an
+  invisible ::after, centred on the link, at least 44px each way. Nothing
+  moves. Only for a link that stands alone (not one in running prose) with no
+  other target within 44px; a link that already uses ::after needs its own.
+*/
+@media (pointer: coarse) {
+  .tap-target {
+    position: relative;
+  }
+
+  .tap-target::after {
+    content: '';
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline: min(0px, 50% - 1.375rem);
+    block-size: 2.75rem;
+    translate: 0 -50%;
+  }
+}
+
 /* ---- Type roles ---- */
 
 /* Staubach: Latin-only words and numbers. Never put Č Ć Ž Đ Š in here. */

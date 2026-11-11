@@ -146,6 +146,13 @@
   --header-h: calc(var(--header-bar) + var(--line-thin));
 }
 
+/* A short window (a phone in landscape) keeps more of itself for the page (#80); the 48px pills still fit. */
+@media (height < 30rem) {
+  :root {
+    --header-bar: 3.5rem;
+  }
+}
+
 /* A white section ("the hall with the lights on"): repoints the semantic tokens. */
 .surface-light {
   color-scheme: light;

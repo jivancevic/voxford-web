@@ -210,10 +210,13 @@ const MENU_PROFILES: readonly ProfileKey[] = ['instagram', 'tiktok', 'youtube'];
     min-block-size: var(--header-bar);
   }
 
+  /* At least 44×44 to tap, even when only the crest shows (#80). */
   .header__home {
     display: inline-flex;
     flex: none;
     align-items: center;
+    min-block-size: 2.75rem;
+    min-inline-size: 2.75rem;
     gap: var(--space-3);
     color: var(--color-text);
     text-decoration: none;

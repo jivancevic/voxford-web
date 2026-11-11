@@ -45,7 +45,7 @@ const dateText = new Intl.DateTimeFormat(LOCALE_META[lang].htmlLang, { day: 'num
   <h4 class="yt__title">{title}</h4>
   <p class="label yt__meta">
     <time datetime={video.published}>{dateText}</time>
-    <a href={video.url} rel="noopener">{t.videos.youtube.onYouTube}</a>
+    <a class="tap-target" href={video.url} rel="noopener">{t.videos.youtube.onYouTube}</a>
   </p>
 </article>
 
