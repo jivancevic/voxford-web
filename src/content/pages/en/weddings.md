@@ -1,6 +1,6 @@
 ---
 title: "A cappella wedding singers in Croatia"
-description: "Voxford sings at weddings across Croatia and the region: five a cappella voices for the ceremony, with church songs and klapa, or a surprise for the couple."
+description: "Voxford sings at weddings across Croatia and the region: five a cappella voices for the ceremony with church songs, klapa and pop, or a surprise for the couple."
 heading: "Weddings"
 source: "brand/biografija.md, posao/ponuda/ponuda.md, posao/klijenti/reference.md › Vjenčanja, repertoar/repertoar.md, CONTEXT.md › Predujam; options and wedding songs: Josip, 2026-11-11 (#40)"
 ---

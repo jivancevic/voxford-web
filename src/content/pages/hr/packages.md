@@ -1,6 +1,6 @@
 ---
 title: "Paketi: POP-UP, CLASSIC i GOLD"
-description: "Voxford kao POP-UP (do {popUpMax} min), CLASSIC ({classicMin} do {classicMax} min a cappella) ili GOLD ({goldMin} do {goldMax} min uz klavir i cajon), s našim toncem ili Vašim."
+description: "Voxford kao POP-UP (do {popUpMax} min), CLASSIC ({classicMin} do {classicMax} min a cappella) ili GOLD ({goldMin} do {goldMax} min uz klavir i cajon), s našim tonskim majstorom ili Vašim."
 heading: "Paketi"
 source: "posao/ponuda/ponuda.md, CONTEXT.md › Paket, posao/rideri/rideri.md"
 ---

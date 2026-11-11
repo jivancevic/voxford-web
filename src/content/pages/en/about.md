@@ -1,6 +1,6 @@
 ---
 title: "About us: five voices from Zagreb"
-description: "Meet Voxford: five singers from across Croatia, based in Zagreb since {foundingYear}, blending modern a cappella with klapa and singing with Croatian artists."
+description: "Meet Voxford: five singers from across Croatia, based in Zagreb since {foundingYear}, blending modern a cappella with Dalmatian klapa and singing with Croatian artists."
 heading: "About Voxford"
 source: "brand/biografija.md, brand/u-medijima.md, ljudi-i-procesi/ekipa.md, posao/klijenti/reference.md"
 ---
