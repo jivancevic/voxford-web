@@ -204,8 +204,8 @@ off = np.maximum(off, blurred(full_size(gap), 12))
 fade = np.ones((H, W), np.float32)
 for _, _, _, x0, x1, f0, _ in singers:
     fade[:, x0:x1] = np.clip((f0 - 30 - ys) / 90, 0, 1)
-# PREVIEW (#74): built at the strongest variant; the page scales it down per ?rim=.
-RIM = 0.8
+# Peak opacity 0.55: #69's strength, chosen on the preview build (#74).
+RIM = 0.55
 glow = blurred(dilate(body, 4).astype(np.float32), 10)
 rim = np.clip(glow - blurred(body.astype(np.float32), 1.5), 0, 1) * fade * (1 - off) * RIM
 rgba = np.zeros((H, W, 4), np.uint8)

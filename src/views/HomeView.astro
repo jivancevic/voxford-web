@@ -122,17 +122,6 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
     </div>
   </section>
 
-  {/* PREVIEW (#74), removed before merge: the rim strength switch for Josip. */}
-  <nav class="rim-switch" aria-label="Rim strength (preview)">
-    <a href="?rim=0">0</a><a href="?rim=1">1</a><a href="?rim=2">2</a><a href="?rim=3">3</a>
-  </nav>
-  <script is:inline>
-    (() => {
-      const v = new URLSearchParams(location.search).get('rim') ?? '2';
-      document.documentElement.dataset.rim = v;
-    })();
-  </script>
-
   <!-- 2 · Hush: authored silence before the peak (flow) -->
   <section class="hush" data-sc-act="flow">
     <p class="hush__line container" data-sc-in>{h.hush.line}</p>
@@ -587,52 +576,6 @@ const [mailBefore = '', mailAfter = ''] = h.encore.mail.split('{email}');
       transform: none;
       opacity: 1;
     }
-  }
-
-  /* PREVIEW (#74), removed before merge: the rim is built at variant 3's
-     strength (0.8); 1 and 2 scale it to 0.35 and 0.55 (#69's). */
-  .hero__scene :global(.hero__rim) {
-    opacity: 0.6875;
-  }
-
-  :global([data-rim='0']) .hero__scene :global(.hero__rim) {
-    opacity: 0;
-  }
-
-  :global([data-rim='1']) .hero__scene :global(.hero__rim) {
-    opacity: 0.4375;
-  }
-
-  :global([data-rim='3']) .hero__scene :global(.hero__rim) {
-    opacity: 1;
-  }
-
-  .rim-switch {
-    position: fixed;
-    inset: calc(var(--header-h) + var(--space-2)) var(--space-4) auto auto;
-    z-index: 100;
-    display: flex;
-    gap: var(--space-2);
-  }
-
-  .rim-switch a {
-    display: grid;
-    place-items: center;
-    inline-size: 3rem;
-    block-size: 3rem;
-    border-radius: 50%;
-    background: var(--color-bg);
-    color: var(--color-text);
-    border: 1px solid var(--color-text-secondary);
-    text-decoration: none;
-  }
-
-  :global([data-rim='0']) .rim-switch a[href$='0'],
-  :global([data-rim='1']) .rim-switch a[href$='1'],
-  :global([data-rim='2']) .rim-switch a[href$='2'],
-  :global([data-rim='3']) .rim-switch a[href$='3'] {
-    background: var(--color-text);
-    color: var(--color-bg);
   }
 
   /* ---------- 2 · Hush ---------- */
