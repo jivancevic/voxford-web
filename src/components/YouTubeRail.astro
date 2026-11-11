@@ -5,6 +5,7 @@
 // builds without the row.
 import YouTubeCard from '@/components/YouTubeCard.astro';
 import type { Locale } from '@/i18n';
+import { railCardSizes } from '@/lib/rail-sizes';
 import { loadYouTubeUploads } from '@/lib/youtube';
 
 interface Props {
@@ -13,6 +14,7 @@ interface Props {
 
 const { lang } = Astro.props;
 const videos = await loadYouTubeUploads();
+const sizes = railCardSizes(videos.length);
 ---
 
 {
@@ -20,7 +22,7 @@ const videos = await loadYouTubeUploads();
     <ul class="yt-rail" role="list">
       {videos.map((video) => (
         <li class="yt-rail__item">
-          <YouTubeCard lang={lang} video={video} />
+          <YouTubeCard lang={lang} video={video} sizes={sizes} />
         </li>
       ))}
     </ul>
