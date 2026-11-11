@@ -52,6 +52,8 @@ export const NUMBERS = {
  * brand/u-medijima.md › Profili i brojke). JSON-LD sameAs, the footer, llms.txt
  * and the Videos page's social links. Apple Music: the artist page the KB
  * found through the iTunes API on 2026-11-10 (featured tracks only).
+ * MusicBrainz, Discogs and Wikidata: created and cross-linked on 2026-11-11
+ * (KB brand/geo-checklista.md step 7, KB PR #17).
  */
 export const PROFILES = {
   instagram: 'https://www.instagram.com/voxford.official/',
@@ -61,6 +63,9 @@ export const PROFILES = {
   spotify: 'https://open.spotify.com/artist/0Dt77VATBKwGUPu15Ee858',
   appleMusic: 'https://music.apple.com/us/artist/voxford/1811236594',
   deezer: 'https://www.deezer.com/artist/320441671',
+  musicBrainz: 'https://musicbrainz.org/artist/25341176-e45b-4e65-bf55-9e0f4c71db59',
+  discogs: 'https://www.discogs.com/artist/18529934-Voxford',
+  wikidata: 'https://www.wikidata.org/wiki/Q142107900',
 } as const;
 
 /** The @voxford.official YouTube channel's id (KB brand/u-medijima.md): its public uploads feed. */
@@ -82,6 +87,9 @@ export const PROFILE_LABELS: Record<ProfileKey, string> = {
   spotify: 'Spotify',
   appleMusic: 'Apple Music',
   deezer: 'Deezer',
+  musicBrainz: 'MusicBrainz',
+  discogs: 'Discogs',
+  wikidata: 'Wikidata',
 };
 
 /**

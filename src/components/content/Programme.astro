@@ -37,7 +37,7 @@ const items = moments.map((m) => {
           <h3 class="programme__title">{m.title}</h3>
           {m.pkg ? (
             <p class="programme__meta">
-              <a class="display programme__pkg" href={`${pathFor('packages', lang)}#${m.pkg.key}`}>
+              <a class="display programme__pkg tap-target" href={`${pathFor('packages', lang)}#${m.pkg.key}`}>
                 {m.pkg.name}
               </a>
               <span class="label">{packageDuration(m.pkg, lang)}</span>

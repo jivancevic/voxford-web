@@ -182,6 +182,9 @@ function mountChord(section: HTMLElement): void {
     else section.removeAttribute('data-sc-verify-hold');
     if (caption) caption.textContent = view.last >= 0 ? (voices[view.last]!.dataset.caption ?? '') : '';
     if (button && label) label.textContent = button.getAttribute(`data-label-${view.action}`) ?? '';
+    // The play pill is primary at rest and steps back to the ghost pill while the music plays (#77).
+    button?.classList.toggle('pill--primary', state !== 'playing');
+    button?.classList.toggle('pill--ghost', state === 'playing');
   }
 
   function stopTicking(): void {

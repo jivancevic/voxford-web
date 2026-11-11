@@ -58,7 +58,7 @@ const hasYouTube = (await loadYouTubeUploads()).length > 0;
               number={i + 1}
               headingLevel={3}
               priority={i === 0}
-              sizes={i === 0 ? '(min-width: 64rem) 24rem, 90vw' : '(min-width: 64rem) 15rem, 45vw'}
+              sizes={i === 0 ? '(min-width: 64rem) min(20rem, 24.5vw), (min-width: 48rem) 24rem, min(24rem, 100vw - 2rem)' : '(min-width: 64rem) min(12.5rem, 16vw), (min-width: 48rem) 21vw, 45vw'}
             />
           </li>
         ))

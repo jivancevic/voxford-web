@@ -10,6 +10,7 @@ Voxford's public website: Astro (static) on Cloudflare Workers. Read `CONTEXT.md
 - **Fonts** use Astro's Fonts API (`fonts` in `astro.config.mjs`, `<Font>` in the layout) with local woff2 files in `src/assets/fonts/`.
 - **Builds inside `.claude/worktrees/<name>/` fail** with "Tsconfig not found astro/tsconfigs/strict" when the main checkout has no `node_modules`: the worktree sits inside the main checkout, and the native resolver also reads the main checkout's `tsconfig.json`, whose `extends` then cannot resolve. Fix: `npm ci` in the main checkout (`~/projects/business/voxford-web`); after that `npm run build`, `check` and `test:dist` work in place (#58 ran all three in a worktree). If you cannot touch the main checkout, run them on a copy outside the repo: `git worktree add --detach <scratch>/copy HEAD`, symlink `node_modules`, `rsync` your `src/` into it. `npm test` and `lint` always work in place. CI is not affected.
 - **Scoped styles stop at a child component's root.** A class passed as `<VideoRail class="x" />` lands on the child's root element, which the parent's scoped selector `.x` never matches. Write `:global(.x)` anchored to the parent's own scope (`.proof :global(.x)`), not a bare `:global(.x)`, which would apply site-wide. Ticket F found two silent spacing bugs from this.
+- **Viewport units can be wrong on iOS.** Chrome on an iPhone once reported `100svh` as about the phone's width (#77): the chord's sticky stage (`.chord__stage` in `HomeView.astro`) had a fixed `block-size` from `svh`, so its portraits spilled over its caption and the rest of the section stayed empty. A box whose content must fit inside it takes a viewport-unit height only as `min-block-size`; the chord does that only while it pins and otherwise takes its content's height. A clamped size for a photo (`clamp(11rem, 40svh, 22rem)`) is fine: a wrong `svh` only resizes the photo. The hero stage (`.hero__stage { block-size: var(--stage-h) }`) still has the fixed height (#74). Test a pinned stage by forcing `--stage-h` small (`358px`), not only by resizing.
 - Dev: `npm run dev` (Astro, port 4321, no Worker) for pages; `npm run preview` (build + `wrangler dev`, port 8787) for the real thing, Worker included.
 
 ## Seams: who edits what
@@ -18,7 +19,7 @@ Tickets B–E run in parallel worktrees on top of ticket A. Each owns its files 
 
 | Seam | Files | Owner | Others may |
 |---|---|---|---|
-| Design tokens | `src/styles/tokens.css` (the only place colours, type, spacing live), `src/styles/global.css` (pill, label, light line, base) | A | read only; a missing token is a PR note, not a local hex |
+| Design tokens | `src/styles/tokens.css` (the only place colours, type, spacing live), `src/styles/global.css` (pill, label, light line, `.tap-target`, base) | A | read only; a missing token is a PR note, not a local hex |
 | Layout shell | `src/layouts/BaseLayout.astro`, `src/components/{SiteHeader,SiteFooter,LanguageSwitch,Crest,Pill,Photo,JsonLd,PagePlaceholder}.astro` | A | use; pass `jsonLd`, `noindex`, `ogPhoto` (or `ogImage`, a ready 1200×630 path) through props |
 | Route table | `src/i18n/routes.ts` (paths per language, nav order), `src/pages/**` wrappers, `public/_redirects` (retired pages → 301) | A | read only; wrappers stay one line |
 | Icons and manifest | `src/assets/brand/crest-shield.svg` (the crest's shield, traced; the only source), `scripts/icons.mjs` → `public/{favicon.svg,favicon.ico,apple-touch-icon.png,icon-192.png,icon-512.png}`; `src/pages/site.webmanifest.ts`; watch-page share cards `src/pages/og/[video].jpg.ts` | A | never edit the PNG/ICO by hand: change the source or `tokens.css`, run `node scripts/icons.mjs`, commit what it writes |
@@ -42,7 +43,7 @@ Tickets B–E run in parallel worktrees on top of ticket A. Each owns its files 
 | | `worker/inquiry.ts` (`handleInquiry`) | D | — |
 | | `worker/reels.ts` (`syncReels`) | E | — |
 | | `worker/env.ts` | A | D and E add bindings under their own comment |
-| | `wrangler.jsonc` | A | E adds `r2_buckets`; G adds `routes` |
+| | `wrangler.jsonc` | A | E adds `r2_buckets`; G adds `routes`; D adds `send_email`, `vars` (`INQUIRY_FROM`) and `ratelimits` (#65) |
 
 Shared rules for B–E:
 
@@ -52,6 +53,7 @@ Shared rules for B–E:
 - **Staubach (`.display`, `.numeral`) only for Latin-only words and numbers**: it has no Č Ć Ž Đ, and Š renders as S. Headlines that may carry Croatian letters use the headline face (h1–h3 default).
 - **No stretched buttons**: use `Pill` or `InquiryCTA` (content-width, ≥48px tall, ~28px side padding, aspect ≤ 3:1); never `width: 100%` on a button.
 - **One pill per block, arrow links for the rest** (Josip, #40): the block's primary action is a `Pill`/`InquiryCTA`; a secondary link ("All questions", "Compare the packages", Map) is `.arrow-link` from `global.css` (`--out` for another site), never a second pill or a default underlined link. Links inside running prose stay plain.
+- **44px to tap on phones** (#80): a small standalone link (an email, a back link, a card title, "Open on YouTube") gets `class="tap-target"` from `global.css`, an invisible touch-only `::after` that grows the hit area to 44px without moving anything; a link that already uses `::after` needs its own. Stacked lists use `min-block-size: 2.75rem` under `@media (pointer: coarse)`, written *after* the base rule: a media query adds no specificity, so a block placed before a same-specificity base rule silently loses (#81's review caught one).
 - **All text in static HTML**; motion only enhances what is already in the DOM.
 - `npm test` must stay green: `src/i18n/parity.test.ts` fails when a key or page entry exists in one language only, `routes.test.ts` when a route has no wrapper, `contrast.test.ts` when a token pair drops below its ratio.
 

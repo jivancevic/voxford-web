@@ -93,63 +93,52 @@ By hand: dashboard › voxford-web › Deployments › the last good version ›
     gh pr create --fill
     gh pr merge --auto --squash
 
-## Inquiry (ticket D)
+## Inquiry (ticket D, email since #65)
 
 `POST /api/inquiry` (`worker/inquiry.ts`) has two modes, picked at runtime:
 
-- **mailto fallback** (now): no email binding. The form hands the written-out inquiry to the visitor's own mail app, addressed to `voxford.official@gmail.com`. Nothing is sent from the Worker, so nothing here can be abused.
-- **Email Sending** (once the domain is on Cloudflare): with the `EMAIL` binding and `INQUIRY_FROM` set, a submission that passes Turnstile is emailed to `voxford.official@gmail.com` with Reply-To the visitor. A submission without a Turnstile token (no JavaScript, widget blocked) still gets the mailto fallback; a failed check or a failed send gets it too, with an error message.
+- **Email** (production since #65): with the `EMAIL` binding and `INQUIRY_FROM` set, a submission that passes Turnstile is emailed from `inquiry@voxfordofficial.com` to `voxford.official@gmail.com`, with Reply-To the visitor's name and address.
+- **mailto fallback**: the form hands the written-out inquiry to the visitor's own mail app, addressed to `voxford.official@gmail.com`. Nothing is sent from the Worker. It is what a submission without a Turnstile token gets (no JavaScript, widget blocked), what every preview version gets (previews have no `EMAIL` binding and are not on the widget), and, with an error message, what a failed check, a rate-limited attempt or a failed send get.
+
+Order inside the Worker: honeypot (pretend success, even when the rest is invalid), validation (422), no email transport or no token → mailto, rate limit (429), Siteverify (403, fail closed), send (502 on failure). Single-line fields have control characters folded to a space before they reach the subject, so nothing a visitor types can add a header.
 
 Names only here; values never go in a file or a PR.
 
 | Name | Kind | Where | Value |
 |---|---|---|---|
-| `PUBLIC_TURNSTILE_SITE_KEY` | build variable (public) | Workers Builds › Settings › Build › Variables | the widget's site key. Unset = Cloudflare's test key, which a real secret rejects: harmless in mailto mode, but once `EMAIL` is bound every submission ends in the error state (with the prefilled mailto link). Set it first. |
+| `PUBLIC_TURNSTILE_SITE_KEY` | build variable (public) | Workers Builds › Settings › Build › Variables | the widget's site key. Unset = Cloudflare's test key, which the real secret rejects: with `EMAIL` bound, every submission ends in the error state (with the prefilled mailto link). |
 | `TURNSTILE_SECRET` | Worker secret | `wrangler secret put` | the widget's secret key |
 | `TURNSTILE_HOSTNAMES` | Worker var, optional | `.dev.vars` locally | unset in production: the Worker accepts the host the request came to |
-| `EMAIL` | `send_email` binding | `wrangler.jsonc` | added with the domain (below) |
-| `INQUIRY_FROM` | Worker var | `wrangler.jsonc` `vars` | `inquiry@voxfordofficial.com`, added with the domain |
+| `EMAIL` | `send_email` binding | `wrangler.jsonc` | pinned to `voxford.official@gmail.com` (`destination_address`): it can send nowhere else |
+| `INQUIRY_FROM` | Worker var | `wrangler.jsonc` `vars` | `inquiry@voxfordofficial.com` |
+| `INQUIRY_LIMIT` | rate limit binding | `wrangler.jsonc` `ratelimits` | 5 emailed attempts per 60 s per visitor IP and Cloudflare location, counted before Siteverify; invalid and tokenless submissions do not count. Approximate by design; Turnstile is the real gate. |
 
-Locally: `cp .dev.vars.example .dev.vars` gives Cloudflare's always-pass test secret, so `npm run preview` runs the whole path with the mailto fallback. To try the email path locally, add a `send_email` binding to a copy of the config and `INQUIRY_FROM` to `.dev.vars`; `wrangler dev` then simulates the send and prints where it saved the message.
+Locally: `cp .dev.vars.example .dev.vars` gives Cloudflare's always-pass test secret and an empty `INQUIRY_FROM`, so `npm run preview` runs the mailto path. To try the email path, put `INQUIRY_FROM=inquiry@voxfordofficial.com` in a separate env file and run `npx wrangler dev --env-file .dev.vars --env-file <that file>` (with `--env-file`, wrangler no longer reads `.dev.vars` by itself; later files win): `wrangler dev` simulates the send (no mail leaves the machine) and prints where it saved the message; post with `cf-turnstile-response=XXXX.DUMMY.TOKEN.XXXX`.
 
-### Turnstile (Josip, once Workers Builds is connected)
+### Why Email Routing, not Email Sending
 
-1. Create an invisible widget for the `workers.dev` host and store its secret on the Worker without printing it:
+The zone already runs Email Routing (*Domain › Email* below), and `voxford.official@gmail.com` is a verified destination address. Cloudflare lets a Worker's `send_email` binding send from a routing domain to a verified destination for free on every plan, outside the sending quota. That is all the inquiry needs, since every inquiry goes to the one address. Email Sending proper (`wrangler email sending enable`) is for arbitrary recipients: it needs Workers Paid (the account's Email Sending API answers 401, code 2036) and adds its own DNS records. It is not switched on, and nothing here needs it.
+
+### Turnstile (Josip, once)
+
+1. Create an invisible widget for the production host and store its secret on the Worker without printing it:
 
    ```bash
    ( set +x
      out=$(npx wrangler turnstile widget create "voxford-web inquiry" \
-       --domain voxford-web.josip-ivancevic00.workers.dev --mode invisible --json)
+       --domain voxfordofficial.com --mode invisible --json)
      printf '%s' "$out" | jq -r .sitekey
      printf '%s' "$out" | jq -r .secret | npx wrangler secret put TURNSTILE_SECRET --name voxford-web
      unset out )
    ```
 
    (Or in the dashboard: Turnstile › Add widget, mode *Invisible*, then `npx wrangler secret put TURNSTILE_SECRET --name voxford-web` and paste the secret at the prompt.)
-2. Put the printed site key in the Workers Builds build variable `PUBLIC_TURNSTILE_SITE_KEY` and redeploy (it is baked into the static page).
+2. Put the printed site key in the Workers Builds build variable `PUBLIC_TURNSTILE_SITE_KEY` and redeploy (it is baked into the static page). Do this before the deploy that carries `EMAIL`.
 3. Check: `npx wrangler secret list --name voxford-web` lists `TURNSTILE_SECRET`.
 
-Preview version URLs (`<version>-voxford-web.josip-ivancevic00.workers.dev`) are not on the widget, so their form always takes the mailto fallback. That is expected.
+### Check after a deploy
 
-### Email Sending (once the domain is on Cloudflare; not switched on yet)
-
-Sending only to a verified address in the account is free on every plan, so the binding is pinned to the group's address.
-
-```bash
-npx wrangler email sending enable voxfordofficial.com
-npx wrangler email routing addresses create voxford.official@gmail.com   # then click the link in that inbox
-npx wrangler email sending list                                         # voxfordofficial.com is listed
-npx wrangler turnstile widget update <sitekey> --domain voxfordofficial.com --mode invisible
-```
-
-Then, in a PR, add to `wrangler.jsonc`:
-
-```jsonc
-"send_email": [{ "name": "EMAIL", "destination_address": "voxford.official@gmail.com" }],
-"vars": { "INQUIRY_FROM": "inquiry@voxfordofficial.com" }
-```
-
-After that deploy, send one inquiry from the live page and check that it arrives, with Reply-To set to the address typed in the form.
+Send one inquiry from `https://voxfordofficial.com/en/inquiry/` and check that it arrives in `voxford.official@gmail.com` with Reply-To the address typed in the form. `npx wrangler tail voxford-web` shows `inquiry_sent`, or `inquiry_send_failed` with Cloudflare's error, `inquiry_verification_failed` with the Siteverify reason, `inquiry_rate_limited`. If sends fail, the form still hands every inquiry to the visitor's mail app; roll back only if the page itself broke.
 
 ## Media and the reels sync (ticket E)
 
@@ -219,4 +208,4 @@ curl -s https://voxfordofficial.com/robots.txt | tail -2                        
 
 **Search engines (Josip).** Google Search Console: a *Domain* property for `voxfordofficial.com`, verified by a DNS TXT record on the zone's apex; then submit `https://voxfordofficial.com/sitemap.xml`. Bing Webmaster Tools: import the site from Search Console, then submit the same sitemap. The KB's `brand/geo-checklista.md` (step 10 and step 1, the profile links) has the rest.
 
-**Email.** Josip set up Cloudflare Email Routing on the zone on 2026-11-11. `info@voxfordofficial.com` forwards to `voxford.official@gmail.com`, which is verified as a destination address. Cloudflare manages the MX records, the SPF TXT and the DKIM record (`cf2024-1._domainkey`), so they are read-only in the DNS list; any other address is not delivered. The address shown on the site is still `voxford.official@gmail.com`. Email Sending for the inquiry form is not switched on yet (above, *Email Sending*; #65). Gmail is already a verified destination, so the `email routing addresses create` step there is done; the rest of that section still applies.
+**Email.** Josip set up Cloudflare Email Routing on the zone on 2026-11-11. `info@voxfordofficial.com` forwards to `voxford.official@gmail.com`, which is verified as a destination address. Cloudflare manages the MX records, the SPF TXT and the DKIM record (`cf2024-1._domainkey`), so they are read-only in the DNS list; any other address is not delivered. The address shown on the site is still `voxford.official@gmail.com`. The inquiry form sends through this routing setup (above, *Inquiry › Why Email Routing*; #65). The zone has no DMARC record yet.
