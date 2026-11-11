@@ -13,10 +13,12 @@ export interface Env {
   TURNSTILE_SECRET?: string;
   /** Optional comma-separated hostnames the widget may be solved on; default: the request's own host. */
   TURNSTILE_HOSTNAMES?: string;
-  /** Cloudflare Email Sending (`send_email` in wrangler.jsonc), once the domain is onboarded. Absent: mailto fallback. */
+  /** `send_email` binding (wrangler.jsonc), pinned to the group's verified address; sends through the zone's Email Routing. Absent: mailto fallback. */
   EMAIL?: SendEmail;
-  /** Sender on the onboarded domain, e.g. `inquiry@<domain>`. Absent: mailto fallback. */
+  /** Sender on the routing domain, `inquiry@voxfordofficial.com`. Absent or empty: mailto fallback. */
   INQUIRY_FROM?: string;
+  /** Workers rate limit (`ratelimits` in wrangler.jsonc) on emailed inquiries, keyed by visitor IP. Absent: no limit (tests, local). */
+  INQUIRY_LIMIT?: RateLimit;
 
   // --- ticket E: reels ---
   /** R2 bucket `voxford-media`: top videos (top/<slug>/…) and the synced reels (reels/…), served at /media/. */

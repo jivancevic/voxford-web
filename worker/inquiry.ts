@@ -11,8 +11,9 @@ import { expectedHostnames, verifyTurnstile } from './turnstile';
 //   no email transport yet     → the mailto: fallback (spec: until the domain exists)
 //   no Turnstile token         → the mailto: fallback (no JS, or the widget was blocked):
 //                                the visitor's own mail app sends it, so nothing here can be abused
+//   over the rate limit        → 429 + mailto, before siteverify, nothing sent
 //   token fails siteverify     → 403 + mailto, nothing sent (fail closed)
-//   Email Sending throws       → 502 + mailto
+//   the send throws            → 502 + mailto
 //   sent                       → 200 (JSON) / 303 to the page's thank-you state
 //
 // The page asks for JSON (Accept: application/json); a plain HTML form POST
@@ -21,12 +22,12 @@ import { expectedHostnames, verifyTurnstile } from './turnstile';
 const MAX_BODY_BYTES = 32 * 1024;
 const NO_STORE = { 'Cache-Control': 'no-store' };
 
-/** How an inquiry leaves the Worker. Cloudflare Email Sending in production, a fake in tests. */
+/** How an inquiry leaves the Worker. The `send_email` binding in production, a fake in tests. */
 export interface InquiryTransport {
   send(mail: { to: string; fromName: string; replyTo: { name: string; email: string }; subject: string; text: string }): Promise<void>;
 }
 
-/** Email Sending once the binding and sender exist (docs/deploy-cloudflare.md › Inquiry); otherwise null = mailto. */
+/** The `send_email` binding once it and the sender exist (docs/deploy-cloudflare.md › Inquiry); otherwise null = mailto. */
 export function emailTransport(env: Env): InquiryTransport | null {
   const binding = env.EMAIL;
   const from = env.INQUIRY_FROM?.trim();
@@ -49,6 +50,7 @@ type Outcome =
   | { kind: 'mailto'; mailto: string }
   | { kind: 'invalid'; fields: FieldErrors; mailto: string }
   | { kind: 'verification_failed'; mailto: string }
+  | { kind: 'rate_limited'; mailto: string }
   | { kind: 'send_failed'; mailto: string };
 
 export async function handleInquiry(request: Request, env: Env, _ctx: ExecutionContext): Promise<Response> {
@@ -101,10 +103,16 @@ async function deliver(
   const token = fieldText(form, FIELD.turnstile);
   if (!transport || !token) return { kind: 'mailto', mailto };
 
+  const remoteIp = request.headers.get('CF-Connecting-IP');
+  if (!(await withinLimit(env.INQUIRY_LIMIT, remoteIp))) {
+    console.warn(JSON.stringify({ event: 'inquiry_rate_limited' }));
+    return { kind: 'rate_limited', mailto };
+  }
+
   const verdict = await verifyTurnstile({
     secret: env.TURNSTILE_SECRET,
     token,
-    remoteIp: request.headers.get('CF-Connecting-IP'),
+    remoteIp,
     hostnames: expectedHostnames(env.TURNSTILE_HOSTNAMES, url),
     action: TURNSTILE_ACTION,
   });
@@ -135,6 +143,8 @@ function reply(request: Request, lang: Inquiry['lang'], outcome: Outcome): Respo
         return Response.json({ ok: false, error: 'invalid', fields: outcome.fields }, { status: 422, headers: NO_STORE });
       case 'verification_failed':
         return Response.json({ ok: false, error: outcome.kind, mailto: outcome.mailto }, { status: 403, headers: NO_STORE });
+      case 'rate_limited':
+        return Response.json({ ok: false, error: outcome.kind, mailto: outcome.mailto }, { status: 429, headers: NO_STORE });
       case 'send_failed':
         return Response.json({ ok: false, error: outcome.kind, mailto: outcome.mailto }, { status: 502, headers: NO_STORE });
     }
@@ -143,6 +153,22 @@ function reply(request: Request, lang: Inquiry['lang'], outcome: Outcome): Respo
   const location =
     outcome.kind === 'sent' ? new URL(`${pathFor('inquiry', lang)}#inquiry-sent`, request.url).href : outcome.mailto;
   return new Response(null, { status: 303, headers: { Location: location, ...NO_STORE } });
+}
+
+/**
+ * One count per emailed attempt (verified or not), per visitor IP and Cloudflare
+ * location. No binding (tests, local) means no limit; a limiter that throws lets
+ * the inquiry through, since Turnstile still stands in front of the send.
+ */
+async function withinLimit(limiter: RateLimit | undefined, remoteIp: string | null): Promise<boolean> {
+  if (!limiter) return true;
+  try {
+    const { success } = await limiter.limit({ key: `inquiry:${remoteIp ?? 'no-ip'}` });
+    return success;
+  } catch (error) {
+    console.error(JSON.stringify({ event: 'inquiry_rate_limit_error', error: error instanceof Error ? error.message : String(error) }));
+    return true;
+  }
 }
 
 function wantsJson(request: Request): boolean {
