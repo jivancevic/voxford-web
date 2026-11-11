@@ -23,7 +23,6 @@ const footerPages = await withoutEmptyConcerts(FOOTER_PAGES);
     <div class="footer__brand">
       <Crest width={88} alt="" />
       <p class="footer__tagline">{t.common.footer.tagline}</p>
-      <p class="footer__travel">{t.common.footer.travel}</p>
     </div>
 
     <div class="footer__col">
@@ -155,6 +154,7 @@ const footerPages = await withoutEmptyConcerts(FOOTER_PAGES);
 
   .footer__credit-name {
     background: var(--gradient-credit) 100% 0 / 300% 100% no-repeat;
+    -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
     transition:

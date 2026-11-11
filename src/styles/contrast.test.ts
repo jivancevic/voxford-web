@@ -73,3 +73,10 @@ describe.each([
     expect(contrast(resolve(vars, fg), resolve(vars, bg))).toBeGreaterThanOrEqual(min);
   });
 });
+
+// The footer credit's lit stop lives only on the dark base: the footer is never on .surface-light.
+describe('footer credit (dark base only)', () => {
+  it('--color-credit-lit on --color-bg ≥ 4.5:1', () => {
+    expect(contrast(resolve(root, '--color-credit-lit'), resolve(root, '--color-bg'))).toBeGreaterThanOrEqual(4.5);
+  });
+});
