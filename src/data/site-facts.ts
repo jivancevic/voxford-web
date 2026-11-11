@@ -64,6 +64,12 @@ export const PROFILES = {
 } as const;
 
 /** The @voxford.official YouTube channel's id (KB brand/u-medijima.md): its public uploads feed. */
+/** Who designed and built this site; the footer credit links here. */
+export const SITE_CREDIT = {
+  name: 'Josip Ivančević',
+  url: 'https://josipivancevic.com',
+} as const;
+
 export const YOUTUBE_CHANNEL_ID = 'UC6q6MkvWEJBrDIi7jgHeWww';
 
 export type ProfileKey = keyof typeof PROFILES;

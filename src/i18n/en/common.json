@@ -36,7 +36,8 @@
     "contactLabel": "Bookings",
     "managementLabel": "Management",
     "followLabel": "Follow",
-    "travel": "We perform across Croatia and the region; travel costs are separate."
+    "travel": "We perform across Croatia and the region; travel costs are separate.",
+    "credit": "Designed and built by"
   },
   "notFound": {
     "title": "Page not found",
