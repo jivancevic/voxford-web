@@ -28,6 +28,8 @@ interface Props {
   description: string;
   /** Social preview photo; defaults to the share photo. */
   ogPhoto?: PhotoKey;
+  /** A ready 1200×630 share image outside photos.ts (a video's card, src/pages/og/), by path, with its alt text; wins over `ogPhoto`. */
+  ogImage?: { path: string; alt: string };
   /** Page-level JSON-LD nodes, added after the site-wide MusicGroup and WebSite. */
   jsonLd?: readonly JsonLdNode[];
   /** Force noindex on this page even in production (e.g. an empty concerts page). */
@@ -43,11 +45,18 @@ const canonical = canonicalUrl(site, alternates?.[lang] ?? Astro.url.pathname);
 const hreflang = alternates ? hreflangAlternates(site, alternates) : [];
 const fullTitle = page === 'home' ? title : format(t.common.meta.titleTemplate, { title });
 
-const og = await getImage({ src: PHOTOS[ogPhoto].src, width: 1200, height: 630, fit: 'cover', format: 'jpg' });
-const ogImage = new URL(og.src, site).href;
+// 1200×630, or as wide as the photo allows at the same ratio (images are never upscaled).
+const photoSrc = PHOTOS[ogPhoto].src;
+const photoWidth = Math.min(1200, photoSrc.width);
+const photoHeight = Math.round((photoWidth * 630) / 1200);
+const photo = await getImage({ src: photoSrc, width: photoWidth, height: photoHeight, fit: 'cover', format: 'jpg' });
+const photoImage = new URL(photo.src, site).href;
+const ogImage = Astro.props.ogImage ? new URL(Astro.props.ogImage.path, site).href : photoImage;
+const ogImageAlt = Astro.props.ogImage?.alt ?? PHOTOS[ogPhoto].alt[lang];
+const [ogWidth, ogHeight] = Astro.props.ogImage ? [1200, 630] : [photoWidth, photoHeight];
 
 const nodes: JsonLdNode[] = [
-  musicGroupJsonLd(site, lang, { description: t.common.meta.defaultDescription, image: ogImage }),
+  musicGroupJsonLd(site, lang, { description: t.common.meta.defaultDescription, image: photoImage }),
   webSiteJsonLd(site, lang),
   ...jsonLd,
 ];
@@ -70,17 +79,21 @@ const nodes: JsonLdNode[] = [
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogImage} />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content={PHOTOS[ogPhoto].alt[lang]} />
+    <meta property="og:image:width" content={String(ogWidth)} />
+    <meta property="og:image:height" content={String(ogHeight)} />
+    <meta property="og:image:alt" content={ogImageAlt} />
     <meta property="og:locale" content={LOCALE_META[lang].ogLocale} />
     {LOCALES.filter((l) => l !== lang).map((l) => <meta property="og:locale:alternate" content={LOCALE_META[l].ogLocale} />)}
     <meta name="twitter:card" content="summary_large_image" />
 
-    <link rel="icon" href="/favicon.ico" sizes="any" />
-    <link rel="icon" href="/favicon.png" type="image/png" />
+    <!-- Icons: written by scripts/icons.mjs. The ICO says 32x32 so browsers that read SVG pick the SVG. -->
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
     <meta name="theme-color" content={THEME_COLOR} />
+    <meta name="application-name" content={t.common.meta.siteName} />
+    <meta name="apple-mobile-web-app-title" content={t.common.meta.siteName} />
 
     <Font cssVariable="--font-instrument-sans" preload />
     <Font cssVariable="--font-big-shoulders" />

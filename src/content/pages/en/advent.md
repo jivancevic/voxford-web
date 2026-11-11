@@ -1,5 +1,5 @@
 ---
-title: "Advent and summer concerts for cities and tourist boards"
+title: "Advent & summer concerts for tourist boards"
 description: "Voxford gives Advent, summer and festival concerts for cities and tourist boards across Croatia and the region, a cappella or with piano and cajón."
 heading: "Advent & concerts"
 source: "brand/biografija.md, brand/u-medijima.md, posao/klijenti/reference.md, posao/rideri/rideri.md"

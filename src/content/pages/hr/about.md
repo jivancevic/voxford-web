@@ -1,6 +1,6 @@
 ---
-title: "O Voxfordu, pet glasova iz Zagreba"
-description: "Upoznajte Voxford: petero pjevača iz raznih krajeva Hrvatske. Od {foundingYear}. u Zagrebu spajamo moderni a cappella i dalmatinsku klapu."
+title: "O nama: pet glasova iz Zagreba"
+description: "Upoznajte Voxford: petero pjevača iz raznih krajeva Hrvatske. Od {foundingYear}. u Zagrebu spajamo moderni a cappella i klapu i pjevamo s hrvatskim izvođačima."
 heading: "O nama"
 source: "brand/biografija.md, brand/u-medijima.md, ljudi-i-procesi/ekipa.md, posao/klijenti/reference.md"
 ---

@@ -18,10 +18,14 @@ const name = z.union([z.string().min(1), localized]);
 const pages = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/pages' }),
   schema: z.object({
-    /** <title> and og:title, without the " · Voxford" suffix. */
-    title: z.string().min(1).max(70),
-    /** Meta description: an answer-shaped sentence, 70–160 characters. */
-    description: z.string().min(70).max(160),
+    /** <title> and og:title, without the " · Voxford" suffix, which brings it to 60 at most. */
+    title: z.string().min(1).max(50),
+    /**
+     * Meta description: an answer-shaped sentence of about 150–160 characters.
+     * It may hold {fact} placeholders, so the limit here is loose; the filled-in
+     * length is checked on the built pages (tests/dist/meta.test.ts).
+     */
+    description: z.string().min(70).max(200),
     /** Visible page heading. */
     heading: z.string().min(1),
     /** KB file(s) the copy was derived from (spec › Sources of truth). */
