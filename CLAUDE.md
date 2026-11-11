@@ -31,7 +31,7 @@ Tier A site with tests where they pay: the two dynamic paths (inquiry, reels syn
 
 ## Hard rules
 
-- **Re-skinnable shell**: no component hard-codes a colour, font or logo. Colours and type come from `tokens.css`, the logo from `Crest.astro`, photos from `src/data/photos.ts`.
+- **Re-skinnable shell**: no component hard-codes a colour, font or logo. Colours and type come from `tokens.css`, the logo from `Crest.astro` (browser and home-screen icons from `scripts/icons.mjs`, see AGENTS.md), photos from `src/data/photos.ts`.
 - **No number, profile URL or member name outside `src/data/site-facts.ts`.**
 - **No user-visible string outside `src/i18n/` and `src/content/`**, except the localized facts that travel with their data: `src/data/site-facts.ts` (package summaries, voice parts, number labels) and `src/data/photos.ts` (alt text, labels).
 - **No prices, OIB, IBAN, contracts, phone numbers or private clients in this public repo.**

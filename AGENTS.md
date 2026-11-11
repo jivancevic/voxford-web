@@ -19,15 +19,16 @@ Tickets B–E run in parallel worktrees on top of ticket A. Each owns its files 
 | Seam | Files | Owner | Others may |
 |---|---|---|---|
 | Design tokens | `src/styles/tokens.css` (the only place colours, type, spacing live), `src/styles/global.css` (pill, label, light line, base) | A | read only; a missing token is a PR note, not a local hex |
-| Layout shell | `src/layouts/BaseLayout.astro`, `src/components/{SiteHeader,SiteFooter,LanguageSwitch,Crest,Pill,Photo,JsonLd,PagePlaceholder}.astro` | A | use; pass `jsonLd`, `noindex`, `ogPhoto` through props |
+| Layout shell | `src/layouts/BaseLayout.astro`, `src/components/{SiteHeader,SiteFooter,LanguageSwitch,Crest,Pill,Photo,JsonLd,PagePlaceholder}.astro` | A | use; pass `jsonLd`, `noindex`, `ogPhoto` (or `ogImage`, a ready 1200×630 path) through props |
 | Route table | `src/i18n/routes.ts` (paths per language, nav order), `src/pages/**` wrappers, `public/_redirects` (retired pages → 301) | A | read only; wrappers stay one line |
+| Icons and manifest | `src/assets/brand/crest-shield.svg` (the crest's shield, traced; the only source), `scripts/icons.mjs` → `public/{favicon.svg,favicon.ico,apple-touch-icon.png,icon-192.png,icon-512.png}`; `src/pages/site.webmanifest.ts`; watch-page share cards `src/pages/og/[video].jpg.ts` | A | never edit the PNG/ICO by hand: change the source or `tokens.css`, run `node scripts/icons.mjs`, commit what it writes |
 | 404 | `src/views/NotFoundView.astro`, wrappers `src/pages/404.astro` (EN) and `src/pages/hr/404.astro`; `astro.config.mjs` moves the HR one to `dist/hr/404.html`, the file Workers assets serve for a missing `/hr/…` path | A | — |
 | Page views | `src/views/HomeView.astro` | B | — |
 | | `src/views/{Conferences,Weddings,Advent,About,Packages,Faq,Concerts}View.astro` | C | — |
 | | `src/views/InquiryView.astro` | D | — |
 | | `src/views/{Videos,VideoWatch}View.astro` | E | — |
 | UI strings | `src/i18n/{en,hr}/<ns>.json`: `common` A, `home` B, `content` C, `inquiry` D, `videos` E (also the references wall) | per namespace | add keys only in your own namespace, in both languages |
-| Page copy | `src/content/pages/{en,hr}/<pageKey>.md` (title, description, heading, source, body) | the page's owner | edit only your pages' entries |
+| Page copy | `src/content/pages/{en,hr}/<pageKey>.md` (title, description, heading, source, body) | the page's owner | edit only your pages' entries; title ≤ 50 (the " · Voxford" suffix makes ≤ 60, Voxford said once), description 100–160 with facts filled in, unique per language: `tests/dist/meta.test.ts` checks the built pages |
 | Collections | `src/content.config.ts`: `pages` A, `faq` C, `concerts` C, `videos` E, `references` E | A declares | add fields to your own collection's schema only |
 | Site facts | `src/data/site-facts.ts` (numbers, profiles, members, packages, stages) | A | read only; a wrong fact is fixed from the KB in its own PR |
 | Photos | `src/data/photos.ts` + `src/assets/photos/` | A | add new keys and files; never change an existing key's meaning |
