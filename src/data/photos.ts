@@ -25,7 +25,6 @@ import stageZlokicJozinovic from '@/assets/photos/stage-zlokic-jozinovic.jpg';
 // Home (ticket B): the hero's depth planes and the chord's five portraits.
 import heroFar from '@/assets/photos/home/hero-far.jpg';
 import heroFront from '@/assets/photos/home/hero-front.webp';
-import heroRim from '@/assets/photos/home/hero-rim.webp';
 import heroSubject from '@/assets/photos/home/hero-subject.webp';
 import portraitAnte from '@/assets/photos/home/portrait-ante.jpg';
 import portraitDavid from '@/assets/photos/home/portrait-david.jpg';
@@ -199,15 +198,13 @@ export const SHARE_PHOTO: PhotoKey = 'unisportStage';
  * (Westin, Zagreb; Drive `2026 Hrvatski Akademski Sportski Savez` ›
  * `Unisport_stars_R1JC7655_JC.jpg`, all five singing) and sharing its
  * 1800×1200 crop (3:2), so they line up by stacking. `far` is the whole crop
- * at 1600 px with the singers taken out, defocused and dimmed, `subject` the five
- * singers on alpha (Apple Vision person matte, one tile per singer), `rim` a soft
- * white back-light around them (#67), `front` the audience below the stage line.
- * Recipe: docs/home/BRIEF.md › Hero planes.
+ * at 1600 px, defocused and dimmed, `subject` the five singers on alpha (Apple Vision
+ * person matte, one tile per singer), `front` the audience below the stage
+ * line. Recipe: docs/home/BRIEF.md › Hero planes.
  */
 export const HERO_PLANES = {
   far: heroFar,
   subject: heroSubject,
-  rim: heroRim,
   front: heroFront,
   alt: {
     en: 'The five singers of Voxford singing at microphones on the Unisport Stars gala stage, the audience in silhouette in front',
