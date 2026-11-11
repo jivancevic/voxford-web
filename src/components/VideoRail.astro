@@ -63,7 +63,7 @@ const headingId = `video-rail-${source}`;
         ))}
         {reels.map((reel) => (
           <li>
-            <ReelCard lang={lang} reel={reel} />
+            <ReelCard lang={lang} reel={reel} sizes={cardSizes} />
           </li>
         ))}
       </ul>

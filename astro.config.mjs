@@ -42,16 +42,19 @@ const croatian404 = {
   },
 };
 
+// Canonical origin. Set SITE_URL in Workers Builds; ticket G sets the domain.
+const site = process.env.SITE_URL || 'http://localhost:8787';
+
 export default defineConfig({
-  // Canonical origin. Set SITE_URL in Workers Builds; ticket G sets the domain.
-  site: process.env.SITE_URL || 'http://localhost:8787',
+  site,
   trailingSlash: 'always',
   build: { format: 'directory' },
   integrations: [croatian404],
   // The Videos page's YouTube thumbnails (src/lib/youtube.ts): downloaded and
   // resized at build, served from our origin, so visitors ask YouTube for
-  // nothing before they press play (#41).
-  image: { domains: ['i.ytimg.com'] },
+  // nothing before they press play (#41). The reel thumbnails the daily sync
+  // copies to R2 come from our own origin and get the same treatment (#95).
+  image: { domains: ['i.ytimg.com', new URL(site).hostname] },
   i18n: {
     locales: ['en', 'hr'],
     defaultLocale: 'en',
