@@ -50,6 +50,15 @@ function playInline(frame: HTMLElement, button: HTMLButtonElement) {
     last.type = s.type;
     video.append(last);
   }
+  // The one-line caption track (src/lib/captions.ts), off until the viewer turns it on.
+  if (frame.dataset.captions) {
+    const track = document.createElement('track');
+    track.kind = 'captions';
+    track.src = frame.dataset.captions;
+    track.srclang = frame.dataset.captionsLang ?? '';
+    track.label = frame.dataset.captionsLabel ?? '';
+    video.append(track);
+  }
   // The last source failing (none could load) or the video itself failing
   // (could not decode) before it ever played: back to the poster. Once it has
   // played, an error (a dropped connection) leaves the player and its controls.

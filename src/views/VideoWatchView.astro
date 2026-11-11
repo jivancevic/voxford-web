@@ -13,6 +13,7 @@ import { NUMBERS } from '@/data/site-facts';
 import { format, getStrings, LOCALE_META, LOCALES, type Locale } from '@/i18n';
 import { pathFor, videoPathFor } from '@/i18n/routes';
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import { captionPath } from '@/lib/captions';
 import { videoObjectJsonLd } from '@/lib/jsonld';
 import { formatDuration, videoSources } from '@/lib/media';
 import { breadcrumbsFor } from '@/lib/page';
@@ -72,6 +73,7 @@ const others = (await getCollection('videos')).filter((v) => v.id !== video.id).
         aria-label={format(t.videos.watch.playerLabel, { title })}
       >
         {sources.map((s) => <source src={s.src} type={s.type} />)}
+        <track kind="captions" src={captionPath(lang)} srclang={lang} label={t.videos.watch.captionLabel} />
         <p>
           {t.videos.watch.noVideo} <a href={h264.src}>{title}</a>
         </p>

@@ -25,7 +25,9 @@
     "length": "Trajanje",
     "more": "Još videa",
     "closing": "Želite ovo uživo na svom događaju?",
-    "recorded": "Snimljeno"
+    "recorded": "Snimljeno",
+    "captionLine": "[A cappella: pet glasova, bez instrumenata]",
+    "captionLabel": "Hrvatski"
   },
   "card": {
     "play": "Pokrenite {title}"
