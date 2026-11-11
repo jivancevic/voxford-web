@@ -1,6 +1,6 @@
 ---
-title: "Watch Voxford: Carol of the Bells and more"
-description: "Watch Voxford’s most-viewed a cappella videos, including Carol of the Bells, and the latest reels from @voxford.official."
+title: "Videos: Carol of the Bells and more"
+description: "Watch Voxford’s most-viewed a cappella videos, Carol of the Bells first: five voices, no instruments, no backing track, plus the latest reels."
 heading: "Videos"
 source: "brand/mediji-inventar.md, brand/u-medijima.md, ljudi-i-procesi/drustvene-mreze.md"
 ---

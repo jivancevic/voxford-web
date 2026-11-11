@@ -16,6 +16,8 @@
   "watch": {
     "back": "All videos",
     "playerLabel": "{title}, sung by Voxford",
+    "tabTitle": "{title} a cappella",
+    "posterAlt": "A still from {title}, sung a cappella by Voxford",
     "soundNote": "Press play for sound.",
     "noVideo": "Your browser cannot play this video.",
     "onInstagram": "Watch on Instagram",

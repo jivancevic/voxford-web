@@ -16,6 +16,8 @@
   "watch": {
     "back": "Svi videi",
     "playerLabel": "{title} u izvedbi Voxforda",
+    "tabTitle": "{title} a cappella",
+    "posterAlt": "Kadar iz videa {title} u a cappella izvedbi Voxforda",
     "soundNote": "Pritisnite play za zvuk.",
     "noVideo": "Vaš preglednik ne može reproducirati ovaj video.",
     "onInstagram": "Pogledajte na Instagramu",
