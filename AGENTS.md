@@ -35,8 +35,8 @@ Tickets B–E run in parallel worktrees on top of ticket A. Each owns its files 
 | Inquiry contract | `src/lib/inquiry-url.ts` (`inquiryUrl`, `parseInquiryPrefill`) | A | D reads it in the form; nobody changes the contract |
 | `InquiryCTA` | `src/components/InquiryCTA.astro`, props `{ lang, prefill?, label?, variant?: 'primary' \| 'ghost', class? }` | D fills the look | B, C place it; props are fixed |
 | `AvailabilityCheck` | `src/components/AvailabilityCheck.astro`, props `{ lang, type?: EventType, class? }`: the date + city widget, a GET form to `/{lang}/inquiry/` in the prefill contract | D | B places it in the hero; others may place it; props are fixed |
-| `ReferencesWall` | `src/components/ReferencesWall.astro`, props `{ lang, limit?, heading?: string \| false, class? }`, reads `references` itself | E fills it | B, C place it; props are fixed |
-| `VideoRail` | `src/components/VideoRail.astro`, props `{ lang, source?: 'top' \| 'reels', limit?, heading?: string \| false, class? }`, reads its data itself | E fills it | B, C place it; props are fixed |
+| `ReferencesWall` | `src/components/ReferencesWall.astro`, props `{ lang, limit?, heading?: string \| false, class? }`, reads `references` itself; venues and artists are tiles, with our own photo where the entry names one (`photo`, a key in `photos.ts`) | E fills it | B, C place it; props are fixed |
+| `VideoRail` | `src/components/VideoRail.astro`, props `{ lang, source?: 'top' \| 'reels', limit?, heading?: string \| false, inline?: boolean, class? }`, reads its data itself; `inline` (the home) plays top videos in their card and grows cards on hover | E fills it | B, C place it; props are fixed |
 | Worker | `worker/index.ts` (router) and `worker/healthz.ts`, `worker/lang-redirect.ts` | A | — |
 | | `worker/inquiry.ts` (`handleInquiry`) | D | — |
 | | `worker/reels.ts` (`syncReels`) | E | — |

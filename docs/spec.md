@@ -38,7 +38,7 @@ Canonical numbers (Josip, 2026-11-10): **800K+ followers** across networks, **30
 - **Every submission goes to `voxford.official@gmail.com`.** The site shows Jelena Đukanović (WAM Management) as the group's manager; the contact email shown is `voxford.official@gmail.com`. Jelena's phone on the site is an open question (needs her consent) — default: no phone.
 - No automatic hand-off to Sufler (a future generic issue in `jivancevic/sufler`).
 - **Languages:** EN canonical, HR full parallel. Routes `/en/…` and `/hr/…`; `/` redirects by `Accept-Language` (HR → `/hr/`, else `/en/`); `x-default` = EN; reciprocal self-referencing hreflang; no redirects on language pages themselves. Both languages are written natively, HR addresses the reader with capitalised "Vi". Localised slugs allowed (e.g. `/hr/konferencije/`).
-- **No prices on the site.** Packages POP-UP (up to 15 min, ceremonial), CLASSIC (45–60 min a cappella concert), GOLD (90–120 min, the five + piano + cajon) with duration, lineup and when each fits; "price on request, depends on date and location; travel costs are separate".
+- **No prices on the site.** Packages POP-UP (up to 15 min, ceremonial), CLASSIC (45–60 min a cappella concert), GOLD (90–120 min, the five + piano + cajon) with duration, lineup and when each fits; "price on request, depends on date and location; travel costs are separate". Voxford never plays "the whole evening": GOLD is a full concert, not an evening's music (Josip, 2026-11-10, #33).
 
 ### Information architecture
 - **Home**: the scroll experience (scroll-craft), the essence of Voxford.
