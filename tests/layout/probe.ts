@@ -73,8 +73,10 @@ export function probeLayout(): ProbeResult {
   const wide: Element[] = [];
   for (const el of document.querySelectorAll('body *')) {
     const r = el.getBoundingClientRect();
-    if (r.width < 1 || r.height < 1 || (r.left >= -1 && r.right <= vw + 1)) continue;
-    if (wide.some((w) => w.contains(el)) || !visible(el) || el.closest('[aria-hidden="true"]')) continue;
+    // A 1px box is visually hidden on purpose (the inquiry form's honeypot sits at -10000px).
+    if (r.width <= 1 || r.height <= 1 || (r.left >= -1 && r.right <= vw + 1)) continue;
+    if (wide.some((w) => w.contains(el)) || !visible(el)) continue;
+    if (el.closest('[aria-hidden="true"]') && !el.textContent?.trim()) continue;
     let clipped = false;
     for (let a = el.parentElement; a && a !== de && a !== document.body && a.tagName !== 'MAIN'; a = a.parentElement) {
       if (clips(a)) {
@@ -147,7 +149,8 @@ export function probeLayout(): ProbeResult {
   for (const [el, detail] of small) reports.push({ rule: 'small-text', el: path(el), detail });
 
   // 2 · Text overlap between two elements, more than 3px both ways. A display
-  // numeral (line-height under 1) sitting on its own label is exempt.
+  // numeral (line-height under 1) on its own label is exempt: the label is a
+  // sibling of the numeral, inside the numeral's parent (a stat, a card's text).
   const tight = (el: Element) => {
     if (!el.closest('.numeral, .display')) return false;
     const cs = getComputedStyle(el);
@@ -155,8 +158,9 @@ export function probeLayout(): ProbeResult {
     return Number.isFinite(lh) && lh < parseFloat(cs.fontSize);
   };
   const near = (a: Element, b: Element) => {
-    const scope = a.parentElement?.parentElement;
-    return !!scope && scope.contains(b);
+    const numeral = a.closest('.numeral, .display');
+    const scope = numeral?.parentElement;
+    return !!numeral && !!scope && scope.contains(b) && !numeral.contains(b);
   };
   boxes.sort((a, b) => a.t - b.t);
   const seen = new Set<string>();
