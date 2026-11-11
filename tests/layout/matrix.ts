@@ -114,6 +114,4 @@ export interface KnownFailure {
   issue: number;
 }
 
-export const KNOWN: KnownFailure[] = [
-  { route: 'hr-home', case: '360x780-reduce', rule: 'stretched-button', el: '.proof__copy>a.pill', issue: 107 },
-];
+export const KNOWN: KnownFailure[] = [];
