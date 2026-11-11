@@ -194,6 +194,27 @@ describe('sitemap.xml', () => {
 });
 
 describe('robots.txt and llms.txt', () => {
+  // A photo shown twice on one page reads as a mistake (#92: the Tvornica kulture frame in the
+  // About prose and again as a references tile). Compared by file stem, so a different size of the
+  // same file counts as a repeat. The home hero's depth planes are layers of one frame on purpose.
+  const photoStems = (readdirSync(fileURLToPath(new URL('../../src/assets/photos/', import.meta.url)), { recursive: true }) as string[])
+    .map(String)
+    .filter((f) => /\.(jpe?g|webp|png)$/.test(f) && !/(^|\/)hero-/.test(f))
+    .map((f) => f.replace(/^.*\//, '').replace(/\.[^.]+$/, ''));
+
+  it('finds the photo files to guard', () => {
+    expect(photoStems).toContain('stage-zlokic-jozinovic');
+  });
+
+  it.each(pages.map((p) => [p.path, p] as const))('%s shows no photo twice', (_path, page) => {
+    const seen = new Map<string, number>();
+    for (const tag of page.html.match(/<img\b[^>]*>/g) ?? []) {
+      const stem = /\ssrc="\/_astro\/([^."/]+)\./.exec(tag)?.[1];
+      if (stem && photoStems.includes(stem)) seen.set(stem, (seen.get(stem) ?? 0) + 1);
+    }
+    expect([...seen].filter(([, n]) => n > 1)).toEqual([]);
+  });
+
   it('allows the AI crawlers and points at the sitemap', () => {
     const robots = readFileSync(`${dist}robots.txt`, 'utf8');
     for (const bot of ['OAI-SearchBot', 'GPTBot', 'ClaudeBot', 'PerplexityBot', 'Google-Extended']) {
