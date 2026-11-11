@@ -10,8 +10,9 @@
 import type { CollectionEntry } from 'astro:content';
 import { Picture } from 'astro:assets';
 import { NUMBERS } from '@/data/site-facts';
-import { format, getStrings, type Locale } from '@/i18n';
+import { format, getStrings, LOCALE_META, type Locale } from '@/i18n';
 import { videoPathFor } from '@/i18n/routes';
+import { captionPath } from '@/lib/captions';
 import { formatDuration, videoSources } from '@/lib/media';
 
 interface Props {
@@ -53,7 +54,7 @@ const Heading = `h${headingLevel}` as const;
 {
   play === 'inline' ? (
     <article class="video-card video-card--inline">
-      <div class="video-card__frame" data-loop={loop} data-full={full} data-label={format(t.videos.watch.playerLabel, { title })}>
+      <div class="video-card__frame" data-loop={loop} data-full={full} data-label={format(t.videos.watch.playerLabel, { title })} data-captions={captionPath(lang)} data-captions-lang={lang} data-captions-label={LOCALE_META[lang].label}>
         <a class="video-card__poster" href={watch} tabindex="-1" aria-hidden="true">
           <Picture
             src={video.data.poster}
@@ -72,7 +73,7 @@ const Heading = `h${headingLevel}` as const;
       <div class="video-card__text">
         {number !== undefined && <span class="video-card__number numeral" aria-hidden="true">{String(number).padStart(2, '0')}</span>}
         <Heading class="video-card__title">
-          <a href={watch}>{title}</a>
+          <a class="tap-target" href={watch}>{title}</a>
         </Heading>
         <p class="label video-card__meta">
           <time datetime={video.data.duration}>{duration}</time>

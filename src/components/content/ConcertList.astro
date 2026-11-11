@@ -308,17 +308,30 @@ const rows = concerts.map((entry) => {
     }
   }
 
+  /* Phones (#80): the stub fits the longest weekday ("Wednesday") with a gap
+     before the perforation. In the row a ticket is at least 20rem wide, so the
+     longest calendar pill ("Dodaj u kalendar") stays inside the body's padding
+     at 360px; from 390px that is 82vw anyway. */
   @media (width < 30rem) {
     .ticket {
-      --stub: 5.75rem;
+      --stub: 6.5rem;
     }
 
     .ticket__stub {
-      padding-inline: var(--space-4) var(--space-3);
+      padding-inline: var(--space-3) var(--space-2);
     }
 
     .ticket__body {
       padding-inline: var(--space-4);
+    }
+
+    .tickets--row {
+      grid-auto-columns: min(26rem, max(82vw, 20rem));
+      gap: var(--space-3);
+    }
+
+    .tickets--row .ticket__body {
+      padding-inline: var(--space-3);
     }
   }
 

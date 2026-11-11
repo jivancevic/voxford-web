@@ -89,7 +89,7 @@ holds when the visitor scrolls back, a pin of 2.4 viewport-heights, and one butt
 separate stop. They stand unless Josip changes them; `docs/spec.md` records the same.
 
 Five portraits in stage order (Josip, Dora, Ante, Vita, David; KB `ljudi-i-procesi/ekipa.md`)
-stand in near-darkness, all five dim, with one large round play button centred on them. Pressing
+stand in near-darkness, all five dim, with one play pill under the heading (#77). Pressing
 it plays *Carol of the Bells* (the 3.0 → 41.07 s span) and **each singer lights the moment
 their voice enters**, each with its own colour of light from above, stepping pink → purple →
 blue along the brand gradient; the gradient line under them grows with every voice and, with
@@ -100,10 +100,11 @@ gave them on 2026-11-10: Dora from the start, Vita 4.25 s, David 8.80 s, Josip 1
 voices enter in that order, not in stage order, and each stays lit to the end. The voices follow the audio clock, not the scroll: the scroll only breathes
 the stage glow a little (`--sc-p`) and holds the stage pinned while the music plays.
 
-- **Before play:** all five dim, the play button centred on the portraits with its label
-  ("Listen" / "Poslušajte") and a hint above ("Press play and each singer lights up…").
-- **Playing:** the button steps back (smaller, translucent, full on hover or focus) and shows
-  pause; the caption under the line (phones) names the voice that just came in.
+- **Before play:** all five dim; under the heading the hint ("Press play and each singer
+  lights up…") and the play pill ("Listen" / "Poslušajte"), primary. It sat centred on the
+  portraits until #77, which put it on Ante's face; it now stays off every portrait.
+- **Playing:** the pill steps back to the ghost pill and shows pause; the caption under the
+  line (phones) names the voice that just came in.
 - **Paused** (the button, or leaving the act): the lights hold where the music stopped, the
   button offers Resume. Leaving the act fades the music out and pauses it; coming back stays
   paused until a press (a transport, not a mode: nothing plays without a press).
@@ -114,8 +115,16 @@ the stage glow a little (`--sc-p`) and holds the stage pinned while the music pl
   resolve line up; with no playable source the button and hint stay hidden.
 - **Reduced motion:** no pin; all five lit from the start and they stay lit; the button still
   plays the music, and the hint says only "Press play to hear all five."
-- **Short windows** (under 40rem tall for the hero, 34rem for the chord: a scaled laptop, a phone
-  on its side) do not pin; the act scrolls by.
+- **Short windows** (under 40rem tall for the hero, 46rem for the chord: most laptops, a phone
+  on its side) do not pin; the act scrolls by. The chord also pins only from 64rem wide.
+- **Pinned stage height** is a minimum (`100svh` minus the header), never a fixed height: when
+  `svh` comes out too small (iOS Chrome once gave the phone's width, #77), the stage grows
+  instead of the portraits spilling over the foot. Only the pinned stage reads `svh`; a chord
+  stage that scrolls by is as tall as its content.
+- **Phones and tablets held upright (chord, under 64rem):** three over two, as we stand in our
+  videos: the stage order folded, so Josip, Ante, David at the back and Dora, Vita in front,
+  each between two of the back row. No card covers another; the act does not pin. A phone on
+  its side keeps the single row.
 - **Phones:** the hero does not pin; the planes still part as it scrolls by, and the date widget
   (ticket D) sits on plain ground under the photo.
 - **Muted or silent switch:** iOS plays through the "playback" audio session where Safari has
@@ -125,43 +134,23 @@ the stage glow a little (`--sc-p`) and holds the stage pinned while the music pl
 
 The hero headline is "Five voices. One harmony." / "Pet glasova. Jedan sklad." (Josip, #31); the
 H1 also carries the group's disambiguation line, visually hidden, so it still says who Voxford
-is. The four planes are cut from Drive `Photo › 2026 Hrvatski Akademski Sportski Savez ›
-Unisport_stars_R1JC7655_JC.jpg` (2400×1600, the largest export there) by
-`scripts/hero-planes/build.sh` (on the machine that made them, macOS 26 with the same
-ImageMagick and cwebp, a rerun reproduces the committed files byte for byte; Vision and the
-encoders may differ elsewhere). The caption credits "Jozo Cabraja / kolektiff", the file's
-mandatory credit, confirmed for #31:
+is. The three planes are cut from Drive `Photo › 2026 Hrvatski Akademski Sportski Savez ›
+Unisport_stars_R1JC7655_JC.jpg` by `scripts/hero-planes/build.sh` (on the machine that made
+them, macOS 26 with the same ImageMagick and cwebp, a rerun reproduces the committed files byte
+for byte; Vision and the encoders may differ elsewhere). The caption credits "Jozo Cabraja /
+kolektiff", the file's mandatory credit, confirmed for #31:
 
-- **Crop:** 1800×1200 at (360, 268) of the 2400×1600 frame; the five stand between x 392 and
-  1730 of it, their heads from y 348. The sponsor banners stay behind the singers; they only
+- **Crop:** 1800×1200 at (360, 268) of the 2400×1600 frame, so the five stand between 22% and
+  97% of the width (the phone composition starts the frame at 18.5%) and the headline clears
+  the first singer's cap at 1440×900. The sponsor banners stay behind the singers; they only
   show, defocused, in `far`.
 - **subject:** an Apple Vision person matte (`VNGeneratePersonSegmentationRequest`, accurate)
   run on one tile per singer, kept to that singer's column and faded out where the audience
-  covers them; on the whole frame Vision misses the singer in the dark on the left. Since #67:
-  - Singers 2, 3 and 4 get a second, tighter tile, which keeps singer 2's middle and singer 3's
-    left side. Singer 4 uses only hers: the wide one takes a block of banner around her
-    microphone.
-  - A close per singer puts the stands in front of them into the plane.
-  - A steep ramp (0.04 → 0.20) and a hole fill make dark clothes solid.
-  - A few drawn fixes after the hole fill remove banner and audience bits the tiles pick up.
-  - The fourth singer's white drape is added by luminance (Vision leaves it out).
-- **rim:** a soft white back-light around the five (#67, Josip chose it over a sticker stroke
-  or a frame): the filled silhouette grown and blurred, minus itself, at 55%, faded out above
-  each singer's cut line. It sits under `subject` and moves with it.
+  covers them; on the whole frame Vision misses the singer in the dark on the left. The fourth
+  singer's white drape is added by luminance (Vision leaves it out).
 - **front:** the audience: Vision's matte where it finds the lit heads, plus a band below the
   stage line, minus the singers.
-- **far:** the whole crop at 1600 px with the singers inpainted out first (#67: blurred in
-  place they left a ghost halo around the sharp singers), blurred, dimmed to 78% and
-  desaturated by a quarter.
-
-**Composition (#67).**
-- **Landscape at 48rem and up:** `far` covers the stage. `subject`, `rim` and `front` share one
-  3:2 box, anchored right, so the frame's x 380–1760 runs from the end of the lead to the right
-  gutter. The box is lifted 5.5% of the stage height and capped at 1.45 × it, lower still on a
-  short window so the heads stay below the headline. No text crosses a face, hand or
-  microphone, and the widget crosses nobody above the knee.
-- **Phones and every portrait screen:** the flow layout, with a 17:9 window on the frame's
-  x 333–1750, y 250–1000: from just above the heads to the thighs, faded top and bottom.
+- **far:** the whole crop at 1600 px, blurred, dimmed to 78% and desaturated by a quarter.
 
 ## Fingerprint gate
 

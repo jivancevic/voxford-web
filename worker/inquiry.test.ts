@@ -192,7 +192,7 @@ describe('POST /api/inquiry spam defences', () => {
   });
 });
 
-describe('POST /api/inquiry with Cloudflare Email Sending (after the domain)', () => {
+describe('POST /api/inquiry with the send_email binding (after the domain)', () => {
   it('verifies the Turnstile token, then emails the group with Reply-To the visitor', async () => {
     const email = fakeEmail();
     const res = await post({ 'cf-turnstile-response': 'tok-123' }, { json: true, env: emailMode(email) });
@@ -289,5 +289,42 @@ describe('POST /api/inquiry with Cloudflare Email Sending (after the domain)', (
     await post({ city: 'Zagreb\r\nBcc: x@evil.example', 'cf-turnstile-response': 'tok' }, { json: true, env: emailMode(email) });
     const msg = email.sent[0] as { subject: string };
     expect(msg.subject).not.toMatch(/[\r\n]/);
+  });
+
+  it('answers 429 with the mailto fallback over the rate limit, before siteverify, nothing sent', async () => {
+    const email = fakeEmail();
+    const limit = vi.fn(async () => ({ success: false }));
+    const env = { ...emailMode(email), INQUIRY_LIMIT: { limit } as unknown as RateLimit };
+    const res = await post({ 'cf-turnstile-response': 'tok' }, { json: true, env });
+    expect(res.status).toBe(429);
+    const data = (await res.json()) as { error: string; mailto: string };
+    expect(data.error).toBe('rate_limited');
+    expect(data.mailto).toMatch(/^mailto:voxford\.official@gmail\.com/);
+    expect(limit).toHaveBeenCalledWith({ key: 'inquiry:203.0.113.7' });
+    expect(siteverify).not.toHaveBeenCalled();
+    expect(email.binding.send).not.toHaveBeenCalled();
+  });
+
+  it('sends a plain POST over the rate limit to the mail app', async () => {
+    const env = { ...emailMode(), INQUIRY_LIMIT: { limit: async () => ({ success: false }) } as unknown as RateLimit };
+    const res = await post({ 'cf-turnstile-response': 'tok' }, { env });
+    expect(res.status).toBe(303);
+    expect(res.headers.get('Location')).toMatch(/^mailto:/);
+  });
+
+  it.each([
+    ['within the rate limit', async () => ({ success: true })],
+    ['when the limiter itself fails', async () => Promise.reject(new Error('down'))],
+  ])('sends %s', async (_name, limit) => {
+    const env = { ...emailMode(), INQUIRY_LIMIT: { limit } as unknown as RateLimit };
+    expect((await post({ 'cf-turnstile-response': 'tok' }, { json: true, env })).status).toBe(200);
+  });
+
+  it('does not count invalid or tokenless submissions against the limit', async () => {
+    const limit = vi.fn(async () => ({ success: true }));
+    const env = { ...emailMode(), INQUIRY_LIMIT: { limit } as unknown as RateLimit };
+    await post({ email: 'nope' }, { json: true, env });
+    await post({}, { json: true, env });
+    expect(limit).not.toHaveBeenCalled();
   });
 });

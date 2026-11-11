@@ -13,6 +13,7 @@ import { NUMBERS } from '@/data/site-facts';
 import { format, getStrings, LOCALE_META, LOCALES, type Locale } from '@/i18n';
 import { pathFor, videoPathFor } from '@/i18n/routes';
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import { captionPath } from '@/lib/captions';
 import { videoObjectJsonLd } from '@/lib/jsonld';
 import { formatDuration, videoSources } from '@/lib/media';
 import { breadcrumbsFor } from '@/lib/page';
@@ -72,6 +73,7 @@ const others = (await getCollection('videos')).filter((v) => v.id !== video.id).
         aria-label={format(t.videos.watch.playerLabel, { title })}
       >
         {sources.map((s) => <source src={s.src} type={s.type} />)}
+        <track kind="captions" src={captionPath(lang)} srclang={lang} label={LOCALE_META[lang].label} />
         <p>
           {t.videos.watch.noVideo} <a href={h264.src}>{title}</a>
         </p>
@@ -80,7 +82,7 @@ const others = (await getCollection('videos')).filter((v) => v.id !== video.id).
 
     <div class="watch__text">
       <p class="watch__back">
-        <a href={pathFor('videos', lang)}><span aria-hidden="true">← </span>{t.videos.watch.back}</a>
+        <a class="tap-target" href={pathFor('videos', lang)}><span aria-hidden="true">← </span>{t.videos.watch.back}</a>
       </p>
       <h1 class="watch__title">{title}</h1>
       <span class="light-line watch__line" aria-hidden="true"></span>
@@ -113,7 +115,7 @@ const others = (await getCollection('videos')).filter((v) => v.id !== video.id).
       {
         video.data.permalink && (
           <p>
-            <a href={video.data.permalink} rel="noopener">
+            <a class="tap-target" href={video.data.permalink} rel="noopener">
               {t.videos.watch.onInstagram}
             </a>
           </p>
@@ -135,7 +137,7 @@ const others = (await getCollection('videos')).filter((v) => v.id !== video.id).
         <ul class="watch-more__list" role="list">
           {others.map((v) => (
             <li>
-              <VideoCard lang={lang} video={v} sizes="(min-width: 64rem) 15rem, 45vw" />
+              <VideoCard lang={lang} video={v} sizes="(min-width: 64rem) min(18rem, 22vw), (min-width: 48rem) 21vw, 45vw" />
             </li>
           ))}
         </ul>
