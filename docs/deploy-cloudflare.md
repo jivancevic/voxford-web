@@ -29,10 +29,15 @@ STANDARDS' order: this runbook merged, then branch protection with the required 
 ```bash
 # 1. Branch protection: the required checks, no review count (the review is /ship's round 2).
 #    The second context is the Workers Builds check's exact name, from a PR's checks list
-#    after step 2 of Setup (typically "Workers Builds: voxford-web").
+#    after step 2 of Setup (typically "Workers Builds: voxford-web"). The third is the commit
+#    status /ship's merge-guard mark sets, from any source (app_id -1, read back as null).
 gh api -X PUT repos/jivancevic/voxford-web/branches/main/protection --input - <<'JSON'
 {
-  "required_status_checks": { "strict": false, "contexts": ["ci", "Workers Builds: voxford-web"] },
+  "required_status_checks": { "strict": false, "checks": [
+    { "context": "ci", "app_id": 15368 },
+    { "context": "Workers Builds: voxford-web", "app_id": 85455 },
+    { "context": "ship-review", "app_id": -1 }
+  ] },
   "enforce_admins": false,
   "required_pull_request_reviews": null,
   "restrictions": null
@@ -56,12 +61,12 @@ Read-back (what `/ship` checks):
 
 ```bash
 gh api repos/jivancevic/voxford-web/branches/main/protection \
-  --jq '{contexts: .required_status_checks.contexts, strict: .required_status_checks.strict, enforce_admins: .enforce_admins.enabled}'
+  --jq '{checks: .required_status_checks.checks, strict: .required_status_checks.strict, enforce_admins: .enforce_admins.enabled}'
 gh api repos/jivancevic/voxford-web --jq .allow_auto_merge
 jq -e '.permissions.allow | index("Bash(gh pr merge --auto --squash)")' .claude/settings.json
 ```
 
-State on 2026-11-10, read back after ticket A: Workers Builds connected on Josip's Cloudflare account (workers.dev subdomain `josip-ivancevic00`); branch protection requires `ci` and `Workers Builds: voxford-web` (`strict: false`, `enforce_admins: false`); `allow_auto_merge: true`; the allow entry is in `.claude/settings.json` (#16). Ready for `/ship`.
+State on 2026-11-10, read back after ticket A: Workers Builds connected on Josip's Cloudflare account (workers.dev subdomain `josip-ivancevic00`); branch protection requires `ci` and `Workers Builds: voxford-web` (`strict: false`, `enforce_admins: false`); `allow_auto_merge: true`; the allow entry is in `.claude/settings.json` (#16). Ready for `/ship`. On 2026-11-12 Josip added `ship-review` as the third required check (any source; jivancevic/agents#37, proven on #111).
 
 ## Post-merge check
 
