@@ -69,8 +69,8 @@ export const PROFILES = {
 } as const;
 
 /**
- * Business listings: the same entity in sameAs, but not a profile people follow,
- * so not in the footer, the social icons or llms.txt (voxford-web#117).
+ * Business listings: the same entity in sameAs and in llms.txt, but not a
+ * profile people follow, so not in the footer or the social icons (voxford-web#117).
  * Google Business Profile: verified 2026-11-13, its CID URL (KB
  * ljudi-i-procesi/drustvene-mreze.md › Kanonski profil, brand/geo-checklista.md
  * step 2, KB PR #32).
@@ -78,6 +78,12 @@ export const PROFILES = {
 export const LISTINGS = {
   googleBusiness: 'https://maps.google.com/?cid=14227274279364782206',
 } as const;
+
+export type ListingKey = keyof typeof LISTINGS;
+
+export const LISTING_LABELS: Record<ListingKey, string> = {
+  googleBusiness: 'Google Business Profile',
+};
 
 /** The @voxford.official YouTube channel's id (KB brand/u-medijima.md): its public uploads feed. */
 export const YOUTUBE_CHANNEL_ID = 'UC6q6MkvWEJBrDIi7jgHeWww';

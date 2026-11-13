@@ -1,5 +1,18 @@
 import type { APIRoute } from 'astro';
-import { GROUP, MEMBERS, NUMBERS, PACKAGES, PRICE_ON_REQUEST, PROFILE_LABELS, PROFILES, STAGES, type ProfileKey } from '@/data/site-facts';
+import {
+  GROUP,
+  LISTING_LABELS,
+  LISTINGS,
+  MEMBERS,
+  NUMBERS,
+  PACKAGES,
+  PRICE_ON_REQUEST,
+  PROFILE_LABELS,
+  PROFILES,
+  STAGES,
+  type ListingKey,
+  type ProfileKey,
+} from '@/data/site-facts';
 import { format, getStrings } from '@/i18n';
 import { PAGE_KEYS, pathFor } from '@/i18n/routes';
 import { withoutEmptyConcerts } from '@/lib/concerts';
@@ -33,6 +46,7 @@ ${pages.map((p) => `- [${hr.nav[p]}](${abs(pathFor(p, 'hr'))})`).join('\n')}
 
 ## ${l.profiles}
 ${(Object.keys(PROFILES) as ProfileKey[]).map((k) => `- ${PROFILE_LABELS[k]}: ${PROFILES[k]}`).join('\n')}
+${(Object.keys(LISTINGS) as ListingKey[]).map((k) => `- ${LISTING_LABELS[k]}: ${LISTINGS[k]}`).join('\n')}
 `;
   return new Response(body, { headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
 };

@@ -6,7 +6,7 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { LISTINGS, PROFILES } from '../../src/data/site-facts';
+import { LISTING_LABELS, LISTINGS, PROFILES, type ListingKey } from '../../src/data/site-facts';
 import { pathFor, type PageKey } from '../../src/i18n/routes';
 
 const dist = fileURLToPath(new URL('../../dist/', import.meta.url));
@@ -232,5 +232,12 @@ describe('robots.txt and llms.txt', () => {
     const links = [...llms.matchAll(/\]\((https?:\/\/[^)]+)\)/g)].map((m) => new URL(m[1]!).pathname);
     expect(links.length).toBeGreaterThan(0);
     for (const link of links) expect(byPath.has(link), link).toBe(true);
+  });
+
+  it('llms.txt lists the business listings with the profiles (#117)', () => {
+    const llms = readFileSync(`${dist}llms.txt`, 'utf8');
+    for (const k of Object.keys(LISTINGS) as ListingKey[]) {
+      expect(llms).toContain(`- ${LISTING_LABELS[k]}: ${LISTINGS[k]}\n`);
+    }
   });
 });
