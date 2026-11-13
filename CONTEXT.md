@@ -39,6 +39,10 @@ _Avoid_: "travel included"
 **Event type**:
 The occasion an inquiry is for: conference, wedding, advent, concert, other. Conferences and corporate events are the site's primary audience.
 
+**Corporate event** (HR **korporativni event**):
+A company's own event Voxford sings at (an anniversary, a gala, an awards night, a Christmas party), sold together with conferences on one page. HR copy says "korporativni event(i)", the words organizers type and the pages AI answers cite (#122).
+_Avoid_: poslovni događaj (HR)
+
 **Reference** (HR **referenca**):
 An organisation Voxford performed for or worked with (a company, a city or tourist board, an institution, a festival, a stage it was invited onto, an artist who invited them), shown by name and logo, or by name when no clean official logo exists. Private clients are never references.
 _Avoid_: client (includes people who only asked), partner
