@@ -2,7 +2,7 @@
   "meta": {
     "siteName": "Voxford",
     "titleTemplate": "{title} · Voxford",
-    "defaultDescription": "Voxford je a cappella skupina od pet glasova iz Zagreba. Nastupa na konferencijama, poslovnim događajima, vjenčanjima i koncertima diljem Hrvatske i regije."
+    "defaultDescription": "Voxford je a cappella skupina od pet glasova iz Zagreba. Nastupa na konferencijama, korporativnim eventima, vjenčanjima i koncertima diljem Hrvatske i regije."
   },
   "a11y": {
     "skipToContent": "Preskoči na sadržaj",
@@ -58,7 +58,7 @@
     "note": "Ova stranica je u izradi."
   },
   "llms": {
-    "summary": "Pet pjevača, od {year}., nastupaju na konferencijama i poslovnim događajima, vjenčanjima te adventskim i ljetnim koncertima u Zagrebu, diljem Hrvatske i regije.",
+    "summary": "Pet pjevača, od {year}., nastupaju na konferencijama i korporativnim eventima, vjenčanjima te adventskim i ljetnim koncertima u Zagrebu, diljem Hrvatske i regije.",
     "members": "Članovi (raspored na pozornici)",
     "packages": "Paketi",
     "stages": "Pozornice",

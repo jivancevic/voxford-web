@@ -54,7 +54,7 @@
     }
   },
   "types": {
-    "conference": "Konferencija ili poslovni događaj",
+    "conference": "Konferencija ili korporativni event",
     "wedding": "Vjenčanje",
     "advent": "Advent ili gradski događaj",
     "concert": "Koncert ili festival",

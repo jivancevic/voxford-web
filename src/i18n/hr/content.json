@@ -72,7 +72,7 @@
     "publicOnly": "Samo javni koncerti. Poslovne događaje i privatne proslave ovdje ne objavljujemo."
   },
   "conferences": {
-    "lead": "{disambiguation}. Pet pjevača i pet mikrofona, bez gradnje pozornice: pjevamo na otvorenjima konferencija, između predavanja, na gala večerama i dodjelama nagrada, u Zagrebu, diljem Hrvatske i u regiji.",
+    "lead": "{disambiguation}. Pet pjevača i pet mikrofona, bez gradnje pozornice: pjevamo na otvorenjima konferencija, između predavanja, na korporativnim eventima, gala večerama i dodjelama nagrada, u Zagrebu, diljem Hrvatske i u regiji.",
     "facts": [
       {
         "term": "Tko",
@@ -184,7 +184,7 @@
         "year": "2022."
       }
     ],
-    "serviceType": "Glazba uživo za konferencije i poslovne događaje"
+    "serviceType": "Glazba uživo za konferencije i korporativne evente"
   },
   "weddings": {
     "lead": "{disambiguation}. Pet glasova za obred ili iznenađenje za mladence, na vjenčanjima diljem Hrvatske, Slovenije i regije.",
