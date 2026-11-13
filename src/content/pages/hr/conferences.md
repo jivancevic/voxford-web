@@ -1,7 +1,7 @@
 ---
-title: "Glazba za konferencije i poslovne događaje, Zagreb"
-description: "Voxford, a cappella skupina iz Zagreba: glazba uživo za konferencije, gala večeri i dodjele nagrada u Zagrebu, Hrvatskoj i regiji. Bez gradnje pozornice."
-heading: "Konferencije i poslovni događaji"
+title: "Glazba za konferencije i korporativne evente"
+description: "Voxford, a cappella skupina iz Zagreba: glazba uživo za konferencije, korporativne evente i gala večeri u Zagrebu, Hrvatskoj i regiji. Bez gradnje pozornice."
+heading: "Konferencije i korporativni eventi"
 source: "brand/biografija.md, posao/ponuda/ponuda.md, posao/rideri/rideri.md, posao/klijenti/reference.md, brand/u-medijima.md, repertoar/repertoar.md"
 ---
 
