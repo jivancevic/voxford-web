@@ -69,7 +69,7 @@
     "free": "Ulaz slobodan",
     "organizer": "Organizator: {name}",
     "empty": "Trenutno nema najavljenih javnih koncerata. Novi datumi pojavit će se ovdje i na {handle}.",
-    "publicOnly": "Samo javni koncerti. Poslovne događaje i privatne proslave ovdje ne objavljujemo."
+    "publicOnly": "Samo javni koncerti. Korporativne evente i privatne proslave ovdje ne objavljujemo."
   },
   "conferences": {
     "lead": "{disambiguation}. Pet pjevača i pet mikrofona, bez gradnje pozornice: pjevamo na otvorenjima konferencija, između predavanja, na korporativnim eventima, gala večerama i dodjelama nagrada, u Zagrebu, diljem Hrvatske i u regiji.",

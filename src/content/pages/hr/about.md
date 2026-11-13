@@ -19,4 +19,4 @@ Pjevamo na pjesmi *Ljudi poput nas* Jasne Zlokić i Jakova Jozinovića, koja je 
 
 ## Gdje pjevamo
 
-Osim koncerata, pjevamo na konferencijama, korporativnim događajima, vjenčanjima i adventskim programima. Na konferenciji MAKK 2022. pjevali smo medleye između predavanja. Godine 2025. nastupili smo za Državni zavod za statistiku u Zagrebu, a u lipnju 2026. na atletskom mitingu Memorijal Boris Hanžeković u Zagrebu, gdje smo otpjevali himnu i jednu pjesmu.
+Osim koncerata, pjevamo na konferencijama, korporativnim eventima, vjenčanjima i adventskim programima. Na konferenciji MAKK 2022. pjevali smo medleye između predavanja. Godine 2025. nastupili smo za Državni zavod za statistiku u Zagrebu, a u lipnju 2026. na atletskom mitingu Memorijal Boris Hanžeković u Zagrebu, gdje smo otpjevali himnu i jednu pjesmu.
