@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { PROFILE_ICONS } from '@/data/profile-icons';
-import { PROFILE_LABELS, PROFILES, type ProfileKey } from '@/data/site-facts';
+import { LISTINGS, PROFILE_LABELS, PROFILES, type ProfileKey } from '@/data/site-facts';
 
 const keys = Object.keys(PROFILES) as ProfileKey[];
 
@@ -26,5 +26,17 @@ describe('PROFILES', () => {
     }
     expect(Object.keys(PROFILE_LABELS).sort()).toEqual([...keys].sort());
     expect(Object.keys(PROFILE_ICONS).sort()).toEqual([...keys].sort());
+  });
+});
+
+describe('LISTINGS', () => {
+  // KB ljudi-i-procesi/drustvene-mreze.md › Kanonski profil, brand/geo-checklista.md
+  // step 2: verified 2026-11-13 (KB PR #32).
+  it('lists the Google Business Profile with the KB URL', () => {
+    expect(LISTINGS.googleBusiness).toBe('https://maps.google.com/?cid=14227274279364782206');
+  });
+
+  it('stays out of the footer and icon profiles', () => {
+    for (const k of Object.keys(LISTINGS)) expect(keys).not.toContain(k);
   });
 });

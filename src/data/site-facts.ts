@@ -68,6 +68,17 @@ export const PROFILES = {
   wikidata: 'https://www.wikidata.org/wiki/Q142107900',
 } as const;
 
+/**
+ * Business listings: the same entity in sameAs, but not a profile people follow,
+ * so not in the footer, the social icons or llms.txt (voxford-web#117).
+ * Google Business Profile: verified 2026-11-13, its CID URL (KB
+ * ljudi-i-procesi/drustvene-mreze.md › Kanonski profil, brand/geo-checklista.md
+ * step 2, KB PR #32).
+ */
+export const LISTINGS = {
+  googleBusiness: 'https://maps.google.com/?cid=14227274279364782206',
+} as const;
+
 /** The @voxford.official YouTube channel's id (KB brand/u-medijima.md): its public uploads feed. */
 export const YOUTUBE_CHANNEL_ID = 'UC6q6MkvWEJBrDIi7jgHeWww';
 

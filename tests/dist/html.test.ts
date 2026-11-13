@@ -6,7 +6,7 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { PROFILES } from '../../src/data/site-facts';
+import { LISTINGS, PROFILES } from '../../src/data/site-facts';
 import { pathFor, type PageKey } from '../../src/i18n/routes';
 
 const dist = fileURLToPath(new URL('../../dist/', import.meta.url));
@@ -87,6 +87,17 @@ describe('profiles', () => {
     for (const url of profiles) {
       expect(group.sameAs).toContain(url);
       expect(page.html).toContain(`href="${url}"`);
+    }
+  });
+
+  it.each(pages.map((p) => [p.path, p] as const))('%s lists the business listings in sameAs only', (_path, page) => {
+    const data = JSON.parse(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/.exec(page.html)![1]!) as {
+      '@graph': { '@type': string; sameAs?: string[] }[];
+    };
+    const group = data['@graph'].find((n) => n['@type'] === 'MusicGroup')!;
+    for (const url of Object.values(LISTINGS)) {
+      expect(group.sameAs).toContain(url);
+      expect(page.html).not.toContain(`href="${url.replaceAll('&', '&amp;')}"`);
     }
   });
 });
