@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { PROFILE_ICONS } from '@/data/profile-icons';
-import { LISTINGS, PROFILE_LABELS, PROFILES, type ProfileKey } from '@/data/site-facts';
+import { LISTING_LABELS, LISTINGS, PROFILE_LABELS, PROFILES, type ProfileKey } from '@/data/site-facts';
 
 const keys = Object.keys(PROFILES) as ProfileKey[];
 
@@ -34,6 +34,14 @@ describe('LISTINGS', () => {
   // step 2: verified 2026-11-13 (KB PR #32).
   it('lists the Google Business Profile with the KB URL', () => {
     expect(LISTINGS.googleBusiness).toBe('https://maps.google.com/?cid=14227274279364782206');
+  });
+
+  it('gives every listing https and a label', () => {
+    for (const [k, url] of Object.entries(LISTINGS)) {
+      expect(url).toMatch(/^https:\/\//);
+      expect(LISTING_LABELS[k as keyof typeof LISTINGS]).toBeTruthy();
+    }
+    expect(Object.keys(LISTING_LABELS).sort()).toEqual(Object.keys(LISTINGS).sort());
   });
 
   it('stays out of the footer and icon profiles', () => {
