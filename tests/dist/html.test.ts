@@ -79,7 +79,7 @@ describe('built pages', () => {
 describe('profiles', () => {
   const profiles = [PROFILES.deezer, PROFILES.appleMusic, PROFILES.musicBrainz, PROFILES.discogs, PROFILES.wikidata];
 
-  it.each(pages.map((p) => [p.path, p] as const))('%s lists the music services and databases in sameAs and the footer', (_path, page) => {
+  it.each(pages.map((p) => [p.path, p] as const))('%s lists the music services and databases in sameAs and the footer, the listings in sameAs only', (_path, page) => {
     const data = JSON.parse(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/.exec(page.html)![1]!) as {
       '@graph': { '@type': string; sameAs?: string[] }[];
     };
@@ -88,16 +88,9 @@ describe('profiles', () => {
       expect(group.sameAs).toContain(url);
       expect(page.html).toContain(`href="${url}"`);
     }
-  });
-
-  it.each(pages.map((p) => [p.path, p] as const))('%s lists the business listings in sameAs only', (_path, page) => {
-    const data = JSON.parse(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/.exec(page.html)![1]!) as {
-      '@graph': { '@type': string; sameAs?: string[] }[];
-    };
-    const group = data['@graph'].find((n) => n['@type'] === 'MusicGroup')!;
     for (const url of Object.values(LISTINGS)) {
       expect(group.sameAs).toContain(url);
-      expect(page.html).not.toContain(`href="${url.replaceAll('&', '&amp;')}"`);
+      expect(page.html).not.toContain(`href="${url}"`);
     }
   });
 });

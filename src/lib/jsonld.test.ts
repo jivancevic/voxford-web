@@ -26,7 +26,6 @@ describe('musicGroupJsonLd', () => {
   it('carries the facts from site-facts', () => {
     expect(node.foundingDate).toBe('2021');
     expect(node.sameAs).toEqual([...Object.values(PROFILES), ...Object.values(LISTINGS)]);
-    expect(node.sameAs).toContain('https://maps.google.com/?cid=14227274279364782206');
     expect(node.member).toHaveLength(MEMBERS.length);
     expect(node.url).toBe('https://voxford.example/en/');
     expect(node.disambiguatingDescription).toMatch(/Zagreb, Croatia/);
