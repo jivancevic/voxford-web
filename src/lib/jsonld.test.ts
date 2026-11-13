@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { MEMBERS, PACKAGES, PROFILES } from '@/data/site-facts';
+import { LISTINGS, MEMBERS, PACKAGES, PROFILES } from '@/data/site-facts';
 import {
   breadcrumbJsonLd,
   concertJsonLd,
@@ -25,7 +25,7 @@ describe('musicGroupJsonLd', () => {
 
   it('carries the facts from site-facts', () => {
     expect(node.foundingDate).toBe('2021');
-    expect(node.sameAs).toEqual(Object.values(PROFILES));
+    expect(node.sameAs).toEqual([...Object.values(PROFILES), ...Object.values(LISTINGS)]);
     expect(node.member).toHaveLength(MEMBERS.length);
     expect(node.url).toBe('https://voxford.example/en/');
     expect(node.disambiguatingDescription).toMatch(/Zagreb, Croatia/);

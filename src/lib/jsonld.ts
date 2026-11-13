@@ -9,6 +9,7 @@
 import {
   AREA_SERVED,
   GROUP,
+  LISTINGS,
   MEMBERS,
   PACKAGES,
   PROFILES,
@@ -48,7 +49,7 @@ export function musicGroupJsonLd(site: URL, lang: Locale, opts: { description: s
     },
     areaServed: areaServed(),
     genre: [...GROUP.genres],
-    sameAs: Object.values(PROFILES),
+    sameAs: [...Object.values(PROFILES), ...Object.values(LISTINGS)],
     member: MEMBERS.map((m) => ({
       '@type': 'OrganizationRole',
       roleName: m.voice[lang],
