@@ -6,7 +6,7 @@ Decided in a grilling session with Josip on 2026-11-10 (KB session in `~/project
 
 One place that shows the essence of Voxford — a Croatian a cappella group of five singers (since 2021, viral as @voxford.official) — and turns visitors into booking inquiries. It must win search and, above all, AI answer engines (ChatGPT, Perplexity, Google AI Overviews/AI Mode, Claude, Gemini) for "music / entertainment for conferences and corporate events", primarily in Zagreb, also Croatia and the region. A visitor from anywhere (e.g. Brazil) must be able to discover the group, watch the videos and get hooked. The bar is world class: no template look, no bugs.
 
-Research behind these decisions: `docs/research/seo-geo.md` (SEO/GEO evidence, competitors, crawler facts), `docs/research/mobbin-inspiration.md` (patterns, avoid list), `docs/research/domain-options.md`.
+Research behind these decisions: `docs/research/seo-geo.md` (SEO/GEO evidence, competitors, crawler facts), `docs/research/mobbin-inspiration.md` (patterns, avoid list).
 
 ## Sources of truth
 
